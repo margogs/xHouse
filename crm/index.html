@@ -4,138 +4,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>УК CRM | Панель управления</title>
+    <title>xHouse | CRM для УК</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <style>
         :root {
-            --primary-blue: #0075FF;
-            --secondary-blue: #0055CC;
-            --accent-teal: #00D4AA;
+            --primary-purple: #6912FF;
+            --primary-purple-light: #8547FF;
+            --primary-purple-dark: #5200CC;
+            --secondary-teal: #00D4AA;
+            --secondary-teal-light: #2CFFD6;
             --warning-red: #FF6B6B;
             --warning-yellow: #FFD166;
-            --bg-light: #F8F9FA;
-            --bg-white: #FFFFFF;
-            --text-dark: #2C3E50;
-            --text-medium: #5A6C7D;
-            --text-light: #8E9BA7;
-            --border-color: #E8ECF1;
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
-            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
-            --sidebar-width: 260px;
+            --success-green: #00C853;
+            --bg-dark: #0A0A14;
+            --bg-card: #161622;
+            --bg-sidebar: #11111A;
+            --bg-light: #1E1E2E;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B0CC;
+            --text-muted: #7A7A99;
+            --border-color: #2A2A3C;
+            --shadow-sm: 0 2px 12px rgba(105, 18, 255, 0.1);
+            --shadow-md: 0 4px 24px rgba(105, 18, 255, 0.15);
+            --shadow-lg: 0 8px 48px rgba(105, 18, 255, 0.2);
+            --sidebar-width: 280px;
             --header-height: 70px;
-            --border-radius: 12px;
-            --border-radius-sm: 8px;
+            --border-radius: 16px;
+            --border-radius-sm: 10px;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
 
         body {
-            background-color: var(--bg-light);
-            color: var(--text-dark);
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
             display: flex;
             height: 100vh;
             overflow: hidden;
         }
 
-        /* Сайдбар */
+        /* Сайдбар - тёмный */
         .sidebar {
             width: var(--sidebar-width);
-            background-color: var(--bg-white);
-            border-right: 1px solid var(--border-color);
+            background: linear-gradient(180deg, var(--bg-sidebar) 0%, #0D0D14 100%);
             display: flex;
             flex-direction: column;
-            box-shadow: var(--shadow-sm);
+            border-right: 1px solid var(--border-color);
             z-index: 10;
+            padding: 0 20px;
         }
 
         .logo {
             height: var(--header-height);
             display: flex;
             align-items: center;
-            padding: 0 24px;
+            justify-content: center;
             border-bottom: 1px solid var(--border-color);
-            font-weight: 700;
-            font-size: 20px;
-            color: var(--primary-blue);
+            margin-bottom: 30px;
         }
 
-        .logo i {
-            margin-right: 12px;
-            font-size: 24px;
+        .logo-text {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--primary-purple), var(--primary-purple-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text span {
+            color: var(--secondary-teal);
+            -webkit-text-fill-color: var(--secondary-teal);
         }
 
         .nav-menu {
             flex: 1;
-            padding: 24px 0;
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
-            padding: 14px 24px;
-            color: var(--text-medium);
+            padding: 16px 20px;
+            color: var(--text-secondary);
             text-decoration: none;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
-            border-left: 3px solid transparent;
+            border-radius: var(--border-radius-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: var(--primary-purple);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
         }
 
         .nav-item:hover {
-            background-color: rgba(0, 117, 255, 0.04);
-            color: var(--primary-blue);
+            background: rgba(105, 18, 255, 0.1);
+            color: var(--text-primary);
+            transform: translateX(5px);
+        }
+
+        .nav-item:hover::before {
+            transform: translateX(0);
         }
 
         .nav-item.active {
-            background-color: rgba(0, 117, 255, 0.08);
-            color: var(--primary-blue);
-            border-left-color: var(--primary-blue);
+            background: rgba(105, 18, 255, 0.15);
+            color: var(--text-primary);
             font-weight: 600;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-item.active::before {
+            transform: translateX(0);
         }
 
         .nav-item i {
             width: 24px;
-            margin-right: 12px;
-            font-size: 18px;
+            margin-right: 16px;
+            font-size: 20px;
             text-align: center;
+            color: var(--primary-purple-light);
+        }
+
+        .nav-item.active i {
+            color: var(--secondary-teal);
+        }
+
+        .nav-text {
+            font-size: 15px;
+            font-weight: 500;
         }
 
         .user-profile {
-            padding: 20px 24px;
+            padding: 24px 0;
             border-top: 1px solid var(--border-color);
             display: flex;
             align-items: center;
+            margin-top: auto;
         }
 
         .user-avatar {
-            width: 40px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            background-color: var(--primary-blue);
-            color: white;
+            background: linear-gradient(135deg, var(--primary-purple), var(--secondary-teal));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
-            margin-right: 12px;
+            font-weight: 700;
+            font-size: 18px;
+            margin-right: 16px;
+            border: 2px solid var(--primary-purple);
         }
 
         .user-info h4 {
-            font-size: 14px;
-            margin-bottom: 2px;
+            font-size: 15px;
+            margin-bottom: 4px;
+            font-weight: 600;
         }
 
         .user-info p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .user-role {
+            display: inline-block;
+            padding: 4px 10px;
+            background: rgba(0, 212, 170, 0.15);
+            color: var(--secondary-teal);
+            border-radius: 20px;
             font-size: 12px;
-            color: var(--text-light);
+            font-weight: 600;
+            margin-top: 4px;
         }
 
         /* Основная область */
@@ -144,28 +204,31 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            background: var(--bg-dark);
         }
 
         .header {
             height: var(--header-height);
-            background-color: var(--bg-white);
+            background: var(--bg-card);
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 32px;
-            box-shadow: var(--shadow-sm);
         }
 
         .header-title h1 {
-            font-size: 22px;
-            font-weight: 600;
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--text-primary), var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .header-title p {
-            font-size: 13px;
-            color: var(--text-light);
-            margin-top: 2px;
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 4px;
         }
 
         .header-actions {
@@ -175,128 +238,188 @@
         }
 
         .btn {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border-radius: var(--border-radius-sm);
             border: none;
             font-weight: 600;
             font-size: 14px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            letter-spacing: 0.3px;
         }
 
         .btn-primary {
-            background-color: var(--primary-blue);
+            background: linear-gradient(135deg, var(--primary-purple), var(--primary-purple-light));
             color: white;
+            box-shadow: 0 4px 20px rgba(105, 18, 255, 0.3);
         }
 
         .btn-primary:hover {
-            background-color: var(--secondary-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(105, 18, 255, 0.4);
         }
 
         .btn-secondary {
-            background-color: var(--bg-white);
-            color: var(--primary-blue);
-            border: 1px solid var(--border-color);
+            background: rgba(105, 18, 255, 0.1);
+            color: var(--primary-purple-light);
+            border: 1px solid rgba(105, 18, 255, 0.3);
         }
 
         .btn-secondary:hover {
-            background-color: rgba(0, 117, 255, 0.04);
+            background: rgba(105, 18, 255, 0.2);
+            transform: translateY(-1px);
         }
 
-        .btn-warning {
-            background-color: var(--warning-red);
-            color: white;
+        .btn-teal {
+            background: linear-gradient(135deg, var(--secondary-teal), var(--secondary-teal-light));
+            color: var(--bg-dark);
+            box-shadow: 0 4px 20px rgba(0, 212, 170, 0.3);
         }
 
-        .btn-warning:hover {
-            opacity: 0.9;
+        .btn-teal:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(0, 212, 170, 0.4);
         }
 
         .content-area {
             flex: 1;
             padding: 32px;
             overflow-y: auto;
+            background: var(--bg-dark);
         }
 
-        /* Карточки и контейнеры */
-        .dashboard-cards {
+        /* Карточки */
+        .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 24px;
             margin-bottom: 32px;
         }
 
         .card {
-            background-color: var(--bg-white);
+            background: var(--bg-card);
             border-radius: var(--border-radius);
-            padding: 24px;
-            box-shadow: var(--shadow-sm);
-            transition: transform 0.2s, box-shadow 0.2s;
+            padding: 28px;
             border: 1px solid var(--border-color);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-purple), var(--secondary-teal));
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
+            transform: translateY(-5px);
+            border-color: var(--primary-purple);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card:hover::before {
+            opacity: 1;
         }
 
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         .card-title {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 600;
-            color: var(--text-medium);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(105, 18, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--primary-purple-light);
         }
 
         .card-value {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 8px;
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            line-height: 1;
+        }
+
+        .card-value span {
+            font-size: 20px;
+            color: var(--text-secondary);
+            font-weight: 600;
         }
 
         .card-change {
             font-size: 14px;
             display: flex;
             align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: rgba(0, 212, 170, 0.1);
+            border-radius: 20px;
+            width: fit-content;
+            color: var(--secondary-teal);
         }
 
-        .positive {
-            color: var(--accent-teal);
-        }
-
-        .negative {
+        .card-change.negative {
+            background: rgba(255, 107, 107, 0.1);
             color: var(--warning-red);
         }
 
         /* Таблицы */
         .table-container {
-            background-color: var(--bg-white);
+            background: var(--bg-card);
             border-radius: var(--border-radius);
             overflow: hidden;
-            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
             margin-bottom: 32px;
+            box-shadow: var(--shadow-sm);
         }
 
         .table-header {
-            padding: 24px;
+            padding: 24px 32px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: rgba(105, 18, 255, 0.05);
         }
 
         .table-title {
-            font-size: 18px;
-            font-weight: 600;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .table-title i {
+            color: var(--primary-purple-light);
         }
 
         .table-actions {
@@ -306,66 +429,79 @@
 
         table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
         }
 
         th {
             text-align: left;
-            padding: 18px 24px;
-            background-color: rgba(0, 117, 255, 0.02);
+            padding: 20px 32px;
+            background: rgba(105, 18, 255, 0.05);
             border-bottom: 1px solid var(--border-color);
             font-weight: 600;
-            color: var(--text-medium);
+            color: var(--text-secondary);
             font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         td {
-            padding: 18px 24px;
+            padding: 20px 32px;
             border-bottom: 1px solid var(--border-color);
-            color: var(--text-dark);
-            font-size: 14px;
+            color: var(--text-primary);
+            font-size: 15px;
+            transition: background 0.2s ease;
         }
 
-        tr:hover {
-            background-color: rgba(0, 117, 255, 0.02);
+        tbody tr:hover {
+            background: rgba(105, 18, 255, 0.05);
         }
 
         .status-badge {
-            display: inline-block;
-            padding: 6px 12px;
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
-            text-align: center;
+            gap: 6px;
+        }
+
+        .status-badge i {
+            font-size: 12px;
         }
 
         .status-charged {
-            background-color: rgba(255, 107, 107, 0.1);
+            background: rgba(255, 107, 107, 0.15);
             color: var(--warning-red);
+            border: 1px solid rgba(255, 107, 107, 0.3);
         }
 
         .status-paid {
-            background-color: rgba(0, 212, 170, 0.1);
-            color: var(--accent-teal);
+            background: rgba(0, 212, 170, 0.15);
+            color: var(--secondary-teal);
+            border: 1px solid rgba(0, 212, 170, 0.3);
         }
 
         .status-processing {
-            background-color: rgba(255, 209, 102, 0.1);
-            color: #E6A000;
+            background: rgba(255, 209, 102, 0.15);
+            color: var(--warning-yellow);
+            border: 1px solid rgba(255, 209, 102, 0.3);
         }
 
         .risk-flag {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            background-color: rgba(255, 107, 107, 0.1);
+            gap: 6px;
+            padding: 6px 14px;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.15), rgba(255, 107, 107, 0.05));
             color: var(--warning-red);
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
-            margin-right: 6px;
-            margin-bottom: 4px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255, 107, 107, 0.2);
         }
 
         /* Модальные окна */
@@ -375,14 +511,15 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
+            background: rgba(10, 10, 20, 0.9);
+            backdrop-filter: blur(8px);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
+            transition: all 0.3s ease;
         }
 
         .modal-overlay.active {
@@ -391,167 +528,177 @@
         }
 
         .modal {
-            background-color: var(--bg-white);
+            background: var(--bg-card);
             border-radius: var(--border-radius);
             width: 90%;
             max-width: 600px;
             max-height: 90vh;
             overflow-y: auto;
+            border: 1px solid var(--border-color);
             box-shadow: var(--shadow-lg);
-            transform: translateY(20px);
-            transition: transform 0.3s;
+            transform: translateY(30px) scale(0.95);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .modal-overlay.active .modal {
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
         }
 
         .modal-header {
-            padding: 24px;
+            padding: 24px 32px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: linear-gradient(90deg, var(--primary-purple), var(--primary-purple-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .modal-title {
-            font-size: 20px;
-            font-weight: 600;
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .modal-close {
-            background: none;
+            background: rgba(255, 255, 255, 0.1);
             border: none;
             font-size: 24px;
-            color: var(--text-light);
+            color: var(--text-secondary);
             cursor: pointer;
             padding: 0;
-            width: 32px;
-            height: 32px;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
+            transition: all 0.3s ease;
         }
 
         .modal-close:hover {
-            background-color: rgba(0, 0, 0, 0.04);
+            background: rgba(255, 107, 107, 0.2);
+            color: var(--warning-red);
+            transform: rotate(90deg);
         }
 
         .modal-body {
-            padding: 24px;
+            padding: 32px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .form-label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: 600;
-            color: var(--text-medium);
+            color: var(--text-secondary);
             font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .form-control {
             width: 100%;
-            padding: 12px 16px;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border-color);
             border-radius: var(--border-radius-sm);
             font-size: 15px;
-            transition: border 0.2s;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
         }
 
         .form-control:focus {
             outline: none;
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(0, 117, 255, 0.1);
+            border-color: var(--primary-purple);
+            box-shadow: 0 0 0 3px rgba(105, 18, 255, 0.2);
+            background: rgba(105, 18, 255, 0.05);
         }
 
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            gap: 20px;
         }
 
-        /* Вкладки */
-        .tabs {
+        /* Графики */
+        .chart-container {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: 28px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 32px;
+        }
+
+        .chart-header {
             display: flex;
-            border-bottom: 1px solid var(--border-color);
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 24px;
         }
 
-        .tab {
-            padding: 14px 24px;
-            background: none;
-            border: none;
-            font-size: 15px;
+        .chart-title {
+            font-size: 18px;
             font-weight: 600;
-            color: var(--text-light);
-            cursor: pointer;
-            position: relative;
-            transition: color 0.2s;
-        }
-
-        .tab:hover {
-            color: var(--text-medium);
-        }
-
-        .tab.active {
-            color: var(--primary-blue);
-        }
-
-        .tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background-color: var(--primary-blue);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
+            color: var(--text-primary);
         }
 
         /* Утилиты */
         .text-muted {
-            color: var(--text-light);
+            color: var(--text-muted);
         }
 
+        .mb-4 { margin-bottom: 32px; }
         .mb-3 { margin-bottom: 24px; }
         .mb-2 { margin-bottom: 16px; }
+        .mt-4 { margin-top: 32px; }
         .mt-3 { margin-top: 24px; }
         .mt-2 { margin-top: 16px; }
         .d-flex { display: flex; }
         .align-center { align-items: center; }
         .justify-between { justify-content: space-between; }
+        .gap-3 { gap: 24px; }
         .gap-2 { gap: 16px; }
 
-        /* Адаптивность */
-        @media (max-width: 1200px) {
-            .sidebar {
-                width: 80px;
+        /* Скроллбар */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-purple);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-purple-light);
+        }
+
+        /* Анимации */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
             }
-            
-            .nav-item span {
-                display: none;
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
-            
-            .nav-item i {
-                margin-right: 0;
-                font-size: 20px;
-            }
-            
-            .user-info, .logo span {
-                display: none;
-            }
+        }
+
+        .animate-in {
+            animation: slideIn 0.4s ease forwards;
         }
     </style>
 </head>
@@ -559,50 +706,58 @@
     <!-- Сайдбар -->
     <div class="sidebar">
         <div class="logo">
-            <i class="fas fa-building"></i>
-            <span>УК CRM</span>
+            <div class="logo-text">x<span>House</span></div>
         </div>
         
         <div class="nav-menu">
-            <a class="nav-item active" data-section="dashboard">
-                <i class="fas fa-home"></i>
-                <span>Дашборд</span>
-            </a>
-            <a class="nav-item" data-section="profile">
-                <i class="fas fa-building"></i>
-                <span>Профиль УК</span>
+            <a class="nav-item active" data-section="analytics">
+                <i class="fas fa-chart-line"></i>
+                <span class="nav-text">Аналитика</span>
             </a>
             <a class="nav-item" data-section="buildings">
-                <i class="fas fa-house-user"></i>
-                <span>Дома</span>
+                <i class="fas fa-building"></i>
+                <span class="nav-text">Дома</span>
+            </a>
+            <a class="nav-item" data-section="residents">
+                <i class="fas fa-users"></i>
+                <span class="nav-text">Жильцы</span>
+            </a>
+            <a class="nav-item" data-section="requests">
+                <i class="fas fa-comments"></i>
+                <span class="nav-text">Обращения</span>
             </a>
             <a class="nav-item" data-section="services">
                 <i class="fas fa-concierge-bell"></i>
-                <span>Услуги и тарифы</span>
+                <span class="nav-text">Услуги и тарифы</span>
             </a>
             <a class="nav-item" data-section="payments">
-                <i class="fas fa-money-bill-wave"></i>
-                <span>Платежи</span>
+                <i class="fas fa-credit-card"></i>
+                <span class="nav-text">Платежи</span>
             </a>
             <a class="nav-item" data-section="contractors">
                 <i class="fas fa-handshake"></i>
-                <span>Подрядчики</span>
+                <span class="nav-text">Подрядчики</span>
             </a>
             <a class="nav-item" data-section="documents">
-                <i class="fas fa-file-contract"></i>
-                <span>Документы</span>
+                <i class="fas fa-folder"></i>
+                <span class="nav-text">Документы</span>
             </a>
-            <a class="nav-item" data-section="users">
-                <i class="fas fa-users"></i>
-                <span>Пользователи</span>
+            <a class="nav-item" data-section="payment-details">
+                <i class="fas fa-university"></i>
+                <span class="nav-text">Реквизиты для оплаты</span>
+            </a>
+            <a class="nav-item" data-section="company-profile">
+                <i class="fas fa-id-card"></i>
+                <span class="nav-text">Профиль УК</span>
             </a>
         </div>
         
         <div class="user-profile">
-            <div class="user-avatar">МК</div>
+            <div class="user-avatar">УК</div>
             <div class="user-info">
-                <h4>Менеджер УК</h4>
-                <p>manager@uk-crm.ru</p>
+                <h4>Управляющая компания</h4>
+                <p>admin@xhouse.ru</p>
+                <div class="user-role">Администратор</div>
             </div>
         </div>
     </div>
@@ -611,73 +766,119 @@
     <div class="main-content">
         <div class="header">
             <div class="header-title">
-                <h1>Панель управления</h1>
-                <p>Управляющая компания "Жилфонд Сервис"</p>
+                <h1>Панель управления xHouse</h1>
+                <p>Управляйте домами, услугами и финансами в одном месте</p>
             </div>
             <div class="header-actions">
                 <button class="btn btn-secondary">
-                    <i class="fas fa-download"></i> Экспорт
+                    <i class="fas fa-bell"></i> Уведомления
                 </button>
-                <button class="btn btn-primary" id="addBuildingBtn">
-                    <i class="fas fa-plus"></i> Добавить дом
+                <button class="btn btn-primary" id="quickAddBtn">
+                    <i class="fas fa-plus"></i> Быстрое добавление
                 </button>
             </div>
         </div>
         
         <div class="content-area" id="content-area">
             <!-- Контент будет загружаться динамически -->
-            <div class="dashboard-cards">
-                <div class="card">
+            <div class="dashboard-grid">
+                <div class="card animate-in" style="animation-delay: 0.1s">
                     <div class="card-header">
-                        <div class="card-title">Домов под управлением</div>
-                        <i class="fas fa-building" style="color: var(--primary-blue);"></i>
+                        <div class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            Домов под управлением
+                        </div>
                     </div>
-                    <div class="card-value" id="buildings-count">0</div>
-                    <div class="card-change positive">
-                        <i class="fas fa-arrow-up"></i> 12% за месяц
+                    <div class="card-value" id="buildings-count">12</div>
+                    <div class="card-change">
+                        <i class="fas fa-arrow-up"></i> +3 за месяц
                     </div>
                 </div>
                 
-                <div class="card">
+                <div class="card animate-in" style="animation-delay: 0.2s">
                     <div class="card-header">
-                        <div class="card-title">Собрано платежей</div>
-                        <i class="fas fa-money-bill" style="color: var(--accent-teal);"></i>
+                        <div class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            Собрано платежей
+                        </div>
                     </div>
-                    <div class="card-value" id="payments-total">0 ₽</div>
-                    <div class="card-change positive">
-                        <i class="fas fa-arrow-up"></i> 8% за месяц
+                    <div class="card-value" id="payments-total">2.8<span> млн ₽</span></div>
+                    <div class="card-change">
+                        <i class="fas fa-arrow-up"></i> +18% к прошлому месяцу
                     </div>
                 </div>
                 
-                <div class="card">
+                <div class="card animate-in" style="animation-delay: 0.3s">
                     <div class="card-header">
-                        <div class="card-title">Активных подрядчиков</div>
-                        <i class="fas fa-handshake" style="color: var(--warning-yellow);"></i>
+                        <div class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-handshake"></i>
+                            </div>
+                            Активных подрядчиков
+                        </div>
                     </div>
-                    <div class="card-value" id="contractors-count">0</div>
+                    <div class="card-value" id="contractors-count">24</div>
                     <div class="card-change negative">
-                        <i class="fas fa-arrow-down"></i> 2% за месяц
+                        <i class="fas fa-arrow-down"></i> -2 за месяц
                     </div>
                 </div>
                 
-                <div class="card">
+                <div class="card animate-in" style="animation-delay: 0.4s">
                     <div class="card-header">
-                        <div class="card-title">Задолженность</div>
-                        <i class="fas fa-exclamation-triangle" style="color: var(--warning-red);"></i>
+                        <div class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            Текущая задолженность
+                        </div>
                     </div>
-                    <div class="card-value" id="debt-total">0 ₽</div>
-                    <div class="card-change positive">
-                        <i class="fas fa-arrow-down"></i> 5% за месяц
+                    <div class="card-value" id="debt-total">450<span> тыс ₽</span></div>
+                    <div class="card-change">
+                        <i class="fas fa-arrow-down"></i> -15% за месяц
                     </div>
                 </div>
             </div>
             
-            <div class="table-container">
+            <div class="form-row gap-3 mb-4">
+                <div class="card" style="flex: 2;">
+                    <div class="chart-header">
+                        <div class="chart-title">
+                            <i class="fas fa-chart-bar"></i> Динамика платежей
+                        </div>
+                        <select class="form-control" style="width: 200px;">
+                            <option>За последние 6 месяцев</option>
+                            <option>За последний год</option>
+                        </select>
+                    </div>
+                    <canvas id="paymentsChart" height="250"></canvas>
+                </div>
+                
+                <div class="card" style="flex: 1;">
+                    <div class="chart-header">
+                        <div class="chart-title">
+                            <i class="fas fa-exclamation-circle"></i> Дома с рисками
+                        </div>
+                    </div>
+                    <div id="risky-buildings-list" style="padding: 20px;">
+                        <!-- Данные будут загружены через JS -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-container animate-in" style="animation-delay: 0.5s">
                 <div class="table-header">
-                    <div class="table-title">Последние платежи</div>
+                    <div class="table-title">
+                        <i class="fas fa-history"></i> Последние платежи
+                    </div>
                     <div class="table-actions">
-                        <button class="btn btn-secondary btn-sm">Фильтр</button>
-                        <button class="btn btn-secondary btn-sm">Сортировка</button>
+                        <button class="btn btn-secondary">Фильтры</button>
+                        <button class="btn btn-teal" id="addPaymentBtn">
+                            <i class="fas fa-plus"></i> Новый платёж
+                        </button>
                     </div>
                 </div>
                 <table id="recent-payments-table">
@@ -691,32 +892,10 @@
                             <th>Дата</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="payments-table-body">
                         <!-- Данные будут загружены через JS -->
                     </tbody>
                 </table>
-            </div>
-            
-            <div class="form-row">
-                <div class="card" style="flex: 1;">
-                    <div class="card-header">
-                        <div class="card-title">Статистика платежей</div>
-                    </div>
-                    <div style="padding: 20px;">
-                        <canvas id="paymentsChart" height="250"></canvas>
-                    </div>
-                </div>
-                
-                <div class="card" style="flex: 1;">
-                    <div class="card-header">
-                        <div class="card-title">Дома с рисками</div>
-                    </div>
-                    <div style="padding: 20px;">
-                        <div id="risky-buildings-list">
-                            <!-- Данные будут загружены через JS -->
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -725,64 +904,72 @@
     <div class="modal-overlay" id="buildingModal">
         <div class="modal">
             <div class="modal-header">
-                <div class="modal-title">Добавить новый дом</div>
+                <div class="modal-title">
+                    <i class="fas fa-building"></i> Добавить новый дом
+                </div>
                 <button class="modal-close" id="closeBuildingModal">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="buildingForm">
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Адрес</label>
-                            <input type="text" class="form-control" id="address" required>
+                            <label class="form-label">Адрес дома</label>
+                            <input type="text" class="form-control" id="address" placeholder="ул. Ленина, д. 10" required>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Кол-во квартир</label>
-                            <input type="number" class="form-control" id="apartments" required>
+                            <label class="form-label">Количество квартир</label>
+                            <input type="number" class="form-control" id="apartments" min="1" required>
                         </div>
                     </div>
                     
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Подъездов</label>
-                            <input type="number" class="form-control" id="floors" required>
+                            <input type="number" class="form-control" id="floors" min="1" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Общая площадь</label>
-                            <input type="text" class="form-control" id="totalArea" placeholder="м²">
+                            <input type="text" class="form-control" id="totalArea" placeholder="4500 м²">
                         </div>
                     </div>
                     
                     <div class="form-group">
                         <label class="form-label">Год постройки</label>
-                        <input type="number" class="form-control" id="yearBuilt">
+                        <input type="number" class="form-control" id="yearBuilt" min="1900" max="2024">
                     </div>
                     
                     <div class="form-group">
                         <label class="form-label">Инженерные системы</label>
-                        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
-                            <label style="display: flex; align-items: center;">
-                                <input type="checkbox" name="systems" value="lift"> Лифт
+                        <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px;">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" name="systems" value="lift" style="accent-color: var(--primary-purple);">
+                                <span>Лифт</span>
                             </label>
-                            <label style="display: flex; align-items: center;">
-                                <input type="checkbox" name="systems" value="itp"> ИТП
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" name="systems" value="itp" style="accent-color: var(--primary-purple);">
+                                <span>ИТП</span>
                             </label>
-                            <label style="display: flex; align-items: center;">
-                                <input type="checkbox" name="systems" value="security"> Охрана
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" name="systems" value="security" style="accent-color: var(--primary-purple);">
+                                <span>Охрана</span>
                             </label>
-                            <label style="display: flex; align-items: center;">
-                                <input type="checkbox" name="systems" value="intercom"> Домофон
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" name="systems" value="intercom" style="accent-color: var(--primary-purple);">
+                                <span>Домофон</span>
                             </label>
                         </div>
                     </div>
                     
                     <div class="form-group">
                         <label class="form-label">Примечания</label>
-                        <textarea class="form-control" id="notes" rows="3"></textarea>
+                        <textarea class="form-control" id="notes" rows="3" placeholder="Дополнительная информация о доме"></textarea>
                     </div>
                     
-                    <div class="d-flex justify-between mt-3">
+                    <div class="d-flex justify-between mt-4">
                         <button type="button" class="btn btn-secondary" id="cancelBuildingBtn">Отмена</button>
-                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Сохранить дом
+                        </button>
                     </div>
                 </form>
             </div>
@@ -793,7 +980,9 @@
     <div class="modal-overlay" id="paymentModal">
         <div class="modal">
             <div class="modal-header">
-                <div class="modal-title">Создать начисление</div>
+                <div class="modal-title">
+                    <i class="fas fa-credit-card"></i> Создать начисление
+                </div>
                 <button class="modal-close" id="closePaymentModal">&times;</button>
             </div>
             <div class="modal-body">
@@ -814,7 +1003,7 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Сумма</label>
-                            <input type="number" class="form-control" id="paymentAmount" required>
+                            <input type="number" class="form-control" id="paymentAmount" placeholder="10000" required>
                         </div>
                     </div>
                     
@@ -833,9 +1022,16 @@
                         </div>
                     </div>
                     
-                    <div class="d-flex justify-between mt-3">
+                    <div class="form-group">
+                        <label class="form-label">Примечание</label>
+                        <textarea class="form-control" id="paymentNotes" rows="2"></textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-between mt-4">
                         <button type="button" class="btn btn-secondary" id="cancelPaymentBtn">Отмена</button>
-                        <button type="submit" class="btn btn-primary">Создать</button>
+                        <button type="submit" class="btn btn-teal">
+                            <i class="fas fa-plus-circle"></i> Создать начисление
+                        </button>
                     </div>
                 </form>
             </div>

@@ -1,0 +1,847 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>УК CRM | Панель управления</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <style>
+        :root {
+            --primary-blue: #0075FF;
+            --secondary-blue: #0055CC;
+            --accent-teal: #00D4AA;
+            --warning-red: #FF6B6B;
+            --warning-yellow: #FFD166;
+            --bg-light: #F8F9FA;
+            --bg-white: #FFFFFF;
+            --text-dark: #2C3E50;
+            --text-medium: #5A6C7D;
+            --text-light: #8E9BA7;
+            --border-color: #E8ECF1;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+            --sidebar-width: 260px;
+            --header-height: 70px;
+            --border-radius: 12px;
+            --border-radius-sm: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Сайдбар */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-white);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-sm);
+            z-index: 10;
+        }
+
+        .logo {
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 700;
+            font-size: 20px;
+            color: var(--primary-blue);
+        }
+
+        .logo i {
+            margin-right: 12px;
+            font-size: 24px;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 24px 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 24px;
+            color: var(--text-medium);
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(0, 117, 255, 0.04);
+            color: var(--primary-blue);
+        }
+
+        .nav-item.active {
+            background-color: rgba(0, 117, 255, 0.08);
+            color: var(--primary-blue);
+            border-left-color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        .nav-item i {
+            width: 24px;
+            margin-right: 12px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .user-profile {
+            padding: 20px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+
+        .user-info h4 {
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .user-info p {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        /* Основная область */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            height: var(--header-height);
+            background-color: var(--bg-white);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-title h1 {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .header-title p {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--border-radius-sm);
+            border: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-blue);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-white);
+            color: var(--primary-blue);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 117, 255, 0.04);
+        }
+
+        .btn-warning {
+            background-color: var(--warning-red);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            opacity: 0.9;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        /* Карточки и контейнеры */
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .card {
+            background-color: var(--bg-white);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid var(--border-color);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-medium);
+        }
+
+        .card-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .card-change {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .positive {
+            color: var(--accent-teal);
+        }
+
+        .negative {
+            color: var(--warning-red);
+        }
+
+        /* Таблицы */
+        .table-container {
+            background-color: var(--bg-white);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 32px;
+        }
+
+        .table-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 18px 24px;
+            background-color: rgba(0, 117, 255, 0.02);
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            color: var(--text-medium);
+            font-size: 14px;
+        }
+
+        td {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-dark);
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background-color: rgba(0, 117, 255, 0.02);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status-charged {
+            background-color: rgba(255, 107, 107, 0.1);
+            color: var(--warning-red);
+        }
+
+        .status-paid {
+            background-color: rgba(0, 212, 170, 0.1);
+            color: var(--accent-teal);
+        }
+
+        .status-processing {
+            background-color: rgba(255, 209, 102, 0.1);
+            color: #E6A000;
+        }
+
+        .risk-flag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background-color: rgba(255, 107, 107, 0.1);
+            color: var(--warning-red);
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 6px;
+            margin-bottom: 4px;
+        }
+
+        /* Модальные окна */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background-color: var(--bg-white);
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(20px);
+            transition: transform 0.3s;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .modal-close:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-medium);
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            font-size: 15px;
+            transition: border 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(0, 117, 255, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* Вкладки */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+
+        .tab {
+            padding: 14px 24px;
+            background: none;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            position: relative;
+            transition: color 0.2s;
+        }
+
+        .tab:hover {
+            color: var(--text-medium);
+        }
+
+        .tab.active {
+            color: var(--primary-blue);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--primary-blue);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Утилиты */
+        .text-muted {
+            color: var(--text-light);
+        }
+
+        .mb-3 { margin-bottom: 24px; }
+        .mb-2 { margin-bottom: 16px; }
+        .mt-3 { margin-top: 24px; }
+        .mt-2 { margin-top: 16px; }
+        .d-flex { display: flex; }
+        .align-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 16px; }
+
+        /* Адаптивность */
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .nav-item span {
+                display: none;
+            }
+            
+            .nav-item i {
+                margin-right: 0;
+                font-size: 20px;
+            }
+            
+            .user-info, .logo span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Сайдбар -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-building"></i>
+            <span>УК CRM</span>
+        </div>
+        
+        <div class="nav-menu">
+            <a class="nav-item active" data-section="dashboard">
+                <i class="fas fa-home"></i>
+                <span>Дашборд</span>
+            </a>
+            <a class="nav-item" data-section="profile">
+                <i class="fas fa-building"></i>
+                <span>Профиль УК</span>
+            </a>
+            <a class="nav-item" data-section="buildings">
+                <i class="fas fa-house-user"></i>
+                <span>Дома</span>
+            </a>
+            <a class="nav-item" data-section="services">
+                <i class="fas fa-concierge-bell"></i>
+                <span>Услуги и тарифы</span>
+            </a>
+            <a class="nav-item" data-section="payments">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>Платежи</span>
+            </a>
+            <a class="nav-item" data-section="contractors">
+                <i class="fas fa-handshake"></i>
+                <span>Подрядчики</span>
+            </a>
+            <a class="nav-item" data-section="documents">
+                <i class="fas fa-file-contract"></i>
+                <span>Документы</span>
+            </a>
+            <a class="nav-item" data-section="users">
+                <i class="fas fa-users"></i>
+                <span>Пользователи</span>
+            </a>
+        </div>
+        
+        <div class="user-profile">
+            <div class="user-avatar">МК</div>
+            <div class="user-info">
+                <h4>Менеджер УК</h4>
+                <p>manager@uk-crm.ru</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Основная область -->
+    <div class="main-content">
+        <div class="header">
+            <div class="header-title">
+                <h1>Панель управления</h1>
+                <p>Управляющая компания "Жилфонд Сервис"</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary">
+                    <i class="fas fa-download"></i> Экспорт
+                </button>
+                <button class="btn btn-primary" id="addBuildingBtn">
+                    <i class="fas fa-plus"></i> Добавить дом
+                </button>
+            </div>
+        </div>
+        
+        <div class="content-area" id="content-area">
+            <!-- Контент будет загружаться динамически -->
+            <div class="dashboard-cards">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Домов под управлением</div>
+                        <i class="fas fa-building" style="color: var(--primary-blue);"></i>
+                    </div>
+                    <div class="card-value" id="buildings-count">0</div>
+                    <div class="card-change positive">
+                        <i class="fas fa-arrow-up"></i> 12% за месяц
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Собрано платежей</div>
+                        <i class="fas fa-money-bill" style="color: var(--accent-teal);"></i>
+                    </div>
+                    <div class="card-value" id="payments-total">0 ₽</div>
+                    <div class="card-change positive">
+                        <i class="fas fa-arrow-up"></i> 8% за месяц
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Активных подрядчиков</div>
+                        <i class="fas fa-handshake" style="color: var(--warning-yellow);"></i>
+                    </div>
+                    <div class="card-value" id="contractors-count">0</div>
+                    <div class="card-change negative">
+                        <i class="fas fa-arrow-down"></i> 2% за месяц
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Задолженность</div>
+                        <i class="fas fa-exclamation-triangle" style="color: var(--warning-red);"></i>
+                    </div>
+                    <div class="card-value" id="debt-total">0 ₽</div>
+                    <div class="card-change positive">
+                        <i class="fas fa-arrow-down"></i> 5% за месяц
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <div class="table-header">
+                    <div class="table-title">Последние платежи</div>
+                    <div class="table-actions">
+                        <button class="btn btn-secondary btn-sm">Фильтр</button>
+                        <button class="btn btn-secondary btn-sm">Сортировка</button>
+                    </div>
+                </div>
+                <table id="recent-payments-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Услуга</th>
+                            <th>Дом</th>
+                            <th>Сумма</th>
+                            <th>Статус</th>
+                            <th>Дата</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Данные будут загружены через JS -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="form-row">
+                <div class="card" style="flex: 1;">
+                    <div class="card-header">
+                        <div class="card-title">Статистика платежей</div>
+                    </div>
+                    <div style="padding: 20px;">
+                        <canvas id="paymentsChart" height="250"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card" style="flex: 1;">
+                    <div class="card-header">
+                        <div class="card-title">Дома с рисками</div>
+                    </div>
+                    <div style="padding: 20px;">
+                        <div id="risky-buildings-list">
+                            <!-- Данные будут загружены через JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно для добавления дома -->
+    <div class="modal-overlay" id="buildingModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Добавить новый дом</div>
+                <button class="modal-close" id="closeBuildingModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="buildingForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Адрес</label>
+                            <input type="text" class="form-control" id="address" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Кол-во квартир</label>
+                            <input type="number" class="form-control" id="apartments" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Подъездов</label>
+                            <input type="number" class="form-control" id="floors" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Общая площадь</label>
+                            <input type="text" class="form-control" id="totalArea" placeholder="м²">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Год постройки</label>
+                        <input type="number" class="form-control" id="yearBuilt">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Инженерные системы</label>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
+                            <label style="display: flex; align-items: center;">
+                                <input type="checkbox" name="systems" value="lift"> Лифт
+                            </label>
+                            <label style="display: flex; align-items: center;">
+                                <input type="checkbox" name="systems" value="itp"> ИТП
+                            </label>
+                            <label style="display: flex; align-items: center;">
+                                <input type="checkbox" name="systems" value="security"> Охрана
+                            </label>
+                            <label style="display: flex; align-items: center;">
+                                <input type="checkbox" name="systems" value="intercom"> Домофон
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Примечания</label>
+                        <textarea class="form-control" id="notes" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-between mt-3">
+                        <button type="button" class="btn btn-secondary" id="cancelBuildingBtn">Отмена</button>
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно для добавления платежа -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Создать начисление</div>
+                <button class="modal-close" id="closePaymentModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="paymentForm">
+                    <div class="form-group">
+                        <label class="form-label">Услуга</label>
+                        <select class="form-control" id="paymentService" required>
+                            <option value="">Выберите услугу</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Дом</label>
+                            <select class="form-control" id="paymentBuilding" required>
+                                <option value="">Выберите дом</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Сумма</label>
+                            <input type="number" class="form-control" id="paymentAmount" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Период</label>
+                            <input type="month" class="form-control" id="paymentPeriod" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Статус</label>
+                            <select class="form-control" id="paymentStatus" required>
+                                <option value="charged">Начислено</option>
+                                <option value="processing">В обработке</option>
+                                <option value="paid">Оплачено</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-between mt-3">
+                        <button type="button" class="btn btn-secondary" id="cancelPaymentBtn">Отмена</button>
+                        <button type="submit" class="btn btn-primary">Создать</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

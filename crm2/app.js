@@ -17,9 +17,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Настройка навигации
     setupNavigation();
     
-    // Инициализация графиков
-    initializeCharts();
-    
     // Настройка модальных окон
     setupModals();
     
@@ -127,6 +124,26 @@ function initializeData() {
                     buildingId: 1,
                     contractorId: 3,
                     sla: "4 часа"
+                },
+                {
+                    id: 4,
+                    name: "Уборка территории",
+                    type: "main",
+                    tariff: 8.20,
+                    period: "monthly",
+                    buildingId: 2,
+                    contractorId: 1,
+                    sla: "еженедельно"
+                },
+                {
+                    id: 5,
+                    name: "Экстренная сантехника",
+                    type: "additional",
+                    tariff: 850.00,
+                    period: "on-demand",
+                    buildingId: null,
+                    contractorId: 4,
+                    sla: "2 часа"
                 }
             ],
             contractors: [
@@ -153,6 +170,14 @@ function initializeData() {
                     workTypes: ["ремонт лифтов", "техническое обслуживание"],
                     bankDetails: "АО 'Тинькофф Банк' р/с 40702810345670003456",
                     status: "на проверке"
+                },
+                {
+                    id: 4,
+                    legalName: "ООО 'Аварийная сантехника'",
+                    inn: "7745678901",
+                    workTypes: ["сантехнические работы", "аварийный ремонт"],
+                    bankDetails: "ПАО 'ВТБ' р/с 40702810456780004567",
+                    status: "активен"
                 }
             ],
             payments: [
@@ -187,6 +212,22 @@ function initializeData() {
                     status: "charged",
                     date: "2024-09-01",
                     payer: "ООО 'УК Профи'"
+                },
+                {
+                    id: 5,
+                    serviceId: 4,
+                    amount: 328.00,
+                    status: "paid",
+                    date: "2024-08-05",
+                    payer: "ООО 'УК Профи'"
+                },
+                {
+                    id: 6,
+                    serviceId: 2,
+                    amount: 612.00,
+                    status: "charged",
+                    date: "2024-09-01",
+                    payer: "ООО 'УК Профи'"
                 }
             ],
             documents: [
@@ -196,7 +237,9 @@ function initializeData() {
                     name: "Договор с ООО 'Сервис Плюс'",
                     link: "#",
                     status: "signed",
-                    entityId: 1
+                    entityId: 1,
+                    createdAt: "2024-01-15",
+                    expiryDate: "2025-01-14"
                 },
                 {
                     id: 2,
@@ -204,7 +247,8 @@ function initializeData() {
                     name: "Акт выполненных работ за июль 2024",
                     link: "#",
                     status: "pending",
-                    entityId: 1
+                    entityId: 1,
+                    createdAt: "2024-08-05"
                 },
                 {
                     id: 3,
@@ -212,7 +256,36 @@ function initializeData() {
                     name: "Лицензия на управление МКД",
                     link: "#",
                     status: "signed",
-                    entityId: 1
+                    entityId: 1,
+                    createdAt: "2023-11-20",
+                    expiryDate: "2028-11-19"
+                },
+                {
+                    id: 4,
+                    type: "отчет",
+                    name: "Финансовый отчет за II квартал 2024",
+                    link: "#",
+                    status: "signed",
+                    entityId: null,
+                    createdAt: "2024-07-15"
+                },
+                {
+                    id: 5,
+                    type: "приказ",
+                    name: "Приказ об утверждении тарифов на 2024 год",
+                    link: "#",
+                    status: "signed",
+                    entityId: null,
+                    createdAt: "2024-01-10"
+                },
+                {
+                    id: 6,
+                    type: "реестр",
+                    name: "Реестр жильцов дома ул. Ленина, д. 15",
+                    link: "#",
+                    status: "pending",
+                    entityId: 1,
+                    createdAt: "2024-08-18"
                 }
             ],
             users: [
@@ -234,142 +307,170 @@ function initializeData() {
                     role: "engineer",
                     permissions: ["buildings", "services"]
                 }
-            ]
-        };
-    residents: [
-        {
-            id: 1,
-            buildingId: 1,
-            apartment: 15,
-            name: "Иванов Иван Иванович",
-            phone: "+7 (912) 345-67-89",
-            email: "ivanov@mail.ru",
-            carNumber: "А123БВ 777",
-            status: "собственник",
-            verificationRequests: [
+            ],
+            residents: [
                 {
                     id: 1,
-                    type: "адрес",
-                    oldValue: "ул. Ленина, д. 15, кв. 15",
-                    newValue: "ул. Ленина, д. 15, кв. 15 (подтверждено)",
-                    status: "pending",
-                    requestedAt: "2024-08-20"
+                    buildingId: 1,
+                    apartment: 15,
+                    name: "Иванов Иван Иванович",
+                    phone: "+7 (912) 345-67-89",
+                    email: "ivanov@mail.ru",
+                    carNumber: "А123БВ 777",
+                    status: "собственник",
+                    verificationRequests: [
+                        {
+                            id: 1,
+                            type: "адрес",
+                            oldValue: "ул. Ленина, д. 15, кв. 15",
+                            newValue: "ул. Ленина, д. 15, кв. 15 (подтверждено)",
+                            status: "pending",
+                            requestedAt: "2024-08-20"
+                        },
+                        {
+                            id: 2,
+                            type: "автомобиль",
+                            oldValue: "А123БВ 777",
+                            newValue: "А123БВ 777 (новые данные от ГИБДД)",
+                            status: "pending",
+                            requestedAt: "2024-08-21"
+                        }
+                    ],
+                    documents: ["паспорт", "свидетельство о собственности"]
                 },
                 {
                     id: 2,
-                    type: "автомобиль",
-                    oldValue: "А123БВ 777",
-                    newValue: "А123БВ 777 (новые данные от ГИБДД)",
-                    status: "pending",
-                    requestedAt: "2024-08-21"
-                }
-            ]
-        },
-        {
-            id: 2,
-            buildingId: 1,
-            apartment: 42,
-            name: "Петрова Мария Сергеевна",
-            phone: "+7 (923) 456-78-90",
-            email: "petrova@yandex.ru",
-            carNumber: "В456ТУ 178",
-            status: "арендатор",
-            verificationRequests: []
-        },
-        {
-            id: 3,
-            buildingId: 2,
-            apartment: 7,
-            name: "Сидоров Алексей Петрович",
-            phone: "+7 (934) 567-89-01",
-            email: "sidorov@gmail.com",
-            carNumber: "С789ОР 198",
-            status: "собственник",
-            verificationRequests: [
+                    buildingId: 1,
+                    apartment: 42,
+                    name: "Петрова Мария Сергеевна",
+                    phone: "+7 (923) 456-78-90",
+                    email: "petrova@yandex.ru",
+                    carNumber: "В456ТУ 178",
+                    status: "арендатор",
+                    verificationRequests: [],
+                    documents: ["паспорт", "договор аренды"]
+                },
                 {
                     id: 3,
-                    type: "статус",
-                    oldValue: "собственник",
-                    newValue: "собственник (документы проверены)",
-                    status: "pending",
-                    requestedAt: "2024-08-19"
+                    buildingId: 2,
+                    apartment: 7,
+                    name: "Сидоров Алексей Петрович",
+                    phone: "+7 (934) 567-89-01",
+                    email: "sidorov@gmail.com",
+                    carNumber: "С789ОР 198",
+                    status: "собственник",
+                    verificationRequests: [
+                        {
+                            id: 3,
+                            type: "статус",
+                            oldValue: "собственник",
+                            newValue: "собственник (документы проверены)",
+                            status: "pending",
+                            requestedAt: "2024-08-19"
+                        }
+                    ],
+                    documents: ["паспорт", "свидетельство о собственности"]
+                },
+                {
+                    id: 4,
+                    buildingId: 3,
+                    apartment: 25,
+                    name: "Кузнецова Ольга Викторовна",
+                    phone: "+7 (945) 678-90-12",
+                    email: "kuznetsova@mail.ru",
+                    carNumber: "О321ТС 102",
+                    status: "арендатор",
+                    verificationRequests: [],
+                    documents: ["паспорт", "договор аренды"]
                 }
-            ]
-        }
-    ],
-    
-    tickets: [
-        {
-            id: 1,
-            residentId: 1,
-            buildingId: 1,
-            type: "ремонт",
-            title: "Протекает кран на кухне",
-            description: "В кухне постоянно капает вода из смесителя. Нужна замена прокладки.",
-            status: "в обработке",
-            priority: "средний",
-            createdAt: "2024-08-15 10:30",
-            updatedAt: "2024-08-16 14:20",
-            assignedTo: "Дмитрий К. (инженер)",
-            comments: [
+            ],
+            tickets: [
                 {
                     id: 1,
-                    author: "Иванов И.И.",
-                    text: "Проблема появилась вчера вечером",
-                    timestamp: "2024-08-15 10:30"
+                    residentId: 1,
+                    buildingId: 1,
+                    type: "ремонт",
+                    title: "Протекает кран на кухне",
+                    description: "В кухне постоянно капает вода из смесителя. Нужна замена прокладки.",
+                    status: "в обработке",
+                    priority: "средний",
+                    createdAt: "2024-08-15 10:30",
+                    updatedAt: "2024-08-16 14:20",
+                    assignedTo: "Дмитрий К. (инженер)",
+                    comments: [
+                        {
+                            id: 1,
+                            author: "Иванов И.И.",
+                            text: "Проблема появилась вчера вечером",
+                            timestamp: "2024-08-15 10:30"
+                        },
+                        {
+                            id: 2,
+                            author: "Диспетчер",
+                            text: "Заявка принята, ожидайте специалиста",
+                            timestamp: "2024-08-15 11:15"
+                        }
+                    ]
                 },
                 {
                     id: 2,
-                    author: "Диспетчер",
-                    text: "Заявка принята, ожидайте специалиста",
-                    timestamp: "2024-08-15 11:15"
+                    residentId: 2,
+                    buildingId: 1,
+                    type: "уборка",
+                    title: "Не убирается мусор у подъезда",
+                    description: "Контейнер переполнен уже 3 дня, запах.",
+                    status: "решено",
+                    priority: "низкий",
+                    createdAt: "2024-08-10 09:15",
+                    updatedAt: "2024-08-11 16:45",
+                    assignedTo: "Сервис Плюс",
+                    comments: []
+                },
+                {
+                    id: 3,
+                    residentId: 3,
+                    buildingId: 2,
+                    type: "электрика",
+                    title: "Мигает свет в подъезде",
+                    description: "На 3 этаже постоянно мигает освещение.",
+                    status: "новое",
+                    priority: "высокий",
+                    createdAt: "2024-08-20 18:45",
+                    updatedAt: "2024-08-20 18:45",
+                    assignedTo: null,
+                    comments: []
+                },
+                {
+                    id: 4,
+                    residentId: 4,
+                    buildingId: 3,
+                    type: "сантехника",
+                    title: "Засор в раковине",
+                    description: "В ванной комнате не уходит вода из раковины.",
+                    status: "новое",
+                    priority: "средний",
+                    createdAt: "2024-08-22 09:30",
+                    updatedAt: "2024-08-22 09:30",
+                    assignedTo: null,
+                    comments: []
+                }
+            ],
+            requisites: [
+                {
+                    id: 1,
+                    bankName: "АО «АЛЬФА-БАНК»",
+                    accountNumber: "40702810712340001234",
+                    correspondentAccount: "30101810200000000593",
+                    BIK: "044525593",
+                    INN: "7701234567",
+                    KPP: "770101001",
+                    recipient: "ООО «УК Профи»",
+                    purpose: "Оплата услуг ЖКХ",
+                    lastUpdated: "2024-08-15"
                 }
             ]
-        },
-        {
-            id: 2,
-            residentId: 2,
-            buildingId: 1,
-            type: "уборка",
-            title: "Не убирается мусор у подъезда",
-            description: "Контейнер переполнен уже 3 дня, запах.",
-            status: "решено",
-            priority: "низкий",
-            createdAt: "2024-08-10 09:15",
-            updatedAt: "2024-08-11 16:45",
-            assignedTo: "Сервис Плюс",
-            comments: []
-        },
-        {
-            id: 3,
-            residentId: 3,
-            buildingId: 2,
-            type: "электрика",
-            title: "Мигает свет в подъезде",
-            description: "На 3 этаже постоянно мигает освещение.",
-            status: "новое",
-            priority: "высокий",
-            createdAt: "2024-08-20 18:45",
-            updatedAt: "2024-08-20 18:45",
-            assignedTo: null,
-            comments: []
-        }
-    ],
-    
-    requisites: [
-        {
-            id: 1,
-            bankName: "АО «АЛЬФА-БАНК»",
-            accountNumber: "40702810712340001234",
-            correspondentAccount: "30101810200000000593",
-            BIK: "044525593",
-            INN: "7701234567",
-            KPP: "770101001",
-            recipient: "ООО «УК Профи»",
-            purpose: "Оплата услуг ЖКХ"
-        }
-    ]
-};
+        };
+        
         // Сохраняем в localStorage
         localStorage.setItem('crmData', JSON.stringify(window.crmData));
     } else {
@@ -406,7 +507,7 @@ function loadPage(pageName) {
     const contentArea = document.getElementById('content-area');
     
     // Показываем индикатор загрузки
-    contentArea.innerHTML = '<div class="loading">Загрузка...</div>';
+    contentArea.innerHTML = '<div class="loading" style="text-align: center; padding: 50px; color: var(--gray-700);">Загрузка...</div>';
     
     // Загружаем содержимое страницы
     setTimeout(() => {
@@ -447,7 +548,7 @@ function loadPage(pageName) {
     }, 300);
 }
 
-// Загрузка страницы аналитики
+// Загрузка страницы аналитики с графиками
 function loadDashboard() {
     const contentArea = document.getElementById('content-area');
     
@@ -459,16 +560,21 @@ function loadDashboard() {
     const totalProcessing = window.crmData.payments
         .filter(p => p.status === 'processing')
         .reduce((sum, payment) => sum + payment.amount, 0);
+    const totalResidents = window.crmData.residents.length;
+    const activeTickets = window.crmData.tickets.filter(t => t.status !== 'решено').length;
     
     contentArea.innerHTML = `
         <div class="page-header">
             <h2 class="page-title">Аналитика</h2>
             <div class="date-range">
-                <button class="btn btn-secondary">
-                    <i class="fas fa-calendar-alt"></i> Август 2024
-                </button>
+                <select class="form-control" style="width: 200px;" id="timePeriod">
+                    <option value="month">Август 2024</option>
+                    <option value="quarter">3 квартал 2024</option>
+                    <option value="year">2024 год</option>
+                </select>
             </div>
         </div>
+        
         <div class="stats-cards">
             <div class="stat-card">
                 <h3>Начислено за месяц</h3>
@@ -487,13 +593,29 @@ function loadDashboard() {
             </div>
             <div class="stat-card">
                 <h3>Активные обращения</h3>
-                <div class="stat-value">12</div>
+                <div class="stat-value">${activeTickets}</div>
                 <div class="stat-change">-5 с прошлой недели</div>
             </div>
         </div>
-        <div style="margin-bottom: 30px;">
-            <canvas id="analyticsChart" style="height: 400px; width: 100%;"></canvas>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+            <div>
+                <canvas id="paymentsChart" style="height: 300px; width: 100%;"></canvas>
+            </div>
+            <div>
+                <canvas id="buildingsChart" style="height: 300px; width: 100%;"></canvas>
+            </div>
         </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+            <div>
+                <canvas id="servicesChart" style="height: 300px; width: 100%;"></canvas>
+            </div>
+            <div>
+                <canvas id="ticketsChart" style="height: 300px; width: 100%;"></canvas>
+            </div>
+        </div>
+        
         <div class="table-container">
             <table>
                 <thead>
@@ -506,22 +628,171 @@ function loadDashboard() {
                     </tr>
                 </thead>
                 <tbody>
-                    ${window.crmData.buildings.map(building => `
-                        <tr>
-                            <td>${building.address}</td>
-                            <td>${building.apartments}</td>
-                            <td>${(building.apartments * 1500).toLocaleString('ru-RU')} ₽</td>
-                            <td>${(building.apartments * 1350).toLocaleString('ru-RU')} ₽</td>
-                            <td>${(building.apartments * 150).toLocaleString('ru-RU')} ₽</td>
-                        </tr>
-                    `).join('')}
+                    ${window.crmData.buildings.map(building => {
+                        const buildingPayments = window.crmData.payments.filter(p => {
+                            const service = window.crmData.services.find(s => s.id === p.serviceId);
+                            return service && service.buildingId === building.id;
+                        });
+                        
+                        const charged = buildingPayments.reduce((sum, p) => sum + p.amount, 0);
+                        const paid = buildingPayments.filter(p => p.status === 'paid').reduce((sum, p) => sum + p.amount, 0);
+                        const debt = charged - paid;
+                        
+                        return `
+                            <tr>
+                                <td>${building.address}</td>
+                                <td>${building.apartments}</td>
+                                <td>${charged.toLocaleString('ru-RU')} ₽</td>
+                                <td>${paid.toLocaleString('ru-RU')} ₽</td>
+                                <td style="color: ${debt > 0 ? 'var(--danger)' : 'var(--success)'}">${debt.toLocaleString('ru-RU')} ₽</td>
+                            </tr>
+                        `;
+                    }).join('')}
                 </tbody>
             </table>
         </div>
     `;
     
-    // Инициализируем график
-    initializeChart();
+    // Инициализируем графики
+    initializeDashboardCharts();
+    
+    // Обработчик изменения периода
+    document.getElementById('timePeriod').addEventListener('change', function() {
+        updateCharts(this.value);
+    });
+}
+
+// Инициализация графиков на дашборде
+function initializeDashboardCharts() {
+    // График платежей
+    const paymentsCtx = document.getElementById('paymentsChart').getContext('2d');
+    new Chart(paymentsCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Оплачено', 'В обработке', 'Начислено'],
+            datasets: [{
+                data: [
+                    window.crmData.payments.filter(p => p.status === 'paid').reduce((sum, p) => sum + p.amount, 0),
+                    window.crmData.payments.filter(p => p.status === 'processing').reduce((sum, p) => sum + p.amount, 0),
+                    window.crmData.payments.filter(p => p.status === 'charged').reduce((sum, p) => sum + p.amount, 0)
+                ],
+                backgroundColor: [
+                    '#23D160',
+                    '#FFDD57',
+                    '#FF3860'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Статус платежей'
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    
+    // График распределения жильцов по домам
+    const buildingsCtx = document.getElementById('buildingsChart').getContext('2d');
+    new Chart(buildingsCtx, {
+        type: 'bar',
+        data: {
+            labels: window.crmData.buildings.map(b => b.address.split(',')[0]),
+            datasets: [{
+                label: 'Количество квартир',
+                data: window.crmData.buildings.map(b => b.apartments),
+                backgroundColor: '#6912FF'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Распределение квартир по домам'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    
+    // График услуг
+    const servicesCtx = document.getElementById('servicesChart').getContext('2d');
+    new Chart(servicesCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Основные услуги', 'Дополнительные услуги'],
+            datasets: [{
+                data: [
+                    window.crmData.services.filter(s => s.type === 'main').length,
+                    window.crmData.services.filter(s => s.type === 'additional').length
+                ],
+                backgroundColor: [
+                    '#00D1B2',
+                    '#6912FF'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Распределение услуг'
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    
+    // График обращений
+    const ticketsCtx = document.getElementById('ticketsChart').getContext('2d');
+    const ticketTypes = [...new Set(window.crmData.tickets.map(t => t.type))];
+    const ticketCounts = ticketTypes.map(type => 
+        window.crmData.tickets.filter(t => t.type === type).length
+    );
+    
+    new Chart(ticketsCtx, {
+        type: 'polarArea',
+        data: {
+            labels: ticketTypes,
+            datasets: [{
+                data: ticketCounts,
+                backgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#4BC0C0',
+                    '#9966FF'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Обращения по типам'
+                }
+            }
+        }
+    });
+}
+
+function updateCharts(period) {
+    // В реальном приложении здесь будет обновление данных графиков в зависимости от периода
+    console.log('Обновление графиков для периода:', period);
 }
 
 // Загрузка страницы домов
@@ -587,6 +858,480 @@ function loadBuildings() {
     // Добавляем обработчик для кнопки добавления дома
     document.getElementById('addBuildingBtn').addEventListener('click', () => {
         openModal('buildingModal');
+    });
+}
+
+// Загрузка страницы жильцов
+function loadResidents() {
+    const contentArea = document.getElementById('content-area');
+    
+    // Считаем статистику
+    const totalResidents = window.crmData.residents.length;
+    const owners = window.crmData.residents.filter(r => r.status === 'собственник').length;
+    const tenants = window.crmData.residents.filter(r => r.status === 'арендатор').length;
+    const pendingVerifications = window.crmData.residents.reduce((sum, resident) => 
+        sum + resident.verificationRequests.filter(v => v.status === 'pending').length, 0);
+    
+    contentArea.innerHTML = `
+        <div class="page-header">
+            <h2 class="page-title">Жильцы</h2>
+            <button class="btn btn-primary" id="addResidentBtn">
+                <i class="fas fa-user-plus"></i> Добавить жильца
+            </button>
+        </div>
+        
+        <div class="stats-cards">
+            <div class="stat-card">
+                <h3>Всего жильцов</h3>
+                <div class="stat-value">${totalResidents}</div>
+                <div class="stat-change">в ${window.crmData.buildings.length} домах</div>
+            </div>
+            <div class="stat-card">
+                <h3>Собственники</h3>
+                <div class="stat-value">${owners}</div>
+                <div class="stat-change">${totalResidents > 0 ? ((owners/totalResidents)*100).toFixed(0) : 0}% от общего числа</div>
+            </div>
+            <div class="stat-card">
+                <h3>Арендаторы</h3>
+                <div class="stat-value">${tenants}</div>
+                <div class="stat-change">${totalResidents > 0 ? ((tenants/totalResidents)*100).toFixed(0) : 0}% от общего числа</div>
+            </div>
+            <div class="stat-card">
+                <h3>Запросы на проверку</h3>
+                <div class="stat-value">${pendingVerifications}</div>
+                <div class="stat-change">ожидают подтверждения</div>
+            </div>
+        </div>
+        
+        <div class="tabs" style="margin-top: 30px;">
+            <button class="tab active" data-tab="residents-list">Список жильцов</button>
+            <button class="tab" data-tab="verification-requests">Запросы на подтверждение ${pendingVerifications > 0 ? `<span class="notification-badge">${pendingVerifications}</span>` : ''}</button>
+        </div>
+        
+        <div class="tab-content active" id="residents-list">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ФИО</th>
+                            <th>Адрес</th>
+                            <th>Телефон</th>
+                            <th>Автомобиль</th>
+                            <th>Статус</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${window.crmData.residents.map(resident => {
+                            const building = window.crmData.buildings.find(b => b.id === resident.buildingId);
+                            return `
+                                <tr>
+                                    <td><strong>${resident.name}</strong></td>
+                                    <td>${building ? building.address : 'Неизвестно'}, кв. ${resident.apartment}</td>
+                                    <td>${resident.phone}</td>
+                                    <td>${resident.carNumber || 'Не указан'}</td>
+                                    <td>
+                                        <span class="status-badge ${resident.status === 'собственник' ? 'status-paid' : 'status-processing'}">
+                                            ${resident.status}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-secondary" onclick="viewResident(${resident.id})">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-secondary" onclick="editResident(${resident.id})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-secondary" onclick="showVerificationModal(${resident.id})">
+                                            <i class="fas fa-check-circle"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="verification-requests">
+            ${pendingVerifications === 0 ? 
+                '<p style="text-align: center; padding: 40px; color: var(--gray-700);">Нет запросов на подтверждение данных.</p>' : 
+                window.crmData.residents.filter(r => r.verificationRequests.some(v => v.status === 'pending')).map(resident => {
+                    const building = window.crmData.buildings.find(b => b.id === resident.buildingId);
+                    return `
+                        <div class="verification-card" style="background: var(--gray-100); padding: 20px; margin-bottom: 15px; border-radius: 12px;">
+                            <h4>${resident.name}</h4>
+                            <p>${building ? building.address : ''}, кв. ${resident.apartment}</p>
+                            ${resident.verificationRequests.filter(v => v.status === 'pending').map(request => `
+                                <div style="margin-top: 10px; padding: 15px; background: white; border-radius: 8px;">
+                                    <p><strong>Тип запроса:</strong> ${request.type}</p>
+                                    <p><strong>Текущие данные:</strong> ${request.oldValue}</p>
+                                    <p><strong>Новые данные от системы:</strong> ${request.newValue}</p>
+                                    <p><strong>Дата запроса:</strong> ${request.requestedAt}</p>
+                                    <div style="margin-top: 15px;">
+                                        <button class="btn btn-primary" onclick="approveVerification(${resident.id}, ${request.id})">
+                                            Подтвердить
+                                        </button>
+                                        <button class="btn btn-secondary" onclick="rejectVerification(${resident.id}, ${request.id})">
+                                            Отклонить
+                                        </button>
+                                        <button class="btn btn-secondary" onclick="requestMoreInfo(${resident.id}, ${request.id})">
+                                            Запросить доп. информацию
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }).join('')}
+        </div>
+    `;
+    
+    // Настройка вкладок
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            const tabName = this.getAttribute('data-tab');
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+        });
+    });
+    
+    // Обработчик добавления жильца
+    document.getElementById('addResidentBtn').addEventListener('click', () => {
+        openResidentModal();
+    });
+}
+
+// Загрузка страницы обращений
+function loadTickets() {
+    const contentArea = document.getElementById('content-area');
+    
+    const totalTickets = window.crmData.tickets.length;
+    const newTickets = window.crmData.tickets.filter(t => t.status === 'новое').length;
+    const inProgress = window.crmData.tickets.filter(t => t.status === 'в обработке').length;
+    const resolved = window.crmData.tickets.filter(t => t.status === 'решено').length;
+    
+    contentArea.innerHTML = `
+        <div class="page-header">
+            <h2 class="page-title">Обращения жильцов</h2>
+            <button class="btn btn-primary" id="createTicketBtn">
+                <i class="fas fa-plus"></i> Создать обращение
+            </button>
+        </div>
+        
+        <div class="stats-cards">
+            <div class="stat-card">
+                <h3>Всего обращений</h3>
+                <div class="stat-value">${totalTickets}</div>
+                <div class="stat-change">за последние 30 дней</div>
+            </div>
+            <div class="stat-card">
+                <h3>Новые</h3>
+                <div class="stat-value">${newTickets}</div>
+                <div class="stat-change">требуют внимания</div>
+            </div>
+            <div class="stat-card">
+                <h3>В обработке</h3>
+                <div class="stat-value">${inProgress}</div>
+                <div class="stat-change">активные обращения</div>
+            </div>
+            <div class="stat-card">
+                <h3>Решено</h3>
+                <div class="stat-value">${resolved}</div>
+                <div class="stat-change">${totalTickets > 0 ? ((resolved/totalTickets)*100).toFixed(0) : 0}% решено</div>
+            </div>
+        </div>
+        
+        <div class="filters" style="margin: 30px 0; display: flex; gap: 10px; flex-wrap: wrap;">
+            <select class="form-control" style="width: 200px;" id="statusFilter">
+                <option value="">Все статусы</option>
+                <option value="новое">Новые</option>
+                <option value="в обработке">В обработке</option>
+                <option value="решено">Решено</option>
+                <option value="отменено">Отменено</option>
+            </select>
+            <select class="form-control" style="width: 200px;" id="typeFilter">
+                <option value="">Все типы</option>
+                <option value="ремонт">Ремонт</option>
+                <option value="уборка">Уборка</option>
+                <option value="электрика">Электрика</option>
+                <option value="сантехника">Сантехника</option>
+                <option value="другое">Другое</option>
+            </select>
+            <select class="form-control" style="width: 200px;" id="priorityFilter">
+                <option value="">Все приоритеты</option>
+                <option value="высокий">Высокий</option>
+                <option value="средний">Средний</option>
+                <option value="низкий">Низкий</option>
+            </select>
+            <button class="btn btn-secondary" id="applyFilters">Применить</button>
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Тема</th>
+                        <th>Жилец</th>
+                        <th>Тип</th>
+                        <th>Приоритет</th>
+                        <th>Статус</th>
+                        <th>Дата создания</th>
+                        <th>Ответственный</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${window.crmData.tickets.map(ticket => {
+                        const resident = window.crmData.residents.find(r => r.id === ticket.residentId);
+                        let priorityClass = '';
+                        switch(ticket.priority) {
+                            case 'высокий': priorityClass = 'status-pending'; break;
+                            case 'средний': priorityClass = 'status-processing'; break;
+                            case 'низкий': priorityClass = 'status-paid'; break;
+                        }
+                        
+                        let statusClass = '';
+                        switch(ticket.status) {
+                            case 'новое': statusClass = 'status-pending'; break;
+                            case 'в обработке': statusClass = 'status-processing'; break;
+                            case 'решено': statusClass = 'status-paid'; break;
+                        }
+                        
+                        return `
+                            <tr>
+                                <td>#${ticket.id}</td>
+                                <td><strong>${ticket.title}</strong></td>
+                                <td>${resident ? resident.name : 'Неизвестно'}</td>
+                                <td>${ticket.type}</td>
+                                <td><span class="status-badge ${priorityClass}">${ticket.priority}</span></td>
+                                <td><span class="status-badge ${statusClass}">${ticket.status}</span></td>
+                                <td>${ticket.createdAt}</td>
+                                <td>${ticket.assignedTo || 'Не назначен'}</td>
+                                <td>
+                                    <button class="btn btn-secondary" onclick="viewTicket(${ticket.id})">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="assignTicket(${ticket.id})">
+                                        <i class="fas fa-user-tag"></i>
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="updateTicketStatus(${ticket.id})">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+    
+    // Обработчики фильтров
+    document.getElementById('applyFilters').addEventListener('click', applyTicketFilters);
+    document.getElementById('createTicketBtn').addEventListener('click', () => {
+        openTicketModal();
+    });
+}
+
+// Загрузка страницы услуг и тарифов
+function loadServices() {
+    const contentArea = document.getElementById('content-area');
+    
+    const mainServices = window.crmData.services.filter(s => s.type === 'main').length;
+    const additionalServices = window.crmData.services.filter(s => s.type === 'additional').length;
+    const totalMonthly = window.crmData.services
+        .filter(s => s.period === 'monthly')
+        .reduce((sum, s) => sum + s.tariff, 0);
+    
+    contentArea.innerHTML = `
+        <div class="page-header">
+            <h2 class="page-title">Услуги и тарифы</h2>
+            <button class="btn btn-primary" id="addServiceBtn">
+                <i class="fas fa-plus"></i> Добавить услугу
+            </button>
+        </div>
+        
+        <div class="stats-cards">
+            <div class="stat-card">
+                <h3>Всего услуг</h3>
+                <div class="stat-value">${window.crmData.services.length}</div>
+                <div class="stat-change">в системе</div>
+            </div>
+            <div class="stat-card">
+                <h3>Основные услуги</h3>
+                <div class="stat-value">${mainServices}</div>
+                <div class="stat-change">ежемесячные</div>
+            </div>
+            <div class="stat-card">
+                <h3>Дополнительные</h3>
+                <div class="stat-value">${additionalServices}</div>
+                <div class="stat-change">по требованию</div>
+            </div>
+            <div class="stat-card">
+                <h3>Сумма тарифов</h3>
+                <div class="stat-value">${totalMonthly.toLocaleString('ru-RU')} ₽</div>
+                <div class="stat-change">в месяц</div>
+            </div>
+        </div>
+        
+        <div class="tabs" style="margin-top: 30px;">
+            <button class="tab active" data-tab="services-list">Все услуги</button>
+            <button class="tab" data-tab="main-services">Основные услуги</button>
+            <button class="tab" data-tab="additional-services">Дополнительные</button>
+            <button class="tab" data-tab="tariff-plans">Тарифные планы</button>
+        </div>
+        
+        <div class="tab-content active" id="services-list">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Название</th>
+                            <th>Тип</th>
+                            <th>Тариф</th>
+                            <th>Период</th>
+                            <th>Дом</th>
+                            <th>Подрядчик</th>
+                            <th>SLA</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${window.crmData.services.map(service => {
+                            const building = window.crmData.buildings.find(b => b.id === service.buildingId);
+                            const contractor = window.crmData.contractors.find(c => c.id === service.contractorId);
+                            
+                            return `
+                                <tr>
+                                    <td><strong>${service.name}</strong></td>
+                                    <td>
+                                        <span class="status-badge ${service.type === 'main' ? 'status-paid' : 'status-processing'}">
+                                            ${service.type === 'main' ? 'Основная' : 'Дополнительная'}
+                                        </span>
+                                    </td>
+                                    <td>${service.tariff.toLocaleString('ru-RU')} ₽/${service.period === 'monthly' ? 'мес' : 'услуга'}</td>
+                                    <td>${service.period === 'monthly' ? 'Ежемесячно' : 'По требованию'}</td>
+                                    <td>${building ? building.address : 'Все дома'}</td>
+                                    <td>${contractor ? contractor.legalName : 'Не назначен'}</td>
+                                    <td>${service.sla}</td>
+                                    <td>
+                                        <button class="btn btn-secondary" onclick="editService(${service.id})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-secondary" onclick="assignServiceToBuilding(${service.id})">
+                                            <i class="fas fa-building"></i>
+                                        </button>
+                                        <button class="btn btn-secondary" onclick="showServiceAnalytics(${service.id})">
+                                            <i class="fas fa-chart-bar"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="main-services">
+            <h3>Основные (ежемесячные) услуги</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Название</th>
+                            <th>Тариф</th>
+                            <th>Дом</th>
+                            <th>Начислено в месяц</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${window.crmData.services.filter(s => s.type === 'main').map(service => {
+                            const building = window.crmData.buildings.find(b => b.id === service.buildingId);
+                            const monthlyAmount = building ? service.tariff * building.apartments : service.tariff * 50;
+                            
+                            return `
+                                <tr>
+                                    <td>${service.name}</td>
+                                    <td>${service.tariff.toLocaleString('ru-RU')} ₽/мес</td>
+                                    <td>${building ? building.address : 'Все дома'}</td>
+                                    <td><strong>${monthlyAmount.toLocaleString('ru-RU')} ₽</strong></td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="additional-services">
+            <h3>Дополнительные услуги (по требованию)</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Название</th>
+                            <th>Тариф</th>
+                            <th>Подрядчик</th>
+                            <th>SLA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${window.crmData.services.filter(s => s.type === 'additional').map(service => {
+                            const contractor = window.crmData.contractors.find(c => c.id === service.contractorId);
+                            return `
+                                <tr>
+                                    <td>${service.name}</td>
+                                    <td>${service.tariff.toLocaleString('ru-RU')} ₽/услуга</td>
+                                    <td>${contractor ? contractor.legalName : 'Не назначен'}</td>
+                                    <td>${service.sla}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="tariff-plans">
+            <h3>Тарифные планы для домов</h3>
+            <div class="tariff-plans" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+                ${window.crmData.buildings.map(building => {
+                    const buildingServices = window.crmData.services.filter(s => s.buildingId === building.id || !s.buildingId);
+                    const monthlyTotal = buildingServices
+                        .filter(s => s.type === 'main')
+                        .reduce((sum, s) => sum + s.tariff, 0) * building.apartments;
+                    
+                    return `
+                        <div class="tariff-card" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                            <h4>${building.address}</h4>
+                            <p><strong>Квартир:</strong> ${building.apartments}</p>
+                            <p><strong>Ежемесячный сбор:</strong> ${monthlyTotal.toLocaleString('ru-RU')} ₽</p>
+                            <p><strong>Услуги:</strong> ${buildingServices.length}</p>
+                            <button class="btn btn-secondary" onclick="editBuildingTariff(${building.id})" style="margin-top: 15px;">
+                                Настроить тарифы
+                            </button>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+    `;
+    
+    // Настройка вкладок
+    setupTabs();
+    
+    // Обработчик добавления услуги
+    document.getElementById('addServiceBtn').addEventListener('click', () => {
+        openServiceModal();
     });
 }
 
@@ -743,478 +1488,7 @@ function loadContractors() {
     });
 }
 
-// Загрузка других страниц (заглушки)
-function loadResidents() {
-    const contentArea = document.getElementById('content-area');
-    
-    // Считаем статистику
-    const totalResidents = window.crmData.residents.length;
-    const owners = window.crmData.residents.filter(r => r.status === 'собственник').length;
-    const tenants = window.crmData.residents.filter(r => r.status === 'арендатор').length;
-    const pendingVerifications = window.crmData.residents.reduce((sum, resident) => 
-        sum + resident.verificationRequests.filter(v => v.status === 'pending').length, 0);
-    
-    contentArea.innerHTML = `
-        <div class="page-header">
-            <h2 class="page-title">Жильцы</h2>
-            <button class="btn btn-primary" id="addResidentBtn">
-                <i class="fas fa-user-plus"></i> Добавить жильца
-            </button>
-        </div>
-        
-        <div class="stats-cards">
-            <div class="stat-card">
-                <h3>Всего жильцов</h3>
-                <div class="stat-value">${totalResidents}</div>
-                <div class="stat-change">в ${window.crmData.buildings.length} домах</div>
-            </div>
-            <div class="stat-card">
-                <h3>Собственники</h3>
-                <div class="stat-value">${owners}</div>
-                <div class="stat-change">${((owners/totalResidents)*100).toFixed(0)}% от общего числа</div>
-            </div>
-            <div class="stat-card">
-                <h3>Арендаторы</h3>
-                <div class="stat-value">${tenants}</div>
-                <div class="stat-change">${((tenants/totalResidents)*100).toFixed(0)}% от общего числа</div>
-            </div>
-            <div class="stat-card">
-                <h3>Запросы на проверку</h3>
-                <div class="stat-value">${pendingVerifications}</div>
-                <div class="stat-change">ожидают подтверждения</div>
-            </div>
-        </div>
-        
-        <div class="tabs" style="margin-top: 30px;">
-            <button class="tab active" data-tab="residents-list">Список жильцов</button>
-            <button class="tab" data-tab="verification-requests">Запросы на подтверждение <span class="notification-badge">${pendingVerifications}</span></button>
-        </div>
-        
-        <div class="tab-content active" id="residents-list">
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ФИО</th>
-                            <th>Адрес</th>
-                            <th>Телефон</th>
-                            <th>Автомобиль</th>
-                            <th>Статус</th>
-                            <th>Действия</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${window.crmData.residents.map(resident => {
-                            const building = window.crmData.buildings.find(b => b.id === resident.buildingId);
-                            return `
-                                <tr>
-                                    <td><strong>${resident.name}</strong></td>
-                                    <td>${building ? building.address : 'Неизвестно'}, кв. ${resident.apartment}</td>
-                                    <td>${resident.phone}</td>
-                                    <td>${resident.carNumber || 'Не указан'}</td>
-                                    <td>
-                                        <span class="status-badge ${resident.status === 'собственник' ? 'status-paid' : 'status-processing'}">
-                                            ${resident.status}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-secondary" onclick="viewResident(${resident.id})">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="btn btn-secondary" onclick="editResident(${resident.id})">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-secondary" onclick="showVerificationModal(${resident.id})">
-                                            <i class="fas fa-check-circle"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            `;
-                        }).join('')}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <div class="tab-content" id="verification-requests">
-            ${pendingVerifications === 0 ? 
-                '<p>Нет запросов на подтверждение данных.</p>' : 
-                window.crmData.residents.filter(r => r.verificationRequests.some(v => v.status === 'pending')).map(resident => {
-                    const building = window.crmData.buildings.find(b => b.id === resident.buildingId);
-                    return `
-                        <div class="verification-card" style="background: var(--gray-100); padding: 20px; margin-bottom: 15px; border-radius: 12px;">
-                            <h4>${resident.name}</h4>
-                            <p>${building ? building.address : ''}, кв. ${resident.apartment}</p>
-                            ${resident.verificationRequests.filter(v => v.status === 'pending').map(request => `
-                                <div style="margin-top: 10px; padding: 15px; background: white; border-radius: 8px;">
-                                    <p><strong>Тип запроса:</strong> ${request.type}</p>
-                                    <p><strong>Текущие данные:</strong> ${request.oldValue}</p>
-                                    <p><strong>Новые данные от системы:</strong> ${request.newValue}</p>
-                                    <p><strong>Дата запроса:</strong> ${request.requestedAt}</p>
-                                    <div style="margin-top: 15px;">
-                                        <button class="btn btn-primary" onclick="approveVerification(${resident.id}, ${request.id})">
-                                            Подтвердить
-                                        </button>
-                                        <button class="btn btn-secondary" onclick="rejectVerification(${resident.id}, ${request.id})">
-                                            Отклонить
-                                        </button>
-                                        <button class="btn btn-secondary" onclick="requestMoreInfo(${resident.id}, ${request.id})">
-                                            Запросить доп. информацию
-                                        </button>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    `;
-                }).join('')}
-        </div>
-    `;
-    
-    // Настройка вкладок
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            
-            const tabName = this.getAttribute('data-tab');
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById(tabName).classList.add('active');
-        });
-    });
-    
-    // Обработчик добавления жильца
-    document.getElementById('addResidentBtn').addEventListener('click', () => {
-        openResidentModal();
-    });
-}
-
-function loadTickets() {
-    const contentArea = document.getElementById('content-area');
-    
-    const totalTickets = window.crmData.tickets.length;
-    const newTickets = window.crmData.tickets.filter(t => t.status === 'новое').length;
-    const inProgress = window.crmData.tickets.filter(t => t.status === 'в обработке').length;
-    const resolved = window.crmData.tickets.filter(t => t.status === 'решено').length;
-    
-    contentArea.innerHTML = `
-        <div class="page-header">
-            <h2 class="page-title">Обращения жильцов</h2>
-            <button class="btn btn-primary" id="createTicketBtn">
-                <i class="fas fa-plus"></i> Создать обращение
-            </button>
-        </div>
-        
-        <div class="stats-cards">
-            <div class="stat-card">
-                <h3>Всего обращений</h3>
-                <div class="stat-value">${totalTickets}</div>
-                <div class="stat-change">за последние 30 дней</div>
-            </div>
-            <div class="stat-card">
-                <h3>Новые</h3>
-                <div class="stat-value">${newTickets}</div>
-                <div class="stat-change">требуют внимания</div>
-            </div>
-            <div class="stat-card">
-                <h3>В обработке</h3>
-                <div class="stat-value">${inProgress}</div>
-                <div class="stat-change">активные обращения</div>
-            </div>
-            <div class="stat-card">
-                <h3>Решено</h3>
-                <div class="stat-value">${resolved}</div>
-                <div class="stat-change">${totalTickets > 0 ? ((resolved/totalTickets)*100).toFixed(0) : 0}% решено</div>
-            </div>
-        </div>
-        
-        <div class="filters" style="margin: 30px 0; display: flex; gap: 10px; flex-wrap: wrap;">
-            <select class="form-control" style="width: 200px;" id="statusFilter">
-                <option value="">Все статусы</option>
-                <option value="новое">Новые</option>
-                <option value="в обработке">В обработке</option>
-                <option value="решено">Решено</option>
-                <option value="отменено">Отменено</option>
-            </select>
-            <select class="form-control" style="width: 200px;" id="typeFilter">
-                <option value="">Все типы</option>
-                <option value="ремонт">Ремонт</option>
-                <option value="уборка">Уборка</option>
-                <option value="электрика">Электрика</option>
-                <option value="сантехника">Сантехника</option>
-                <option value="другое">Другое</option>
-            </select>
-            <select class="form-control" style="width: 200px;" id="priorityFilter">
-                <option value="">Все приоритеты</option>
-                <option value="высокий">Высокий</option>
-                <option value="средний">Средний</option>
-                <option value="низкий">Низкий</option>
-            </select>
-            <button class="btn btn-secondary" id="applyFilters">Применить</button>
-        </div>
-        
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Тема</th>
-                        <th>Жилец</th>
-                        <th>Тип</th>
-                        <th>Приоритет</th>
-                        <th>Статус</th>
-                        <th>Дата создания</th>
-                        <th>Ответственный</th>
-                        <th>Действия</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${window.crmData.tickets.map(ticket => {
-                        const resident = window.crmData.residents.find(r => r.id === ticket.residentId);
-                        let priorityClass = '';
-                        switch(ticket.priority) {
-                            case 'высокий': priorityClass = 'status-pending'; break;
-                            case 'средний': priorityClass = 'status-processing'; break;
-                            case 'низкий': priorityClass = 'status-paid'; break;
-                        }
-                        
-                        let statusClass = '';
-                        switch(ticket.status) {
-                            case 'новое': statusClass = 'status-pending'; break;
-                            case 'в обработке': statusClass = 'status-processing'; break;
-                            case 'решено': statusClass = 'status-paid'; break;
-                        }
-                        
-                        return `
-                            <tr>
-                                <td>#${ticket.id}</td>
-                                <td><strong>${ticket.title}</strong></td>
-                                <td>${resident ? resident.name : 'Неизвестно'}</td>
-                                <td>${ticket.type}</td>
-                                <td><span class="status-badge ${priorityClass}">${ticket.priority}</span></td>
-                                <td><span class="status-badge ${statusClass}">${ticket.status}</span></td>
-                                <td>${ticket.createdAt}</td>
-                                <td>${ticket.assignedTo || 'Не назначен'}</td>
-                                <td>
-                                    <button class="btn btn-secondary" onclick="viewTicket(${ticket.id})">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-secondary" onclick="assignTicket(${ticket.id})">
-                                        <i class="fas fa-user-tag"></i>
-                                    </button>
-                                    <button class="btn btn-secondary" onclick="updateTicketStatus(${ticket.id})">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                    }).join('')}
-                </tbody>
-            </table>
-        </div>
-    `;
-    
-    // Обработчики фильтров
-    document.getElementById('applyFilters').addEventListener('click', applyTicketFilters);
-    document.getElementById('createTicketBtn').addEventListener('click', () => {
-        openTicketModal();
-    });
-}
-
-function loadServices() {
-    const contentArea = document.getElementById('content-area');
-    
-    const mainServices = window.crmData.services.filter(s => s.type === 'main').length;
-    const additionalServices = window.crmData.services.filter(s => s.type === 'additional').length;
-    const totalMonthly = window.crmData.services
-        .filter(s => s.period === 'monthly')
-        .reduce((sum, s) => sum + s.tariff, 0);
-    
-    contentArea.innerHTML = `
-        <div class="page-header">
-            <h2 class="page-title">Услуги и тарифы</h2>
-            <button class="btn btn-primary" id="addServiceBtn">
-                <i class="fas fa-plus"></i> Добавить услугу
-            </button>
-        </div>
-        
-        <div class="stats-cards">
-            <div class="stat-card">
-                <h3>Всего услуг</h3>
-                <div class="stat-value">${window.crmData.services.length}</div>
-                <div class="stat-change">в системе</div>
-            </div>
-            <div class="stat-card">
-                <h3>Основные услуги</h3>
-                <div class="stat-value">${mainServices}</div>
-                <div class="stat-change">ежемесячные</div>
-            </div>
-            <div class="stat-card">
-                <h3>Дополнительные</h3>
-                <div class="stat-value">${additionalServices}</div>
-                <div class="stat-change">по требованию</div>
-            </div>
-            <div class="stat-card">
-                <h3>Сумма тарифов</h3>
-                <div class="stat-value">${totalMonthly.toLocaleString('ru-RU')} ₽</div>
-                <div class="stat-change">в месяц</div>
-            </div>
-        </div>
-        
-        <div class="tabs" style="margin-top: 30px;">
-            <button class="tab active" data-tab="services-list">Все услуги</button>
-            <button class="tab" data-tab="main-services">Основные услуги</button>
-            <button class="tab" data-tab="additional-services">Дополнительные</button>
-            <button class="tab" data-tab="tariff-plans">Тарифные планы</button>
-        </div>
-        
-        <div class="tab-content active" id="services-list">
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Название</th>
-                            <th>Тип</th>
-                            <th>Тариф</th>
-                            <th>Период</th>
-                            <th>Дом</th>
-                            <th>Подрядчик</th>
-                            <th>SLA</th>
-                            <th>Действия</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${window.crmData.services.map(service => {
-                            const building = window.crmData.buildings.find(b => b.id === service.buildingId);
-                            const contractor = window.crmData.contractors.find(c => c.id === service.contractorId);
-                            
-                            return `
-                                <tr>
-                                    <td><strong>${service.name}</strong></td>
-                                    <td>
-                                        <span class="status-badge ${service.type === 'main' ? 'status-paid' : 'status-processing'}">
-                                            ${service.type === 'main' ? 'Основная' : 'Дополнительная'}
-                                        </span>
-                                    </td>
-                                    <td>${service.tariff.toLocaleString('ru-RU')} ₽/${service.period === 'monthly' ? 'мес' : 'услуга'}</td>
-                                    <td>${service.period === 'monthly' ? 'Ежемесячно' : 'По требованию'}</td>
-                                    <td>${building ? building.address : 'Все дома'}</td>
-                                    <td>${contractor ? contractor.legalName : 'Не назначен'}</td>
-                                    <td>${service.sla}</td>
-                                    <td>
-                                        <button class="btn btn-secondary" onclick="editService(${service.id})">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-secondary" onclick="assignServiceToBuilding(${service.id})">
-                                            <i class="fas fa-building"></i>
-                                        </button>
-                                        <button class="btn btn-secondary" onclick="showServiceAnalytics(${service.id})">
-                                            <i class="fas fa-chart-bar"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            `;
-                        }).join('')}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <div class="tab-content" id="main-services">
-            <h3>Основные (ежемесячные) услуги</h3>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Название</th>
-                            <th>Тариф</th>
-                            <th>Дом</th>
-                            <th>Начислено в месяц</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${window.crmData.services.filter(s => s.type === 'main').map(service => {
-                            const building = window.crmData.buildings.find(b => b.id === service.buildingId);
-                            const monthlyAmount = building ? service.tariff * building.apartments : service.tariff * 50; // пример расчета
-                            
-                            return `
-                                <tr>
-                                    <td>${service.name}</td>
-                                    <td>${service.tariff.toLocaleString('ru-RU')} ₽/мес</td>
-                                    <td>${building ? building.address : 'Все дома'}</td>
-                                    <td><strong>${monthlyAmount.toLocaleString('ru-RU')} ₽</strong></td>
-                                </tr>
-                            `;
-                        }).join('')}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <div class="tab-content" id="additional-services">
-            <h3>Дополнительные услуги (по требованию)</h3>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Название</th>
-                            <th>Тариф</th>
-                            <th>Подрядчик</th>
-                            <th>SLA</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${window.crmData.services.filter(s => s.type === 'additional').map(service => {
-                            const contractor = window.crmData.contractors.find(c => c.id === service.contractorId);
-                            return `
-                                <tr>
-                                    <td>${service.name}</td>
-                                    <td>${service.tariff.toLocaleString('ru-RU')} ₽/услуга</td>
-                                    <td>${contractor ? contractor.legalName : 'Не назначен'}</td>
-                                    <td>${service.sla}</td>
-                                </tr>
-                            `;
-                        }).join('')}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <div class="tab-content" id="tariff-plans">
-            <h3>Тарифные планы для домов</h3>
-            <div class="tariff-plans" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
-                ${window.crmData.buildings.map(building => {
-                    const buildingServices = window.crmData.services.filter(s => s.buildingId === building.id || !s.buildingId);
-                    const monthlyTotal = buildingServices
-                        .filter(s => s.type === 'main')
-                        .reduce((sum, s) => sum + s.tariff, 0) * building.apartments;
-                    
-                    return `
-                        <div class="tariff-card" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                            <h4>${building.address}</h4>
-                            <p><strong>Квартир:</strong> ${building.apartments}</p>
-                            <p><strong>Ежемесячный сбор:</strong> ${monthlyTotal.toLocaleString('ru-RU')} ₽</p>
-                            <p><strong>Услуги:</strong> ${buildingServices.length}</p>
-                            <button class="btn btn-secondary" onclick="editBuildingTariff(${building.id})" style="margin-top: 15px;">
-                                Настроить тарифы
-                            </button>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-        </div>
-    `;
-    
-    // Настройка вкладок
-    setupTabs();
-    
-    // Обработчик добавления услуги
-    document.getElementById('addServiceBtn').addEventListener('click', () => {
-        openServiceModal();
-    });
-}
-
+// Загрузка страницы документов
 function loadDocuments() {
     const contentArea = document.getElementById('content-area');
     
@@ -1306,7 +1580,6 @@ function loadDocuments() {
                         
                         let entityInfo = '';
                         if (doc.entityId) {
-                            // Пытаемся найти связанный объект
                             const contractor = window.crmData.contractors.find(c => c.id === doc.entityId);
                             const building = window.crmData.buildings.find(b => b.id === doc.entityId);
                             const service = window.crmData.services.find(s => s.id === doc.entityId);
@@ -1367,7 +1640,7 @@ function loadDocuments() {
                     else if (daysLeft < 90) expiryClass = 'notice';
                     
                     return `
-                        <div class="expiry-card ${expiryClass}" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-left: 5px solid ${expiryClass === 'expired' ? '#e74c3c' : expiryClass === 'warning' ? '#f39c12' : '#2ecc71'}">
+                        <div class="expiry-card" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-left: 5px solid ${expiryClass === 'expired' ? '#e74c3c' : expiryClass === 'warning' ? '#f39c12' : '#2ecc71'}">
                             <h4>${doc.name}</h4>
                             <p><strong>Тип:</strong> ${doc.type}</p>
                             <p><strong>Дата окончания:</strong> ${doc.expiryDate}</p>
@@ -1395,6 +1668,7 @@ function loadDocuments() {
     document.getElementById('exportDocs').addEventListener('click', exportDocuments);
 }
 
+// Загрузка страницы реквизитов
 function loadRequisites() {
     const contentArea = document.getElementById('content-area');
     const requisites = window.crmData.requisites[0] || {};
@@ -1557,6 +1831,7 @@ function loadRequisites() {
     });
 }
 
+// Загрузка страницы профиля УК
 function loadProfile() {
     const company = window.crmData.currentCompany;
     
@@ -1609,68 +1884,6 @@ function loadProfile() {
             </ul>
         </div>
     `;
-}
-
-// Инициализация графиков
-function initializeChart() {
-    const ctx = document.getElementById('analyticsChart').getContext('2d');
-    
-    // Удаляем старый график, если он существует
-    if (window.analyticsChart) {
-        window.analyticsChart.destroy();
-    }
-    
-    window.analyticsChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг'],
-            datasets: [
-                {
-                    label: 'Начислено',
-                    data: [1850000, 1920000, 1980000, 2050000, 2150000, 2250000, 2350000, 2450780],
-                    borderColor: '#6912FF',
-                    backgroundColor: 'rgba(105, 18, 255, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                },
-                {
-                    label: 'Оплачено',
-                    data: [1650000, 1720000, 1780000, 1850000, 1950000, 2050000, 2150000, 1890540],
-                    borderColor: '#00D1B2',
-                    backgroundColor: 'rgba(0, 209, 178, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                title: {
-                    display: true,
-                    text: 'Динамика платежей за 2024 год'
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return value.toLocaleString('ru-RU') + ' ₽';
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
-
-function initializeCharts() {
-    // Инициализация графика будет выполнена при загрузке дашборда
-    // Эта функция может быть расширена для других графиков
 }
 
 // Настройка модальных окон
@@ -1760,10 +1973,6 @@ function savePayment() {
     const amount = parseFloat(document.getElementById('paymentAmount').value);
     const date = document.getElementById('paymentDate').value || new Date().toISOString().split('T')[0];
     
-    // Получаем услугу для получения названия
-    const service = window.crmData.services.find(s => s.id === serviceId);
-    const building = window.crmData.buildings.find(b => b.id === buildingId);
-    
     // Создаем новый платеж
     const newPayment = {
         id: window.crmData.payments.length + 1,
@@ -1839,7 +2048,7 @@ function filterPayments(filter) {
     });
 }
 
-// Функции для работы с домами (для кнопок действий)
+// Функции для работы с домами
 function viewBuilding(id) {
     const building = window.crmData.buildings.find(b => b.id === id);
     
@@ -1946,20 +2155,32 @@ function editContractor(id) {
     alert(`Редактирование подрядчика с ID ${id}. Функция будет реализована в следующей версии.`);
 }
 
-// Экспортируем функции для использования в HTML
-window.viewBuilding = viewBuilding;
-window.editBuilding = editBuilding;
-window.deleteBuilding = deleteBuilding;
-window.viewContractor = viewContractor;
-window.editContractor = editContractor;
-
 // Вспомогательные функции для новых страниц
 
 // Функции для жильцов
 function viewResident(id) {
     const resident = window.crmData.residents.find(r => r.id === id);
     if (resident) {
-        alert(`Просмотр жильца: ${resident.name}\nТелефон: ${resident.phone}\nСтатус: ${resident.status}`);
+        const building = window.crmData.buildings.find(b => b.id === resident.buildingId);
+        
+        let modalContent = `
+            <h3>${resident.name}</h3>
+            <p><strong>Адрес:</strong> ${building ? building.address : 'Неизвестно'}, кв. ${resident.apartment}</p>
+            <p><strong>Телефон:</strong> ${resident.phone}</p>
+            <p><strong>Email:</strong> ${resident.email}</p>
+            <p><strong>Автомобиль:</strong> ${resident.carNumber || 'Не указан'}</p>
+            <p><strong>Статус:</strong> ${resident.status}</p>
+            <p><strong>Документы:</strong> ${resident.documents.join(', ')}</p>
+        `;
+        
+        if (resident.verificationRequests.length > 0) {
+            modalContent += `<h4>Запросы на подтверждение:</h4>`;
+            resident.verificationRequests.forEach(req => {
+                modalContent += `<p><strong>${req.type}:</strong> ${req.oldValue} → ${req.newValue} (${req.status})</p>`;
+            });
+        }
+        
+        alert(modalContent);
     }
 }
 
@@ -1997,6 +2218,17 @@ function rejectVerification(residentId, requestId) {
             alert('Запрос отклонен!');
             loadResidents();
         }
+    }
+}
+
+function openResidentModal() {
+    alert('Модальное окно добавления жильца будет реализовано в следующей версии');
+}
+
+function requestMoreInfo(residentId, requestId) {
+    const info = prompt('Какая дополнительная информация требуется?');
+    if (info) {
+        alert(`Запрос на дополнительную информацию отправлен: "${info}"`);
     }
 }
 
@@ -2059,100 +2291,8 @@ function updateTicketStatus(id) {
     }
 }
 
-// Функции для услуг
-function editService(id) {
-    alert(`Редактирование услуги с ID ${id}. Функция будет реализована в следующей версии.`);
-}
-
-function assignServiceToBuilding(id) {
-    const service = window.crmData.services.find(s => s.id === id);
-    if (service) {
-        const buildingId = prompt('Введите ID дома для привязки услуги:');
-        if (buildingId) {
-            service.buildingId = parseInt(buildingId);
-            localStorage.setItem('crmData', JSON.stringify(window.crmData));
-            alert(`Услуга привязана к дому ID ${buildingId}`);
-            loadServices();
-        }
-    }
-}
-
-// Функции для документов
-function viewDocument(id) {
-    alert(`Просмотр документа с ID ${id}. Функция будет реализована в следующей версии.`);
-}
-
-function downloadDocument(id) {
-    const doc = window.crmData.documents.find(d => d.id === id);
-    if (doc) {
-        alert(`Начата загрузка документа: ${doc.name}`);
-        // В реальном приложении здесь будет запрос на сервер для скачивания
-    }
-}
-
-function signDocument(id) {
-    if (confirm('Вы подтверждаете подписание этого документа?')) {
-        const doc = window.crmData.documents.find(d => d.id === id);
-        if (doc) {
-            doc.status = 'signed';
-            localStorage.setItem('crmData', JSON.stringify(window.crmData));
-            alert(`Документ "${doc.name}" подписан!`);
-            loadDocuments();
-        }
-    }
-}
-
-// Функции для реквизитов
-function copyRequisitesToClipboard() {
-    const requisites = window.crmData.requisites[0] || {};
-    const text = `
-Получатель: ${requisites.recipient || 'ООО «УК Профи»'}
-Банк: ${requisites.bankName || 'АО «АЛЬФА-БАНК»'}
-Расчетный счет: ${requisites.accountNumber || '40702810712340001234'}
-Корр. счет: ${requisites.correspondentAccount || '30101810200000000593'}
-БИК: ${requisites.BIK || '044525593'}
-ИНН: ${requisites.INN || '7701234567'}
-КПП: ${requisites.KPP || '770101001'}
-Назначение платежа: ${requisites.purpose || 'Оплата услуг ЖКХ'}
-    `.trim();
-    
-    navigator.clipboard.writeText(text).then(() => {
-        alert('Реквизиты скопированы в буфер обмена!');
-    }).catch(err => {
-        console.error('Ошибка копирования: ', err);
-        alert('Не удалось скопировать реквизиты');
-    });
-}
-
-function generatePaymentQR() {
-    const requisites = window.crmData.requisites[0] || {};
-    const qrData = {
-        name: requisites.recipient || 'ООО «УК Профи»',
-        personalAcc: requisites.accountNumber || '40702810712340001234',
-        bankName: requisites.bankName || 'АО «АЛЬФА-БАНК»',
-        bic: requisites.BIK || '044525593',
-        correspAcc: requisites.correspondentAccount || '30101810200000000593',
-        payeeINN: requisites.INN || '7701234567',
-        kpp: requisites.KPP || '770101001'
-    };
-    
-    alert('QR-код для оплаты будет сгенерирован в следующей версии.\nДанные для QR:\n' + JSON.stringify(qrData, null, 2));
-}
-
-// Функция для настройки вкладок
-function setupTabs() {
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            
-            const tabName = this.getAttribute('data-tab');
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById(tabName).classList.add('active');
-        });
-    });
+function openTicketModal() {
+    alert('Модальное окно создания обращения будет реализовано в следующей версии');
 }
 
 // Применение фильтров для обращений
@@ -2182,6 +2322,84 @@ function applyTicketFilters() {
         
         row.style.display = showRow ? '' : 'none';
     });
+}
+
+// Функции для услуг
+function editService(id) {
+    alert(`Редактирование услуги с ID ${id}. Функция будет реализована в следующей версии.`);
+}
+
+function assignServiceToBuilding(id) {
+    const service = window.crmData.services.find(s => s.id === id);
+    if (service) {
+        const buildingId = prompt('Введите ID дома для привязки услуги:');
+        if (buildingId) {
+            service.buildingId = parseInt(buildingId);
+            localStorage.setItem('crmData', JSON.stringify(window.crmData));
+            alert(`Услуга привязана к дому ID ${buildingId}`);
+            loadServices();
+        }
+    }
+}
+
+function showServiceAnalytics(id) {
+    alert(`Аналитика услуги с ID ${id} будет показана в следующей версии`);
+}
+
+function editBuildingTariff(id) {
+    alert(`Редактирование тарифов для дома с ID ${id} будет доступно в следующей версии`);
+}
+
+function openServiceModal() {
+    alert('Модальное окно добавления услуги будет реализовано в следующей версии');
+}
+
+// Функция для настройки вкладок
+function setupTabs() {
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            const tabName = this.getAttribute('data-tab');
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+        });
+    });
+}
+
+// Функции для документов
+function viewDocument(id) {
+    alert(`Просмотр документа с ID ${id}. Функция будет реализована в следующей версии.`);
+}
+
+function downloadDocument(id) {
+    const doc = window.crmData.documents.find(d => d.id === id);
+    if (doc) {
+        alert(`Начата загрузка документа: ${doc.name}`);
+    }
+}
+
+function signDocument(id) {
+    if (confirm('Вы подтверждаете подписание этого документа?')) {
+        const doc = window.crmData.documents.find(d => d.id === id);
+        if (doc) {
+            doc.status = 'signed';
+            localStorage.setItem('crmData', JSON.stringify(window.crmData));
+            alert(`Документ "${doc.name}" подписан!`);
+            loadDocuments();
+        }
+    }
+}
+
+function shareDocument(id) {
+    alert(`Документ с ID ${id} будет доступен для общего доступа в следующей версии`);
+}
+
+function renewDocument(id) {
+    alert(`Продление документа с ID ${id} будет доступно в следующей версии`);
 }
 
 // Применение фильтров для документов
@@ -2237,3 +2455,79 @@ function exportDocuments() {
     link.download = `документы_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
 }
+
+function openDocumentModal() {
+    alert('Модальное окно создания документа будет реализовано в следующей версии');
+}
+
+function openUploadModal() {
+    alert('Модальное окно загрузки документа будет реализовано в следующей версии');
+}
+
+// Функции для реквизитов
+function copyRequisitesToClipboard() {
+    const requisites = window.crmData.requisites[0] || {};
+    const text = `
+Получатель: ${requisites.recipient || 'ООО «УК Профи»'}
+Банк: ${requisites.bankName || 'АО «АЛЬФА-БАНК»'}
+Расчетный счет: ${requisites.accountNumber || '40702810712340001234'}
+Корр. счет: ${requisites.correspondentAccount || '30101810200000000593'}
+БИК: ${requisites.BIK || '044525593'}
+ИНН: ${requisites.INN || '7701234567'}
+КПП: ${requisites.KPP || '770101001'}
+Назначение платежа: ${requisites.purpose || 'Оплата услуг ЖКХ'}
+    `.trim();
+    
+    navigator.clipboard.writeText(text).then(() => {
+        alert('Реквизиты скопированы в буфер обмена!');
+    }).catch(err => {
+        console.error('Ошибка копирования: ', err);
+        alert('Не удалось скопировать реквизиты');
+    });
+}
+
+function generatePaymentQR() {
+    const requisites = window.crmData.requisites[0] || {};
+    const qrData = {
+        name: requisites.recipient || 'ООО «УК Профи»',
+        personalAcc: requisites.accountNumber || '40702810712340001234',
+        bankName: requisites.bankName || 'АО «АЛЬФА-БАНК»',
+        bic: requisites.BIK || '044525593',
+        correspAcc: requisites.correspondentAccount || '30101810200000000593',
+        payeeINN: requisites.INN || '7701234567',
+        kpp: requisites.KPP || '770101001'
+    };
+    
+    alert('QR-код для оплаты будет сгенерирован в следующей версии.\nДанные для QR:\n' + JSON.stringify(qrData, null, 2));
+}
+
+function openRequisitesModal() {
+    alert('Модальное окно редактирования реквизитов будет реализовано в следующей версии');
+}
+
+// Экспортируем функции для использования в HTML
+window.viewBuilding = viewBuilding;
+window.editBuilding = editBuilding;
+window.deleteBuilding = deleteBuilding;
+window.viewContractor = viewContractor;
+window.editContractor = editContractor;
+window.viewResident = viewResident;
+window.editResident = editResident;
+window.showVerificationModal = showVerificationModal;
+window.approveVerification = approveVerification;
+window.rejectVerification = rejectVerification;
+window.requestMoreInfo = requestMoreInfo;
+window.viewTicket = viewTicket;
+window.assignTicket = assignTicket;
+window.updateTicketStatus = updateTicketStatus;
+window.editService = editService;
+window.assignServiceToBuilding = assignServiceToBuilding;
+window.showServiceAnalytics = showServiceAnalytics;
+window.editBuildingTariff = editBuildingTariff;
+window.viewDocument = viewDocument;
+window.downloadDocument = downloadDocument;
+window.signDocument = signDocument;
+window.shareDocument = shareDocument;
+window.renewDocument = renewDocument;
+window.copyRequisitesToClipboard = copyRequisitesToClipboard;
+window.generatePaymentQR = generatePaymentQR;

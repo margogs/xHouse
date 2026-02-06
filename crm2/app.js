@@ -1364,7 +1364,7 @@ function loadPayments() {
             <div class="stat-card">
                 <h3>Оплачено</h3>
                 <div class="stat-value">${totalPaid.toLocaleString('ru-RU')} ₽</div>
-                <div class="stat-change">${((totalPaid / totalCharged) * 100).toFixed(1)}% от начисленного</div>
+                <div class="stat-change">${totalCharged > 0 ? ((totalPaid / totalCharged) * 100).toFixed(1) : 0}% от начисленного</div>
             </div>
             <div class="stat-card">
                 <h3>В обработке</h3>

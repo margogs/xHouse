@@ -439,61 +439,62 @@ function loadPage(pageName) {
     
     // Загружаем содержимое страницы
     setTimeout(() => {
+        let pageHTML = '';
         switch(pageName) {
             case 'dashboard':
-                loadDashboard();
+                pageHTML = getDashboardHTML();
                 break;
             case 'buildings':
-                loadBuildings();
+                pageHTML = getBuildingsHTML();
                 break;
             case 'residents':
-                loadResidents();
+                pageHTML = getResidentsHTML();
                 break;
             case 'tickets':
-                loadTickets();
+                pageHTML = getTicketsHTML();
                 break;
             case 'services':
-                loadServices();
+                pageHTML = getServicesHTML();
                 break;
             case 'payments':
-                loadPayments();
+                pageHTML = getPaymentsHTML();
                 break;
             case 'contractors':
-                loadContractors();
+                pageHTML = getContractorsHTML();
                 break;
             case 'documents':
-                loadDocuments();
+                pageHTML = getDocumentsHTML();
                 break;
             case 'requisites':
-                loadRequisites();
+                pageHTML = getRequisitesHTML();
                 break;
             case 'profile':
-                loadProfile();
+                pageHTML = getProfileHTML();
                 break;
             default:
-                loadDashboard();
+                pageHTML = getDashboardHTML();
         }
+        
+        contentArea.innerHTML = pageHTML;
+        
+        // Инициализируем специфичные для страницы элементы
+        initializePage(pageName);
     }, 300);
 }
 
-// Загрузка страницы аналитики
-function loadDashboard() {
-    const contentArea = document.getElementById('content-area');
-    
+// Получение HTML для каждой страницы
+function getDashboardHTML() {
     // Получаем данные для статистики
     const totalCharged = window.crmData.payments.reduce((sum, payment) => sum + payment.amount, 0);
     const totalPaid = window.crmData.payments
         .filter(p => p.status === 'paid')
-        .reduce((sum, payment) => sum + payment.amount, 0);
-    const totalProcessing = window.crmData.payments
-        .filter(p => p.status === 'processing')
         .reduce((sum, payment) => sum + payment.amount, 0);
     
     // Статистика по обращениям
     const activeTickets = window.crmData.tickets.filter(t => t.status === 'open' || t.status === 'in_progress').length;
     const resolvedTickets = window.crmData.tickets.filter(t => t.status === 'resolved').length;
     
-    contentArea.innerHTML = `
+    return `
         <div class="page-header">
             <h2 class="page-title">Аналитика</h2>
             <div class="date-range">
@@ -552,73 +553,10 @@ function loadDashboard() {
             </table>
         </div>
     `;
-    
-    // Инициализируем график
-    initializeDashboardChart();
 }
 
-// Инициализация графика для дашборда
-function initializeDashboardChart() {
-    const ctx = document.getElementById('analyticsChart').getContext('2d');
-    
-    // Удаляем старый график, если он существует
-    if (window.analyticsChart) {
-        window.analyticsChart.destroy();
-    }
-    
-    window.analyticsChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг'],
-            datasets: [
-                {
-                    label: 'Начислено',
-                    data: [1850000, 1920000, 1980000, 2050000, 2150000, 2250000, 2350000, 2450780],
-                    borderColor: '#6912FF',
-                    backgroundColor: 'rgba(105, 18, 255, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                },
-                {
-                    label: 'Оплачено',
-                    data: [1650000, 1720000, 1780000, 1850000, 1950000, 2050000, 2150000, 1890540],
-                    borderColor: '#00D1B2',
-                    backgroundColor: 'rgba(0, 209, 178, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                title: {
-                    display: true,
-                    text: 'Динамика платежей за 2024 год'
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return value.toLocaleString('ru-RU') + ' ₽';
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
-
-// Загрузка страницы домов
-function loadBuildings() {
-    const contentArea = document.getElementById('content-area');
-    
-    contentArea.innerHTML = `
+function getBuildingsHTML() {
+    return `
         <div class="page-header">
             <h2 class="page-title">Дома</h2>
             <button class="btn btn-primary" id="addBuildingBtn">
@@ -673,17 +611,9 @@ function loadBuildings() {
             </table>
         </div>
     `;
-    
-    // Добавляем обработчик для кнопки добавления дома
-    document.getElementById('addBuildingBtn').addEventListener('click', () => {
-        openModal('buildingModal');
-    });
 }
 
-// Загрузка страницы жильцов
-function loadResidents() {
-    const contentArea = document.getElementById('content-area');
-    
+function getResidentsHTML() {
     // Рассчитываем статистику по жильцам
     const totalResidents = window.crmData.residents.length;
     const activeResidents = window.crmData.residents.filter(r => r.status === 'active').length;
@@ -692,7 +622,7 @@ function loadResidents() {
         .filter(r => r.balance < 0)
         .reduce((sum, r) => sum + Math.abs(r.balance), 0);
     
-    contentArea.innerHTML = `
+    return `
         <div class="page-header">
             <h2 class="page-title">Жильцы</h2>
             <button class="btn btn-primary" id="addResidentBtn">
@@ -780,25 +710,16 @@ function loadResidents() {
             </table>
         </div>
     `;
-    
-    // Добавляем обработчик для кнопки добавления жильца
-    document.getElementById('addResidentBtn').addEventListener('click', () => {
-        openModal('residentModal');
-        populateResidentForm();
-    });
 }
 
-// Загрузка страницы обращений
-function loadTickets() {
-    const contentArea = document.getElementById('content-area');
-    
+function getTicketsHTML() {
     // Статистика по обращениям
     const totalTickets = window.crmData.tickets.length;
     const openTickets = window.crmData.tickets.filter(t => t.status === 'open').length;
     const inProgressTickets = window.crmData.tickets.filter(t => t.status === 'in_progress').length;
     const resolvedTickets = window.crmData.tickets.filter(t => t.status === 'resolved').length;
     
-    contentArea.innerHTML = `
+    return `
         <div class="page-header">
             <h2 class="page-title">Обращения</h2>
             <button class="btn btn-primary" id="createTicketBtn">
@@ -898,19 +819,10 @@ function loadTickets() {
             </table>
         </div>
     `;
-    
-    // Добавляем обработчик для кнопки создания обращения
-    document.getElementById('createTicketBtn').addEventListener('click', () => {
-        openModal('ticketModal');
-        populateTicketForm();
-    });
 }
 
-// Загрузка страницы услуг
-function loadServices() {
-    const contentArea = document.getElementById('content-area');
-    
-    contentArea.innerHTML = `
+function getServicesHTML() {
+    return `
         <div class="page-header">
             <h2 class="page-title">Услуги и тарифы</h2>
             <button class="btn btn-primary" id="addServiceBtn">
@@ -955,18 +867,9 @@ function loadServices() {
             </table>
         </div>
     `;
-    
-    // Добавляем обработчик для кнопки добавления услуги
-    document.getElementById('addServiceBtn').addEventListener('click', () => {
-        openModal('serviceModal');
-        populateServiceForm();
-    });
 }
 
-// Загрузка страницы платежей
-function loadPayments() {
-    const contentArea = document.getElementById('content-area');
-    
+function getPaymentsHTML() {
     // Рассчитываем статистику
     const totalCharged = window.crmData.payments.reduce((sum, p) => sum + p.amount, 0);
     const totalPaid = window.crmData.payments
@@ -976,7 +879,7 @@ function loadPayments() {
         .filter(p => p.status === 'processing')
         .reduce((sum, p) => sum + p.amount, 0);
     
-    contentArea.innerHTML = `
+    return `
         <div class="page-header">
             <h2 class="page-title">Платежи</h2>
             <button class="btn btn-primary" id="addPaymentBtn">
@@ -1036,19 +939,10 @@ function loadPayments() {
             </table>
         </div>
     `;
-    
-    // Добавляем обработчик для кнопки добавления платежа
-    document.getElementById('addPaymentBtn').addEventListener('click', () => {
-        openModal('paymentModal');
-        populatePaymentForm();
-    });
 }
 
-// Загрузка страницы подрядчиков
-function loadContractors() {
-    const contentArea = document.getElementById('content-area');
-    
-    contentArea.innerHTML = `
+function getContractorsHTML() {
+    return `
         <div class="page-header">
             <h2 class="page-title">Подрядчики</h2>
             <button class="btn btn-primary" id="addContractorBtn">
@@ -1092,18 +986,10 @@ function loadContractors() {
             </table>
         </div>
     `;
-    
-    // Обработчик для добавления подрядчика
-    document.getElementById('addContractorBtn').addEventListener('click', () => {
-        openModal('contractorModal');
-    });
 }
 
-// Загрузка страницы документов
-function loadDocuments() {
-    const contentArea = document.getElementById('content-area');
-    
-    contentArea.innerHTML = `
+function getDocumentsHTML() {
+    return `
         <div class="page-header">
             <h2 class="page-title">Документы</h2>
             <button class="btn btn-primary" id="uploadDocumentBtn">
@@ -1158,20 +1044,13 @@ function loadDocuments() {
             </table>
         </div>
     `;
-    
-    // Добавляем обработчик для кнопки загрузки документа
-    document.getElementById('uploadDocumentBtn').addEventListener('click', () => {
-        openModal('documentModal');
-    });
 }
 
-// Загрузка страницы реквизитов
-function loadRequisites() {
-    const contentArea = document.getElementById('content-area');
+function getRequisitesHTML() {
     const company = window.crmData.currentCompany;
     const bankRequisites = window.crmData.requisites.find(r => r.type === 'банковские');
     
-    contentArea.innerHTML = `
+    return `
         <div class="page-header">
             <h2 class="page-title">Реквизиты для оплаты</h2>
             <button class="btn btn-primary" id="editRequisitesBtn">
@@ -1222,20 +1101,12 @@ function loadRequisites() {
             </div>
         </div>
     `;
-    
-    // Добавляем обработчик для кнопки редактирования реквизитов
-    document.getElementById('editRequisitesBtn').addEventListener('click', () => {
-        openModal('requisitesModal');
-        populateRequisitesForm();
-    });
 }
 
-// Загрузка страницы профиля
-function loadProfile() {
-    const contentArea = document.getElementById('content-area');
+function getProfileHTML() {
     const company = window.crmData.currentCompany;
     
-    contentArea.innerHTML = `
+    return `
         <div class="page-header">
             <h2 class="page-title">Профиль компании</h2>
         </div>
@@ -1297,6 +1168,118 @@ function loadProfile() {
             </div>
         </div>
     `;
+}
+
+// Инициализация специфичных для страницы элементов
+function initializePage(pageName) {
+    switch(pageName) {
+        case 'dashboard':
+            initializeDashboardChart();
+            break;
+        case 'buildings':
+            document.getElementById('addBuildingBtn').addEventListener('click', () => {
+                openModal('buildingModal');
+            });
+            break;
+        case 'residents':
+            document.getElementById('addResidentBtn').addEventListener('click', () => {
+                openModal('residentModal');
+                populateResidentForm();
+            });
+            break;
+        case 'tickets':
+            document.getElementById('createTicketBtn').addEventListener('click', () => {
+                openModal('ticketModal');
+                populateTicketForm();
+            });
+            break;
+        case 'services':
+            document.getElementById('addServiceBtn').addEventListener('click', () => {
+                openModal('serviceModal');
+                populateServiceForm();
+            });
+            break;
+        case 'payments':
+            document.getElementById('addPaymentBtn').addEventListener('click', () => {
+                openModal('paymentModal');
+                populatePaymentForm();
+            });
+            break;
+        case 'contractors':
+            document.getElementById('addContractorBtn').addEventListener('click', () => {
+                openModal('contractorModal');
+            });
+            break;
+        case 'documents':
+            document.getElementById('uploadDocumentBtn').addEventListener('click', () => {
+                openModal('documentModal');
+            });
+            break;
+        case 'requisites':
+            document.getElementById('editRequisitesBtn').addEventListener('click', () => {
+                openModal('requisitesModal');
+                populateRequisitesForm();
+            });
+            break;
+    }
+}
+
+// Инициализация графика для дашборда
+function initializeDashboardChart() {
+    const ctx = document.getElementById('analyticsChart');
+    if (!ctx) return;
+    
+    // Удаляем старый график, если он существует
+    if (window.analyticsChart) {
+        window.analyticsChart.destroy();
+    }
+    
+    window.analyticsChart = new Chart(ctx.getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг'],
+            datasets: [
+                {
+                    label: 'Начислено',
+                    data: [1850000, 1920000, 1980000, 2050000, 2150000, 2250000, 2350000, 2450780],
+                    borderColor: '#6912FF',
+                    backgroundColor: 'rgba(105, 18, 255, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: 'Оплачено',
+                    data: [1650000, 1720000, 1780000, 1850000, 1950000, 2050000, 2150000, 1890540],
+                    borderColor: '#00D1B2',
+                    backgroundColor: 'rgba(0, 209, 178, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Динамика платежей за 2024 год'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString('ru-RU') + ' ₽';
+                        }
+                    }
+                }
+            }
+        }
+    });
 }
 
 // Настройка модальных окон
@@ -1428,7 +1411,7 @@ function saveBuilding() {
     alert('Дом успешно добавлен!');
     
     // Перезагружаем страницу домов
-    loadBuildings();
+    loadPage('buildings');
 }
 
 // Сохранение платежа
@@ -1461,7 +1444,7 @@ function savePayment() {
     alert(`Начисление на сумму ${amount.toLocaleString('ru-RU')} ₽ успешно создано!`);
     
     // Перезагружаем страницу платежей
-    loadPayments();
+    loadPage('payments');
 }
 
 // Сохранение жильца
@@ -1500,7 +1483,7 @@ function saveResident() {
     alert('Жилец успешно добавлен!');
     
     // Перезагружаем страницу жильцов
-    loadResidents();
+    loadPage('residents');
 }
 
 // Сохранение обращения
@@ -1541,7 +1524,7 @@ function saveTicket() {
     alert('Обращение успешно создано!');
     
     // Перезагружаем страницу обращений
-    loadTickets();
+    loadPage('tickets');
 }
 
 // Сохранение услуги
@@ -1581,7 +1564,7 @@ function saveService() {
     alert('Услуга успешно добавлена!');
     
     // Перезагружаем страницу услуг
-    loadServices();
+    loadPage('services');
 }
 
 // Сохранение подрядчика
@@ -1615,7 +1598,7 @@ function saveContractor() {
     alert('Подрядчик успешно добавлен!');
     
     // Перезагружаем страницу подрядчиков
-    loadContractors();
+    loadPage('contractors');
 }
 
 // Сохранение документа
@@ -1652,7 +1635,7 @@ function saveDocument() {
     alert('Документ успешно добавлен!');
     
     // Перезагружаем страницу документов
-    loadDocuments();
+    loadPage('documents');
 }
 
 // Сохранение реквизитов
@@ -1699,7 +1682,7 @@ function saveRequisites() {
     alert('Реквизиты успешно обновлены!');
     
     // Перезагружаем страницу реквизитов
-    loadRequisites();
+    loadPage('requisites');
 }
 
 // Заполнение форм данными
@@ -1876,6 +1859,8 @@ function filterTickets(filter) {
         }
     });
     
+    if (rows.length === 0) return;
+    
     rows.forEach(row => {
         const statusCell = row.cells[5];
         const statusText = statusCell.textContent.trim();
@@ -1918,7 +1903,7 @@ function deleteBuilding(id) {
     if (confirm('Вы уверены, что хотите удалить этот дом?')) {
         window.crmData.buildings = window.crmData.buildings.filter(b => b.id !== id);
         localStorage.setItem('crmData', JSON.stringify(window.crmData));
-        loadBuildings();
+        loadPage('buildings');
         alert('Дом успешно удален!');
     }
 }
@@ -1985,8 +1970,4 @@ window.viewDocument = viewDocument;
 window.downloadDocument = downloadDocument;
 window.filterResidents = filterResidents;
 window.filterTickets = filterTickets;
-window.loadResidents = loadResidents;
-window.loadTickets = loadTickets;
-window.loadRequisites = loadRequisites;
-window.loadDashboard = loadDashboard;
-window.loadProfile = loadProfile;
+window.loadPage = loadPage;

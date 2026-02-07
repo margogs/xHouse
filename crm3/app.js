@@ -5,12 +5,16 @@ window.crmData = window.crmData || null;
 
 // Инициализация приложения
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM загружен, инициализируем приложение...');
+    
     // Установка текущей даты в шапке
     const currentDateElement = document.getElementById('current-date');
-    const now = new Date();
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    currentDateElement.textContent = now.toLocaleDateString('ru-RU', options);
-
+    if (currentDateElement) {
+        const now = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        currentDateElement.textContent = now.toLocaleDateString('ru-RU', options);
+    }
+    
     // Инициализация данных
     initializeData();
     
@@ -30,13 +34,15 @@ function initializeData() {
     const storedData = localStorage.getItem('crmData');
     
     if (!storedData) {
+        console.log('Создаем тестовые данные...');
         window.crmData = getDefaultData();
         localStorage.setItem('crmData', JSON.stringify(window.crmData));
     } else {
+        console.log('Загружаем данные из localStorage...');
         window.crmData = JSON.parse(storedData);
     }
     
-    console.log('Данные CRM инициализированы:', window.crmData);
+    console.log('Данные CRM инициализированы');
 }
 
 function getDefaultData() {
@@ -148,45 +154,6 @@ function getDefaultData() {
                 createdAt: "2024-08-01",
                 updatedAt: "2024-08-02",
                 assignedTo: "Дмитрий К."
-            },
-            {
-                id: 2,
-                residentId: 2,
-                buildingId: 1,
-                type: "электрика",
-                title: "Не работает розетка на кухне",
-                description: "Розетка перестала работать после грозы",
-                status: "in_progress",
-                priority: "medium",
-                createdAt: "2024-08-03",
-                updatedAt: "2024-08-04",
-                assignedTo: "Дмитрий К."
-            },
-            {
-                id: 3,
-                residentId: 4,
-                buildingId: 3,
-                type: "уборка",
-                title: "Не убран мусор в подъезде",
-                description: "Мусор не вывозится уже 3 дня",
-                status: "resolved",
-                priority: "low",
-                createdAt: "2024-07-28",
-                updatedAt: "2024-07-30",
-                assignedTo: "Алексей М."
-            },
-            {
-                id: 4,
-                residentId: 3,
-                buildingId: 2,
-                type: "отопление",
-                title: "Холодные батареи",
-                description: "В квартире холодно, батареи еле теплые",
-                status: "open",
-                priority: "high",
-                createdAt: "2024-08-05",
-                updatedAt: "2024-08-05",
-                assignedTo: "Дмитрий К."
             }
         ],
         services: [
@@ -200,39 +167,6 @@ function getDefaultData() {
                 contractorId: 1,
                 sla: "24/7",
                 description: "Уборка подъездов, обслуживание лифтов, ремонт общедомового оборудования"
-            },
-            {
-                id: 2,
-                name: "Вывоз ТКО",
-                type: "main",
-                tariff: 15.30,
-                period: "monthly",
-                buildingId: 1,
-                contractorId: 2,
-                sla: "ежедневно",
-                description: "Вывоз твердых коммунальных отходов"
-            },
-            {
-                id: 3,
-                name: "Ремонт лифтового оборудования",
-                type: "additional",
-                tariff: 1200.00,
-                period: "on-demand",
-                buildingId: 1,
-                contractorId: 3,
-                sla: "4 часа",
-                description: "Экстренный и плановый ремонт лифтов"
-            },
-            {
-                id: 4,
-                name: "Техническое обслуживание ИТП",
-                type: "main",
-                tariff: 18.75,
-                period: "monthly",
-                buildingId: 3,
-                contractorId: 1,
-                sla: "24 часа",
-                description: "Обслуживание индивидуального теплового пункта"
             }
         ],
         contractors: [
@@ -243,22 +177,6 @@ function getDefaultData() {
                 workTypes: ["уборка территории", "текущий ремонт"],
                 bankDetails: "АО 'Альфа-Банк' р/с 40702810123450001234",
                 status: "активен"
-            },
-            {
-                id: 2,
-                legalName: "ООО 'Эко-Транс'",
-                inn: "7723456789",
-                workTypes: ["вывоз ТКО", "утилизация"],
-                bankDetails: "ПАО 'Сбербанк' р/с 40702810234560002345",
-                status: "активен"
-            },
-            {
-                id: 3,
-                legalName: "ООО 'Лифт-Сервис'",
-                inn: "7734567890",
-                workTypes: ["ремонт лифтов", "техническое обслуживание"],
-                bankDetails: "АО 'Тинькофф Банк' р/с 40702810345670003456",
-                status: "на проверке"
             }
         ],
         payments: [
@@ -268,30 +186,6 @@ function getDefaultData() {
                 amount: 1836.00,
                 status: "paid",
                 date: "2024-08-01",
-                payer: "ООО 'УК Профи'"
-            },
-            {
-                id: 2,
-                serviceId: 2,
-                amount: 1101.60,
-                status: "paid",
-                date: "2024-08-01",
-                payer: "ООО 'УК Профи'"
-            },
-            {
-                id: 3,
-                serviceId: 3,
-                amount: 1200.00,
-                status: "processing",
-                date: "2024-08-15",
-                payer: "ООО 'УК Профи'"
-            },
-            {
-                id: 4,
-                serviceId: 1,
-                amount: 1836.00,
-                status: "charged",
-                date: "2024-09-01",
                 payer: "ООО 'УК Профи'"
             }
         ],
@@ -306,39 +200,6 @@ function getDefaultData() {
                 date: "2024-01-15",
                 size: "2.4 MB",
                 category: "contracts"
-            },
-            {
-                id: 2,
-                type: "акт",
-                name: "Акт выполненных работ за июль 2024",
-                link: "#",
-                status: "pending",
-                entityId: 1,
-                date: "2024-08-01",
-                size: "1.8 MB",
-                category: "acts"
-            },
-            {
-                id: 3,
-                type: "лицензия",
-                name: "Лицензия на управление МКД",
-                link: "#",
-                status: "signed",
-                entityId: 1,
-                date: "2023-12-20",
-                size: "3.2 MB",
-                category: "licenses"
-            },
-            {
-                id: 4,
-                type: "отчет",
-                name: "Отчет по эксплуатации за 2 квартал 2024",
-                link: "#",
-                status: "signed",
-                entityId: 1,
-                date: "2024-07-15",
-                size: "4.5 MB",
-                category: "reports"
             }
         ],
         requisites: [
@@ -351,14 +212,6 @@ function getDefaultData() {
                 bik: "044525225",
                 inn: "7701234567",
                 kpp: "770101001"
-            },
-            {
-                id: 2,
-                type: "электронные",
-                paymentSystem: "СБП (Система быстрых платежей)",
-                phone: "+7 (495) 123-45-67",
-                email: "payments@uk-profi.ru",
-                qrCode: "#"
             }
         ]
     };
@@ -367,11 +220,15 @@ function getDefaultData() {
 // ==================== НАВИГАЦИЯ ====================
 
 function setupNavigation() {
+    console.log('Настройка навигации...');
+    
     const navLinks = document.querySelectorAll('.nav-link');
     
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
+            
+            console.log('Нажата кнопка навигации:', this.getAttribute('data-page'));
             
             // Удаляем активный класс у всех ссылок
             navLinks.forEach(l => l.classList.remove('active'));
@@ -387,6 +244,8 @@ function setupNavigation() {
 }
 
 function loadPage(pageName) {
+    console.log('Загружаем страницу:', pageName);
+    
     const contentArea = document.getElementById('content-area');
     
     if (!contentArea) {
@@ -433,15 +292,20 @@ function loadPage(pageName) {
             default:
                 loadDashboard();
         }
-    }, 100);
+    }, 50);
 }
 
 // ==================== СТРАНИЦЫ ====================
 
 function loadDashboard() {
+    console.log('Загружаем дашборд...');
+    
     const contentArea = document.getElementById('content-area');
     
-    if (!contentArea || !window.crmData) return;
+    if (!contentArea || !window.crmData) {
+        console.error('Не удалось загрузить дашборд');
+        return;
+    }
     
     const totalCharged = window.crmData.payments.reduce((sum, payment) => sum + payment.amount, 0);
     const totalPaid = window.crmData.payments
@@ -513,9 +377,14 @@ function loadDashboard() {
 }
 
 function loadBuildings() {
+    console.log('Загружаем страницу домов...');
+    
     const contentArea = document.getElementById('content-area');
     
-    if (!contentArea || !window.crmData) return;
+    if (!contentArea || !window.crmData) {
+        console.error('Не удалось загрузить страницу домов');
+        return;
+    }
     
     contentArea.innerHTML = `
         <div class="page-header">
@@ -556,13 +425,13 @@ function loadBuildings() {
                                 ${building.risks.length === 0 ? '<span class="risk-flag risk-low"></span>Нет рисков' : ''}
                             </td>
                             <td>
-                                <button class="btn btn-secondary" onclick="viewBuilding(${building.id})">
+                                <button class="btn btn-secondary" onclick="window.viewBuilding(${building.id})">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button class="btn btn-secondary" onclick="editBuilding(${building.id})">
+                                <button class="btn btn-secondary" onclick="window.editBuilding(${building.id})">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-secondary" onclick="deleteBuilding(${building.id})">
+                                <button class="btn btn-secondary" onclick="window.deleteBuilding(${building.id})">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -585,9 +454,14 @@ function loadBuildings() {
 }
 
 function loadResidents() {
+    console.log('Загружаем страницу жильцов...');
+    
     const contentArea = document.getElementById('content-area');
     
-    if (!contentArea || !window.crmData) return;
+    if (!contentArea || !window.crmData) {
+        console.error('Не удалось загрузить страницу жильцов');
+        return;
+    }
     
     const totalResidents = window.crmData.residents.length;
     const activeResidents = window.crmData.residents.filter(r => r.status === 'active').length;
@@ -629,11 +503,11 @@ function loadResidents() {
         
         <div class="table-container">
             <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-                <button class="btn btn-secondary active" onclick="filterResidents('all')">Все</button>
-                <button class="btn btn-secondary" onclick="filterResidents('active')">Активные</button>
-                <button class="btn btn-secondary" onclick="filterResidents('inactive')">Неактивные</button>
-                <button class="btn btn-secondary" onclick="filterResidents('debtors')">Должники</button>
-                <button class="btn btn-secondary" onclick="filterResidents('no-debt')">Без долгов</button>
+                <button class="btn btn-secondary active" onclick="window.filterResidents('all')">Все</button>
+                <button class="btn btn-secondary" onclick="window.filterResidents('active')">Активные</button>
+                <button class="btn btn-secondary" onclick="window.filterResidents('inactive')">Неактивные</button>
+                <button class="btn btn-secondary" onclick="window.filterResidents('debtors')">Должники</button>
+                <button class="btn btn-secondary" onclick="window.filterResidents('no-debt')">Без долгов</button>
             </div>
             
             <table>
@@ -670,13 +544,13 @@ function loadResidents() {
                                 <td><span class="status-badge ${balanceClass}">${balanceText}</span></td>
                                 <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                                 <td>
-                                    <button class="btn btn-secondary" onclick="viewResidentDetails(${resident.id})">
+                                    <button class="btn btn-secondary" onclick="window.viewResidentDetails(${resident.id})">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button class="btn btn-secondary" onclick="editResident(${resident.id})">
+                                    <button class="btn btn-secondary" onclick="window.editResident(${resident.id})">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-secondary" onclick="sendNotificationToResident(${resident.id})">
+                                    <button class="btn btn-secondary" onclick="window.sendNotificationToResident(${resident.id})">
                                         <i class="fas fa-bell"></i>
                                     </button>
                                 </td>
@@ -690,9 +564,14 @@ function loadResidents() {
 }
 
 function loadTickets() {
+    console.log('Загружаем страницу обращений...');
+    
     const contentArea = document.getElementById('content-area');
     
-    if (!contentArea || !window.crmData) return;
+    if (!contentArea || !window.crmData) {
+        console.error('Не удалось загрузить страницу обращений');
+        return;
+    }
     
     const totalTickets = window.crmData.tickets.length;
     const openTickets = window.crmData.tickets.filter(t => t.status === 'open').length;
@@ -732,11 +611,11 @@ function loadTickets() {
         
         <div class="table-container">
             <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-                <button class="btn btn-secondary active" onclick="filterTickets('all')">Все</button>
-                <button class="btn btn-secondary" onclick="filterTickets('open')">Открытые</button>
-                <button class="btn btn-secondary" onclick="filterTickets('in_progress')">В работе</button>
-                <button class="btn btn-secondary" onclick="filterTickets('resolved')">Решённые</button>
-                <button class="btn btn-secondary" onclick="filterTickets('high')">Высокий приоритет</button>
+                <button class="btn btn-secondary active" onclick="window.filterTickets('all')">Все</button>
+                <button class="btn btn-secondary" onclick="window.filterTickets('open')">Открытые</button>
+                <button class="btn btn-secondary" onclick="window.filterTickets('in_progress')">В работе</button>
+                <button class="btn btn-secondary" onclick="window.filterTickets('resolved')">Решённые</button>
+                <button class="btn btn-secondary" onclick="window.filterTickets('high')">Высокий приоритет</button>
             </div>
             
             <table>
@@ -789,13 +668,13 @@ function loadTickets() {
                                 <td>${ticket.createdAt}</td>
                                 <td>${ticket.assignedTo || 'Не назначен'}</td>
                                 <td>
-                                    <button class="btn btn-secondary" onclick="viewTicketDetails(${ticket.id})">
+                                    <button class="btn btn-secondary" onclick="window.viewTicketDetails(${ticket.id})">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button class="btn btn-secondary" onclick="assignTicket(${ticket.id})">
+                                    <button class="btn btn-secondary" onclick="window.assignTicket(${ticket.id})">
                                         <i class="fas fa-user-check"></i>
                                     </button>
-                                    <button class="btn btn-secondary" onclick="closeTicket(${ticket.id})">
+                                    <button class="btn btn-secondary" onclick="window.closeTicket(${ticket.id})">
                                         <i class="fas fa-check"></i>
                                     </button>
                                 </td>
@@ -809,9 +688,14 @@ function loadTickets() {
 }
 
 function loadServices() {
+    console.log('Загружаем страницу услуг...');
+    
     const contentArea = document.getElementById('content-area');
     
-    if (!contentArea || !window.crmData) return;
+    if (!contentArea || !window.crmData) {
+        console.error('Не удалось загрузить страницу услуг');
+        return;
+    }
     
     const totalServices = window.crmData.services.length;
     const mainServices = window.crmData.services.filter(s => s.type === 'main').length;
@@ -888,13 +772,13 @@ function loadServices() {
                                 <td>${service.sla}</td>
                                 <td><span class="status-badge status-paid">Активна</span></td>
                                 <td>
-                                    <button class="btn btn-secondary" onclick="viewServiceDetails(${service.id})">
+                                    <button class="btn btn-secondary" onclick="window.viewServiceDetails(${service.id})">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button class="btn btn-secondary" onclick="editService(${service.id})">
+                                    <button class="btn btn-secondary" onclick="window.editService(${service.id})">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-secondary" onclick="calculateRevenue(${service.id})">
+                                    <button class="btn btn-secondary" onclick="window.calculateRevenue(${service.id})">
                                         <i class="fas fa-calculator"></i>
                                     </button>
                                 </td>
@@ -908,9 +792,14 @@ function loadServices() {
 }
 
 function loadPayments() {
+    console.log('Загружаем страницу платежей...');
+    
     const contentArea = document.getElementById('content-area');
     
-    if (!contentArea || !window.crmData) return;
+    if (!contentArea || !window.crmData) {
+        console.error('Не удалось загрузить страницу платежей');
+        return;
+    }
     
     const totalCharged = window.crmData.payments.reduce((sum, p) => sum + p.amount, 0);
     const totalPaid = window.crmData.payments
@@ -984,9 +873,14 @@ function loadPayments() {
 }
 
 function loadContractors() {
+    console.log('Загружаем страницу подрядчиков...');
+    
     const contentArea = document.getElementById('content-area');
     
-    if (!contentArea || !window.crmData) return;
+    if (!contentArea || !window.crmData) {
+        console.error('Не удалось загрузить страницу подрядчиков');
+        return;
+    }
     
     contentArea.innerHTML = `
         <div class="page-header">
@@ -1022,10 +916,10 @@ function loadContractors() {
                                 <td>${contractor.workTypes.join(', ')}</td>
                                 <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                                 <td>
-                                    <button class="btn btn-secondary" onclick="viewContractor(${contractor.id})">
+                                    <button class="btn btn-secondary" onclick="window.viewContractor(${contractor.id})">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button class="btn btn-secondary" onclick="editContractor(${contractor.id})">
+                                    <button class="btn btn-secondary" onclick="window.editContractor(${contractor.id})">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                 </td>
@@ -1039,9 +933,14 @@ function loadContractors() {
 }
 
 function loadDocuments() {
+    console.log('Загружаем страницу документов...');
+    
     const contentArea = document.getElementById('content-area');
     
-    if (!contentArea || !window.crmData) return;
+    if (!contentArea || !window.crmData) {
+        console.error('Не удалось загрузить страницу документов');
+        return;
+    }
     
     const totalDocuments = window.crmData.documents.length;
     const signedDocuments = window.crmData.documents.filter(d => d.status === 'signed').length;
@@ -1120,18 +1019,18 @@ function loadDocuments() {
                                 <td>${document.size || 'Не указан'}</td>
                                 <td>${document.entityId ? `Объект #${document.entityId}` : 'Не привязан'}</td>
                                 <td>
-                                    <button class="btn btn-secondary" onclick="viewDocument(${document.id})">
+                                    <button class="btn btn-secondary" onclick="window.viewDocument(${document.id})">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button class="btn btn-secondary" onclick="downloadDocument(${document.id})">
+                                    <button class="btn btn-secondary" onclick="window.downloadDocument(${document.id})">
                                         <i class="fas fa-download"></i>
                                     </button>
                                     ${document.status === 'pending' ? `
-                                        <button class="btn btn-secondary" onclick="signDocument(${document.id})">
+                                        <button class="btn btn-secondary" onclick="window.signDocument(${document.id})">
                                             <i class="fas fa-signature"></i>
                                         </button>
                                     ` : ''}
-                                    <button class="btn btn-secondary" onclick="shareDocument(${document.id})">
+                                    <button class="btn btn-secondary" onclick="window.shareDocument(${document.id})">
                                         <i class="fas fa-share"></i>
                                     </button>
                                 </td>
@@ -1145,9 +1044,14 @@ function loadDocuments() {
 }
 
 function loadRequisites() {
+    console.log('Загружаем страницу реквизитов...');
+    
     const contentArea = document.getElementById('content-area');
     
-    if (!contentArea || !window.crmData) return;
+    if (!contentArea || !window.crmData) {
+        console.error('Не удалось загрузить страницу реквизитов');
+        return;
+    }
     
     const company = window.crmData.currentCompany;
     
@@ -1160,9 +1064,9 @@ function loadRequisites() {
         </div>
         
         <div class="tabs" style="margin-bottom: 30px;">
-            <button class="tab active" onclick="showRequisitesTab('bank')">Банковские реквизиты</button>
-            <button class="tab" onclick="showRequisitesTab('electronic')">Электронные платежи</button>
-            <button class="tab" onclick="showRequisitesTab('instructions')">Инструкции для жильцов</button>
+            <button class="tab active" onclick="window.showRequisitesTab('bank')">Банковские реквизиты</button>
+            <button class="tab" onclick="window.showRequisitesTab('electronic')">Электронные платежи</button>
+            <button class="tab" onclick="window.showRequisitesTab('instructions')">Инструкции для жильцов</button>
         </div>
         
         <div id="requisitesContent">
@@ -1209,14 +1113,6 @@ function loadRequisites() {
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <h4 style="margin-bottom: 15px;">Назначение платежа</h4>
-                    <div style="background: #e6f7ff; padding: 20px; border-radius: 12px; margin-bottom: 30px;">
-                        <p><strong>Образец заполнения:</strong></p>
-                        <p style="margin-top: 10px; font-family: monospace; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
-                            Оплата за жилищно-коммунальные услуги за [месяц] [год], лицевой счет: [номер счета], ФИО: [Фамилия И.О.]
-                        </p>
                     </div>
                 </div>
             </div>
@@ -1267,17 +1163,26 @@ function loadRequisites() {
         const tabs = document.querySelectorAll('.tab');
         tabs.forEach(tab => {
             tab.addEventListener('click', function() {
-                const tabName = this.getAttribute('onclick').match(/'(.+?)'/)[1];
-                showRequisitesTab(tabName);
+                const onclickAttr = this.getAttribute('onclick');
+                const match = onclickAttr.match(/'(.+?)'/);
+                if (match) {
+                    const tabName = match[1];
+                    showRequisitesTab(tabName);
+                }
             });
         });
     }, 100);
 }
 
 function loadProfile() {
+    console.log('Загружаем профиль...');
+    
     const contentArea = document.getElementById('content-area');
     
-    if (!contentArea || !window.crmData) return;
+    if (!contentArea || !window.crmData) {
+        console.error('Не удалось загрузить профиль');
+        return;
+    }
     
     const company = window.crmData.currentCompany;
     
@@ -1348,13 +1253,17 @@ function loadProfile() {
 // ==================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ====================
 
 function showRequisitesTab(tabName) {
+    console.log('Переключаем вкладку реквизитов на:', tabName);
+    
     // Убираем активный класс со всех вкладок контента
-    document.querySelectorAll('#requisitesContent .tab-content').forEach(tab => {
+    const tabContents = document.querySelectorAll('#requisitesContent .tab-content');
+    tabContents.forEach(tab => {
         tab.classList.remove('active');
     });
     
     // Убираем активный класс со всех кнопок вкладок
-    document.querySelectorAll('.tab').forEach(btn => {
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(btn => {
         btn.classList.remove('active');
     });
     
@@ -1370,8 +1279,12 @@ function showRequisitesTab(tabName) {
 }
 
 function filterResidents(filter) {
+    console.log('Фильтруем жильцов по:', filter);
+    
     const rows = document.querySelectorAll('#residentsTableBody tr');
     const buttons = document.querySelectorAll('.btn[onclick^="filterResidents"]');
+    
+    if (buttons.length === 0) return;
     
     buttons.forEach(btn => {
         if (btn.getAttribute('onclick').includes(`'${filter}'`)) {
@@ -1384,8 +1297,8 @@ function filterResidents(filter) {
     rows.forEach(row => {
         const statusCell = row.cells[6];
         const balanceCell = row.cells[5];
-        const statusText = statusCell.textContent.trim();
-        const balanceText = balanceCell.textContent.trim();
+        const statusText = statusCell ? statusCell.textContent.trim() : '';
+        const balanceText = balanceCell ? balanceCell.textContent.trim() : '';
         
         let show = true;
         
@@ -1412,8 +1325,12 @@ function filterResidents(filter) {
 }
 
 function filterTickets(filter) {
+    console.log('Фильтруем обращения по:', filter);
+    
     const rows = document.querySelectorAll('#ticketsTableBody tr');
     const buttons = document.querySelectorAll('.btn[onclick^="filterTickets"]');
+    
+    if (buttons.length === 0) return;
     
     buttons.forEach(btn => {
         if (btn.getAttribute('onclick').includes(`'${filter}'`)) {
@@ -1426,8 +1343,8 @@ function filterTickets(filter) {
     rows.forEach(row => {
         const statusCell = row.cells[5];
         const priorityCell = row.cells[4];
-        const statusText = statusCell.textContent.trim();
-        const priorityText = priorityCell.textContent.trim();
+        const statusText = statusCell ? statusCell.textContent.trim() : '';
+        const priorityText = priorityCell ? priorityCell.textContent.trim() : '';
         
         let show = true;
         
@@ -1545,6 +1462,8 @@ function shareDocument(id) {
 // ==================== НАСТРОЙКА МОДАЛЬНЫХ ОКОН ====================
 
 function setupModals() {
+    console.log('Настройка модальных окон...');
+    
     // Закрытие модальных окон при клике на крестик
     const closeButtons = document.querySelectorAll('.close-modal');
     if (closeButtons.length > 0) {
@@ -1579,8 +1498,9 @@ function closeAllModals() {
     });
 }
 
-// ==================== ЭКСПОРТ ФУНКЦИЙ ====================
+// ==================== ЭКСПОРТ ФУНКЦИЙ В ГЛОБАЛЬНУЮ ОБЛАСТЬ ====================
 
+window.loadPage = loadPage;
 window.loadDashboard = loadDashboard;
 window.loadBuildings = loadBuildings;
 window.loadResidents = loadResidents;
@@ -1620,3 +1540,7 @@ window.signDocument = signDocument;
 window.shareDocument = shareDocument;
 
 window.showRequisitesTab = showRequisitesTab;
+window.openModal = openModal;
+window.closeAllModals = closeAllModals;
+
+console.log('Функции экспортированы в глобальную область видимости');

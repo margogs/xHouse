@@ -1,11 +1,14 @@
-// app.js - РАБОЧАЯ ВЕРСИЯ
+// app.js - РАБОЧАЯ ВЕРСИЯ С ИСПРАВЛЕНИЯМИ
 // Все страницы точно открываются!
 
 // Глобальные переменные
 let crmData = null;
+let isInitialized = false;
 
 // Основная функция запуска
 function initApp() {
+    if (isInitialized) return;
+    
     console.log('🚀 Запускаем приложение...');
     
     // Устанавливаем дату
@@ -22,6 +25,8 @@ function initApp() {
     
     // Показываем первую страницу
     showPage('dashboard');
+    
+    isInitialized = true;
 }
 
 // Обновление текущей даты
@@ -39,56 +44,71 @@ function loadData() {
     const savedData = localStorage.getItem('crmData');
     
     if (savedData) {
-        crmData = JSON.parse(savedData);
-        console.log('📊 Данные загружены из localStorage');
+        try {
+            crmData = JSON.parse(savedData);
+            console.log('📊 Данные загружены из localStorage');
+        } catch (e) {
+            console.error('❌ Ошибка загрузки данных:', e);
+            createDefaultData();
+        }
     } else {
-        // Создаем тестовые данные
-        crmData = {
-            currentCompany: {
-                legalName: "ООО 'Управляющая Компания Профи'",
-                inn: "7701234567",
-                ogrn: "1177745678901",
-                region: "Москва",
-                contacts: {
-                    phone: "+7 (495) 123-45-67",
-                    email: "info@uk-profi.ru",
-                    address: "ул. Тверская, д. 10"
-                },
-                licenses: ["Лицензия №12345", "Лицензия №67890"]
-            },
-            buildings: [
-                { id: 1, address: "ул. Ленина, д. 15", floors: 9, apartments: 72, risks: ["electrical"] },
-                { id: 2, address: "пр. Победы, д. 42", floors: 5, apartments: 40, risks: ["roof"] }
-            ],
-            residents: [
-                { id: 1, name: "Иванов Иван Иванович", apartment: "15", buildingId: 1, phone: "+7 (916) 123-45-67", email: "ivanov@mail.ru", status: "active", balance: 1500.50 },
-                { id: 2, name: "Петрова Мария Сергеевна", apartment: "42", buildingId: 1, phone: "+7 (916) 234-56-78", email: "petrova@mail.ru", status: "active", balance: -2300.75 }
-            ],
-            tickets: [
-                { id: 1, title: "Протечка в ванной", type: "ремонт", status: "open", priority: "high", createdAt: "2024-08-01" },
-                { id: 2, title: "Не работает лифт", type: "ремонт", status: "closed", priority: "high", createdAt: "2024-07-25" }
-            ],
-            services: [
-                { id: 1, name: "Содержание общего имущества", type: "main", tariff: 25.50, period: "monthly", buildingId: 1 },
-                { id: 2, name: "Вывоз ТБО", type: "main", tariff: 8.30, period: "monthly", buildingId: 1 }
-            ],
-            payments: [
-                { id: 1, serviceId: 1, amount: 1836.00, status: "paid", date: "2024-08-01", payer: "ООО 'УК Профи'" },
-                { id: 2, serviceId: 2, amount: 597.60, status: "pending", date: "2024-08-01", payer: "ООО 'УК Профи'" }
-            ],
-            documents: [
-                { id: 1, name: "Договор с ООО 'Сервис Плюс'", type: "договор", status: "signed", date: "2024-01-15", size: "2.4 MB" },
-                { id: 2, name: "Акт выполненных работ за июль", type: "акт", status: "signed", date: "2024-08-05", size: "1.8 MB" }
-            ],
-            contractors: [
-                { id: 1, name: "ООО 'Сервис Плюс'", inn: "7712345678", status: "активен", workTypes: ["ремонт", "обслуживание"] },
-                { id: 2, name: "ООО 'Эко-Транс'", inn: "7723456789", status: "активен", workTypes: ["вывоз ТБО"] }
-            ]
-        };
-        
-        localStorage.setItem('crmData', JSON.stringify(crmData));
-        console.log('📊 Тестовые данные созданы');
+        createDefaultData();
     }
+}
+
+// Создание тестовых данных
+function createDefaultData() {
+    crmData = {
+        currentCompany: {
+            id: 1,
+            legalName: "ООО 'Управляющая Компания Профи'",
+            inn: "7701234567",
+            ogrn: "1177745678901",
+            region: "Москва",
+            contacts: {
+                phone: "+7 (495) 123-45-67",
+                email: "info@uk-profi.ru",
+                address: "ул. Тверская, д. 10"
+            },
+            licenses: ["Лицензия №12345", "Лицензия №67890"]
+        },
+        buildings: [
+            { id: 1, address: "ул. Ленина, д. 15", floors: 9, apartments: 72, risks: ["electrical"] },
+            { id: 2, address: "пр. Победы, д. 42", floors: 5, apartments: 40, risks: ["roof"] },
+            { id: 3, address: "ул. Мира, д. 8", floors: 12, apartments: 96, risks: [] }
+        ],
+        residents: [
+            { id: 1, name: "Иванов Иван Иванович", apartment: "15", buildingId: 1, phone: "+7 (916) 123-45-67", email: "ivanov@mail.ru", status: "active", balance: 1500.50 },
+            { id: 2, name: "Петрова Мария Сергеевна", apartment: "42", buildingId: 1, phone: "+7 (916) 234-56-78", email: "petrova@mail.ru", status: "active", balance: -2300.75 },
+            { id: 3, name: "Сидоров Алексей Петрович", apartment: "8", buildingId: 2, phone: "+7 (916) 345-67-89", email: "sidorov@mail.ru", status: "active", balance: 3200.00 }
+        ],
+        tickets: [
+            { id: 1, title: "Протечка в ванной", type: "ремонт", status: "open", priority: "high", createdAt: "2024-08-01", buildingId: 1, residentId: 1 },
+            { id: 2, title: "Не работает лифт", type: "ремонт", status: "closed", priority: "high", createdAt: "2024-07-25", buildingId: 1, residentId: 2 },
+            { id: 3, title: "Шумные соседи", type: "жалоба", status: "open", priority: "low", createdAt: "2024-08-10", buildingId: 2, residentId: 3 }
+        ],
+        services: [
+            { id: 1, name: "Содержание общего имущества", type: "main", tariff: 25.50, period: "monthly", buildingId: 1 },
+            { id: 2, name: "Вывоз ТБО", type: "main", tariff: 8.30, period: "monthly", buildingId: 1 },
+            { id: 3, name: "Обслуживание лифта", type: "main", tariff: 12.00, period: "monthly", buildingId: 1 }
+        ],
+        payments: [
+            { id: 1, serviceId: 1, amount: 1836.00, status: "paid", date: "2024-08-01", payer: "ООО 'УК Профи'" },
+            { id: 2, serviceId: 2, amount: 597.60, status: "pending", date: "2024-08-01", payer: "ООО 'УК Профи'" },
+            { id: 3, serviceId: 3, amount: 864.00, status: "paid", date: "2024-08-01", payer: "ООО 'УК Профи'" }
+        ],
+        documents: [
+            { id: 1, name: "Договор с ООО 'Сервис Плюс'", type: "договор", status: "signed", date: "2024-01-15", size: "2.4 MB" },
+            { id: 2, name: "Акт выполненных работ за июль", type: "акт", status: "signed", date: "2024-08-05", size: "1.8 MB" }
+        ],
+        contractors: [
+            { id: 1, name: "ООО 'Сервис Плюс'", inn: "7712345678", status: "активен", workTypes: ["ремонт", "обслуживание"] },
+            { id: 2, name: "ООО 'Эко-Транс'", inn: "7723456789", status: "активен", workTypes: ["вывоз ТБО"] }
+        ]
+    };
+    
+    localStorage.setItem('crmData', JSON.stringify(crmData));
+    console.log('📊 Тестовые данные созданы');
 }
 
 // НАВИГАЦИЯ
@@ -124,39 +144,59 @@ function showPage(pageName) {
         return;
     }
     
+    // Проверяем, загружены ли данные
+    if (!crmData) {
+        console.error('❌ Данные не загружены!');
+        loadData();
+    }
+    
     // Показываем загрузку
     contentArea.innerHTML = '<div class="loading" style="text-align: center; padding: 50px; font-size: 18px;">Загрузка...</div>';
     
     // Генерируем контент с небольшой задержкой для UX
     setTimeout(() => {
-        let html = '';
-        
-        switch(pageName) {
-            case 'dashboard': html = getDashboard(); break;
-            case 'buildings': html = getBuildings(); break;
-            case 'residents': html = getResidents(); break;
-            case 'tickets': html = getTickets(); break;
-            case 'services': html = getServices(); break;
-            case 'payments': html = getPayments(); break;
-            case 'contractors': html = getContractors(); break;
-            case 'documents': html = getDocuments(); break;
-            case 'requisites': html = getRequisites(); break;
-            case 'profile': html = getProfile(); break;
-            default: html = getDashboard();
+        try {
+            let html = '';
+            
+            switch(pageName) {
+                case 'dashboard': html = getDashboard(); break;
+                case 'buildings': html = getBuildings(); break;
+                case 'residents': html = getResidents(); break;
+                case 'tickets': html = getTickets(); break;
+                case 'services': html = getServices(); break;
+                case 'payments': html = getPayments(); break;
+                case 'contractors': html = getContractors(); break;
+                case 'documents': html = getDocuments(); break;
+                case 'requisites': html = getRequisites(); break;
+                case 'profile': html = getProfile(); break;
+                default: html = getDashboard();
+            }
+            
+            // Вставляем HTML
+            contentArea.innerHTML = html;
+            
+            // Инициализируем страницу
+            initPage(pageName);
+            
+            console.log('✅ Страница загружена:', pageName);
+        } catch (error) {
+            console.error('❌ Ошибка при загрузке страницы:', error);
+            contentArea.innerHTML = `
+                <div style="text-align: center; padding: 50px; color: var(--danger);">
+                    <h3>Ошибка загрузки страницы</h3>
+                    <p>${error.message}</p>
+                    <button class="btn btn-primary" onclick="showPage('dashboard')">Вернуться на главную</button>
+                </div>
+            `;
         }
-        
-        // Вставляем HTML
-        contentArea.innerHTML = html;
-        
-        // Инициализируем страницу
-        initPage(pageName);
-        
-        console.log('✅ Страница загружена:', pageName);
     }, 50);
 }
 
 // СТРАНИЦА 1: Аналитика
 function getDashboard() {
+    // Проверяем данные
+    if (!crmData) return '<div>Ошибка загрузки данных</div>';
+    
     return `
         <div class="page-header">
             <h2 class="page-title">Аналитика</h2>
@@ -179,12 +219,12 @@ function getDashboard() {
             </div>
             <div class="stat-card">
                 <h3>Дома в управлении</h3>
-                <div class="stat-value">${crmData.buildings.length}</div>
+                <div class="stat-value">${crmData.buildings ? crmData.buildings.length : 0}</div>
                 <div class="stat-change">+2 в этом месяце</div>
             </div>
             <div class="stat-card">
                 <h3>Активные обращения</h3>
-                <div class="stat-value">${crmData.tickets.filter(t => t.status === 'open').length}</div>
+                <div class="stat-value">${crmData.tickets ? crmData.tickets.filter(t => t.status === 'open').length : 0}</div>
                 <div class="stat-change">-5 с прошлой недели</div>
             </div>
         </div>
@@ -197,6 +237,10 @@ function getDashboard() {
 
 // СТРАНИЦА 2: Дома
 function getBuildings() {
+    if (!crmData || !crmData.buildings) return '<div>Ошибка загрузки данных</div>';
+    
+    const totalApartments = crmData.buildings.reduce((sum, b) => sum + (b.apartments || 0), 0);
+    
     return `
         <div class="page-header">
             <h2 class="page-title">Дома</h2>
@@ -212,7 +256,7 @@ function getBuildings() {
             </div>
             <div class="stat-card">
                 <h3>Общее квартир</h3>
-                <div class="stat-value">${crmData.buildings.reduce((sum, b) => sum + b.apartments, 0)}</div>
+                <div class="stat-value">${totalApartments}</div>
                 <div class="stat-change">во всех домах</div>
             </div>
         </div>
@@ -230,17 +274,15 @@ function getBuildings() {
                     ${crmData.buildings.map(building => `
                         <tr>
                             <td><strong>${building.address}</strong></td>
-                            <td>${building.floors}</td>
-                            <td>${building.apartments}</td>
+                            <td>${building.floors || '—'}</td>
+                            <td>${building.apartments || '—'}</td>
                             <td>
                                 ${building.risks && building.risks.length > 0 
                                     ? building.risks.map(risk => {
                                         switch(risk) {
                                             case 'electrical': return '<span class="risk-flag risk-high"></span>Электрика';
                                             case 'roof': return '<span class="risk-flag risk-medium"></span>Крыша';
-                                            case 'elevator': return '<span class="risk-flag risk-high"></span>Лифт';
-                                            case 'plumbing': return '<span class="risk-flag risk-medium"></span>Водопровод';
-                                            default: return risk;
+                                            default: return '<span class="risk-flag risk-low"></span>' + risk;
                                         }
                                     }).join(', ') 
                                     : '<span style="color: var(--gray-400);">Нет</span>'}
@@ -253,9 +295,12 @@ function getBuildings() {
     `;
 }
 
-// СТРАНИЦА 3: Жильцы
+// СТРАНИЦА 3: Жильцы - ИСПРАВЛЕНА
 function getResidents() {
+    if (!crmData || !crmData.residents || !crmData.buildings) return '<div>Ошибка загрузки данных</div>';
+    
     const activeResidents = crmData.residents.filter(r => r.status === 'active').length;
+    const totalResidents = crmData.residents.length;
     
     return `
         <div class="page-header">
@@ -267,17 +312,17 @@ function getResidents() {
         <div class="stats-cards">
             <div class="stat-card">
                 <h3>Всего жильцов</h3>
-                <div class="stat-value">${crmData.residents.length}</div>
+                <div class="stat-value">${totalResidents}</div>
                 <div class="stat-change">в ${crmData.buildings.length} домах</div>
             </div>
             <div class="stat-card">
                 <h3>Активные</h3>
                 <div class="stat-value">${activeResidents}</div>
-                <div class="stat-change">${Math.round((activeResidents / crmData.residents.length) * 100)}% от общего числа</div>
+                <div class="stat-change">${totalResidents > 0 ? Math.round((activeResidents / totalResidents) * 100) : 0}% от общего числа</div>
             </div>
             <div class="stat-card">
                 <h3>Средний баланс</h3>
-                <div class="stat-value">${Math.round(crmData.residents.reduce((sum, r) => sum + r.balance, 0) / crmData.residents.length)} ₽</div>
+                <div class="stat-value">${totalResidents > 0 ? Math.round(crmData.residents.reduce((sum, r) => sum + (r.balance || 0), 0) / totalResidents) : 0} ₽</div>
                 <div class="stat-change">по всем жильцам</div>
             </div>
         </div>
@@ -296,15 +341,16 @@ function getResidents() {
                 <tbody>
                     ${crmData.residents.map(resident => {
                         const building = crmData.buildings.find(b => b.id === resident.buildingId);
+                        const balance = resident.balance || 0;
                         return `
                             <tr>
-                                <td><strong>${resident.name}</strong></td>
-                                <td>${resident.apartment}</td>
+                                <td><strong>${resident.name || 'Не указано'}</strong></td>
+                                <td>${resident.apartment || '—'}</td>
                                 <td>${building ? building.address : 'Не указан'}</td>
-                                <td>${resident.phone}</td>
+                                <td>${resident.phone || '—'}</td>
                                 <td>
-                                    <span style="color: ${resident.balance >= 0 ? 'var(--success)' : 'var(--danger)'}; font-weight: 600;">
-                                        ${resident.balance} ₽
+                                    <span style="color: ${balance >= 0 ? 'var(--success)' : 'var(--danger)'}; font-weight: 600;">
+                                        ${balance.toFixed(2)} ₽
                                     </span>
                                 </td>
                                 <td>
@@ -321,9 +367,13 @@ function getResidents() {
     `;
 }
 
-// СТРАНИЦА 4: Обращения
+// СТРАНИЦА 4: Обращения - ИСПРАВЛЕНА
 function getTickets() {
+    if (!crmData || !crmData.tickets) return '<div>Ошибка загрузки данных</div>';
+    
     const openTickets = crmData.tickets.filter(t => t.status === 'open').length;
+    const totalTickets = crmData.tickets.length;
+    const highPriority = crmData.tickets.filter(t => t.priority === 'high').length;
     
     return `
         <div class="page-header">
@@ -335,7 +385,7 @@ function getTickets() {
         <div class="stats-cards">
             <div class="stat-card">
                 <h3>Всего обращений</h3>
-                <div class="stat-value">${crmData.tickets.length}</div>
+                <div class="stat-value">${totalTickets}</div>
                 <div class="stat-change">за все время</div>
             </div>
             <div class="stat-card">
@@ -345,7 +395,7 @@ function getTickets() {
             </div>
             <div class="stat-card">
                 <h3>Высокий приоритет</h3>
-                <div class="stat-value">${crmData.tickets.filter(t => t.priority === 'high').length}</div>
+                <div class="stat-value">${highPriority}</div>
                 <div class="stat-change">срочные обращения</div>
             </div>
         </div>
@@ -362,24 +412,30 @@ function getTickets() {
                     </tr>
                 </thead>
                 <tbody>
-                    ${crmData.tickets.map(ticket => `
-                        <tr>
-                            <td>#${ticket.id}</td>
-                            <td><strong>${ticket.title}</strong></td>
-                            <td>${ticket.type}</td>
-                            <td>
-                                <span class="status-badge ${ticket.priority === 'high' ? 'status-pending' : 'status-processing'}">
-                                    ${ticket.priority === 'high' ? 'Высокий' : ticket.priority === 'medium' ? 'Средний' : 'Низкий'}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="status-badge ${ticket.status === 'open' ? 'status-pending' : 'status-paid'}">
-                                    ${ticket.status === 'open' ? 'Открыто' : 'Закрыто'}
-                                </span>
-                            </td>
-                            <td>${ticket.createdAt}</td>
-                        </tr>
-                    `).join('')}
+                    ${crmData.tickets.map(ticket => {
+                        const priorityText = ticket.priority === 'high' ? 'Высокий' : 
+                                           ticket.priority === 'medium' ? 'Средний' : 'Низкий';
+                        const priorityClass = ticket.priority === 'high' ? 'status-pending' : 
+                                            ticket.priority === 'medium' ? 'status-processing' : 'status-paid';
+                        return `
+                            <tr>
+                                <td>#${ticket.id || '—'}</td>
+                                <td><strong>${ticket.title || 'Без названия'}</strong></td>
+                                <td>${ticket.type || '—'}</td>
+                                <td>
+                                    <span class="status-badge ${priorityClass}">
+                                        ${priorityText}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="status-badge ${ticket.status === 'open' ? 'status-pending' : 'status-paid'}">
+                                        ${ticket.status === 'open' ? 'Открыто' : 'Закрыто'}
+                                    </span>
+                                </td>
+                                <td>${ticket.createdAt || '—'}</td>
+                            </tr>
+                        `;
+                    }).join('')}
                 </tbody>
             </table>
         </div>
@@ -388,7 +444,12 @@ function getTickets() {
 
 // СТРАНИЦА 5: Услуги
 function getServices() {
+    if (!crmData || !crmData.services || !crmData.buildings) return '<div>Ошибка загрузки данных</div>';
+    
     const mainServices = crmData.services.filter(s => s.type === 'main').length;
+    const totalServices = crmData.services.length;
+    const avgTariff = totalServices > 0 ? 
+        Math.round(crmData.services.reduce((sum, s) => sum + (s.tariff || 0), 0) / totalServices) : 0;
     
     return `
         <div class="page-header">
@@ -400,7 +461,7 @@ function getServices() {
         <div class="stats-cards">
             <div class="stat-card">
                 <h3>Всего услуг</h3>
-                <div class="stat-value">${crmData.services.length}</div>
+                <div class="stat-value">${totalServices}</div>
                 <div class="stat-change">активных</div>
             </div>
             <div class="stat-card">
@@ -410,7 +471,7 @@ function getServices() {
             </div>
             <div class="stat-card">
                 <h3>Средний тариф</h3>
-                <div class="stat-value">${Math.round(crmData.services.reduce((sum, s) => sum + s.tariff, 0) / crmData.services.length)} ₽</div>
+                <div class="stat-value">${avgTariff} ₽</div>
                 <div class="stat-change">за кв.м/месяц</div>
             </div>
         </div>
@@ -427,12 +488,13 @@ function getServices() {
                 </thead>
                 <tbody>
                     ${crmData.services.map(service => {
-                        const building = crmData.buildings.find(b => b.id === service.buildingId);
+                        const building = service.buildingId ? 
+                            crmData.buildings.find(b => b.id === service.buildingId) : null;
                         return `
                             <tr>
-                                <td><strong>${service.name}</strong></td>
+                                <td><strong>${service.name || '—'}</strong></td>
                                 <td>${service.type === 'main' ? 'Основная' : 'Дополнительная'}</td>
-                                <td>${service.tariff} ₽</td>
+                                <td>${service.tariff ? service.tariff.toFixed(2) + ' ₽' : '—'}</td>
                                 <td>${service.period === 'monthly' ? 'Ежемесячно' : 'По требованию'}</td>
                                 <td>${building ? building.address : 'Все дома'}</td>
                             </tr>
@@ -446,8 +508,12 @@ function getServices() {
 
 // СТРАНИЦА 6: Платежи
 function getPayments() {
-    const totalAmount = crmData.payments.reduce((sum, p) => sum + p.amount, 0);
-    const paidAmount = crmData.payments.filter(p => p.status === 'paid').reduce((sum, p) => sum + p.amount, 0);
+    if (!crmData || !crmData.payments) return '<div>Ошибка загрузки данных</div>';
+    
+    const totalAmount = crmData.payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+    const paidPayments = crmData.payments.filter(p => p.status === 'paid');
+    const paidAmount = paidPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+    const pendingAmount = totalAmount - paidAmount;
     
     return `
         <div class="page-header">
@@ -465,11 +531,11 @@ function getPayments() {
             <div class="stat-card">
                 <h3>Оплачено</h3>
                 <div class="stat-value">${paidAmount.toLocaleString()} ₽</div>
-                <div class="stat-change">${Math.round((paidAmount / totalAmount) * 100)}% от начисленного</div>
+                <div class="stat-change">${totalAmount > 0 ? Math.round((paidAmount / totalAmount) * 100) : 0}% от начисленного</div>
             </div>
             <div class="stat-card">
                 <h3>В ожидании</h3>
-                <div class="stat-value">${(totalAmount - paidAmount).toLocaleString()} ₽</div>
+                <div class="stat-value">${pendingAmount.toLocaleString()} ₽</div>
                 <div class="stat-change">неоплаченные начисления</div>
             </div>
         </div>
@@ -487,15 +553,15 @@ function getPayments() {
                 <tbody>
                     ${crmData.payments.map(payment => `
                         <tr>
-                            <td>#${payment.id}</td>
-                            <td><strong>${payment.amount.toLocaleString()} ₽</strong></td>
+                            <td>#${payment.id || '—'}</td>
+                            <td><strong>${payment.amount ? payment.amount.toLocaleString() + ' ₽' : '—'}</strong></td>
                             <td>
                                 <span class="status-badge ${payment.status === 'paid' ? 'status-paid' : 'status-pending'}">
                                     ${payment.status === 'paid' ? 'Оплачен' : 'Ожидает'}
                                 </span>
                             </td>
-                            <td>${payment.date}</td>
-                            <td>${payment.payer}</td>
+                            <td>${payment.date || '—'}</td>
+                            <td>${payment.payer || '—'}</td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -506,7 +572,10 @@ function getPayments() {
 
 // СТРАНИЦА 7: Подрядчики
 function getContractors() {
+    if (!crmData || !crmData.contractors) return '<div>Ошибка загрузки данных</div>';
+    
     const activeContractors = crmData.contractors.filter(c => c.status === 'активен').length;
+    const totalContractors = crmData.contractors.length;
     
     return `
         <div class="page-header">
@@ -518,7 +587,7 @@ function getContractors() {
         <div class="stats-cards">
             <div class="stat-card">
                 <h3>Всего подрядчиков</h3>
-                <div class="stat-value">${crmData.contractors.length}</div>
+                <div class="stat-value">${totalContractors}</div>
                 <div class="stat-change">в базе</div>
             </div>
             <div class="stat-card">
@@ -540,12 +609,12 @@ function getContractors() {
                 <tbody>
                     ${crmData.contractors.map(contractor => `
                         <tr>
-                            <td><strong>${contractor.name}</strong></td>
-                            <td>${contractor.inn}</td>
+                            <td><strong>${contractor.name || '—'}</strong></td>
+                            <td>${contractor.inn || '—'}</td>
                             <td>${contractor.workTypes ? contractor.workTypes.join(', ') : 'Не указаны'}</td>
                             <td>
                                 <span class="status-badge ${contractor.status === 'активен' ? 'status-paid' : 'status-pending'}">
-                                    ${contractor.status}
+                                    ${contractor.status || '—'}
                                 </span>
                             </td>
                         </tr>
@@ -558,7 +627,10 @@ function getContractors() {
 
 // СТРАНИЦА 8: Документы
 function getDocuments() {
+    if (!crmData || !crmData.documents) return '<div>Ошибка загрузки данных</div>';
+    
     const signedDocs = crmData.documents.filter(d => d.status === 'signed').length;
+    const totalDocs = crmData.documents.length;
     
     return `
         <div class="page-header">
@@ -570,13 +642,13 @@ function getDocuments() {
         <div class="stats-cards">
             <div class="stat-card">
                 <h3>Всего документов</h3>
-                <div class="stat-value">${crmData.documents.length}</div>
+                <div class="stat-value">${totalDocs}</div>
                 <div class="stat-change">в системе</div>
             </div>
             <div class="stat-card">
                 <h3>Подписаны</h3>
                 <div class="stat-value">${signedDocs}</div>
-                <div class="stat-change">${Math.round((signedDocs / crmData.documents.length) * 100)}% от общего числа</div>
+                <div class="stat-change">${totalDocs > 0 ? Math.round((signedDocs / totalDocs) * 100) : 0}% от общего числа</div>
             </div>
         </div>
         <div class="table-container">
@@ -593,15 +665,15 @@ function getDocuments() {
                 <tbody>
                     ${crmData.documents.map(doc => `
                         <tr>
-                            <td><strong>${doc.name}</strong></td>
-                            <td>${doc.type}</td>
+                            <td><strong>${doc.name || '—'}</strong></td>
+                            <td>${doc.type || '—'}</td>
                             <td>
                                 <span class="status-badge ${doc.status === 'signed' ? 'status-paid' : 'status-pending'}">
                                     ${doc.status === 'signed' ? 'Подписан' : 'Ожидает'}
                                 </span>
                             </td>
-                            <td>${doc.date}</td>
-                            <td>${doc.size}</td>
+                            <td>${doc.date || '—'}</td>
+                            <td>${doc.size || '—'}</td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -612,6 +684,8 @@ function getDocuments() {
 
 // СТРАНИЦА 9: Реквизиты
 function getRequisites() {
+    if (!crmData || !crmData.currentCompany) return '<div>Ошибка загрузки данных</div>';
+    
     const company = crmData.currentCompany;
     
     return `
@@ -626,9 +700,9 @@ function getRequisites() {
                 <div style="background: var(--gray-100); padding: 25px; border-radius: 12px; margin-bottom: 20px;">
                     <h3>Банковские реквизиты</h3>
                     <div style="margin-top: 20px;">
-                        <p><strong>Наименование:</strong> ${company.legalName}</p>
-                        <p><strong>ИНН:</strong> ${company.inn}</p>
-                        <p><strong>ОГРН:</strong> ${company.ogrn}</p>
+                        <p><strong>Наименование:</strong> ${company.legalName || '—'}</p>
+                        <p><strong>ИНН:</strong> ${company.inn || '—'}</p>
+                        <p><strong>ОГРН:</strong> ${company.ogrn || '—'}</p>
                         <p><strong>Банк:</strong> ПАО Сбербанк</p>
                         <p><strong>Расчетный счет:</strong> 40702810123450001234</p>
                         <p><strong>Корреспондентский счет:</strong> 30101810400000000225</p>
@@ -639,8 +713,8 @@ function getRequisites() {
                 <div style="background: var(--primary-light); padding: 25px; border-radius: 12px;">
                     <h3>Реквизиты для жильцов</h3>
                     <p style="margin-top: 15px;"><strong>Назначение платежа:</strong> Оплата жилищно-коммунальных услуг</p>
-                    <p><strong>Получатель:</strong> ${company.legalName}</p>
-                    <p><strong>ИНН:</strong> ${company.inn}</p>
+                    <p><strong>Получатель:</strong> ${company.legalName || '—'}</p>
+                    <p><strong>ИНН:</strong> ${company.inn || '—'}</p>
                     <p><strong>КПП:</strong> 770501001</p>
                     <p><strong>Расчетный счет:</strong> 40702810123450001234</p>
                 </div>
@@ -674,8 +748,10 @@ function getRequisites() {
     `;
 }
 
-// СТРАНИЦА 10: Профиль УК
+// СТРАНИЦА 10: Профиль УК - ИСПРАВЛЕНА
 function getProfile() {
+    if (!crmData || !crmData.currentCompany) return '<div>Ошибка загрузки данных</div>';
+    
     const company = crmData.currentCompany;
     
     return `
@@ -690,10 +766,10 @@ function getProfile() {
                 <div style="background: var(--gray-100); padding: 25px; border-radius: 12px; margin-bottom: 20px;">
                     <h3>Основная информация</h3>
                     <div style="margin-top: 20px;">
-                        <p><strong>Название:</strong> ${company.legalName}</p>
-                        <p><strong>ИНН:</strong> ${company.inn}</p>
-                        <p><strong>ОГРН:</strong> ${company.ogrn}</p>
-                        <p><strong>Регион:</strong> ${company.region}</p>
+                        <p><strong>Название:</strong> ${company.legalName || '—'}</p>
+                        <p><strong>ИНН:</strong> ${company.inn || '—'}</p>
+                        <p><strong>ОГРН:</strong> ${company.ogrn || '—'}</p>
+                        <p><strong>Регион:</strong> ${company.region || '—'}</p>
                         <p><strong>Дата регистрации:</strong> 15.01.2018</p>
                         <p><strong>ОКПО:</strong> 12345678</p>
                     </div>
@@ -701,9 +777,9 @@ function getProfile() {
                 <div style="background: var(--primary-light); padding: 25px; border-radius: 12px;">
                     <h3>Контакты</h3>
                     <div style="margin-top: 20px;">
-                        <p><strong>Телефон:</strong> ${company.contacts.phone}</p>
-                        <p><strong>Email:</strong> ${company.contacts.email}</p>
-                        <p><strong>Адрес:</strong> ${company.contacts.address}</p>
+                        <p><strong>Телефон:</strong> ${company.contacts ? company.contacts.phone : '—'}</p>
+                        <p><strong>Email:</strong> ${company.contacts ? company.contacts.email : '—'}</p>
+                        <p><strong>Адрес:</strong> ${company.contacts ? company.contacts.address : '—'}</p>
                         <p><strong>Веб-сайт:</strong> <a href="https://uk-profi.ru" target="_blank">uk-profi.ru</a></p>
                     </div>
                 </div>
@@ -713,26 +789,28 @@ function getProfile() {
                     <h3>Статистика компании</h3>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
                         <div style="text-align: center; padding: 20px; background: var(--gray-100); border-radius: 12px;">
-                            <div style="font-size: 28px; font-weight: bold; color: var(--primary);">${crmData.buildings.length}</div>
+                            <div style="font-size: 28px; font-weight: bold; color: var(--primary);">${crmData.buildings ? crmData.buildings.length : 0}</div>
                             <div style="color: var(--gray-700);">Домов</div>
                         </div>
                         <div style="text-align: center; padding: 20px; background: var(--gray-100); border-radius: 12px;">
-                            <div style="font-size: 28px; font-weight: bold; color: var(--primary);">${crmData.residents.length}</div>
+                            <div style="font-size: 28px; font-weight: bold; color: var(--primary);">${crmData.residents ? crmData.residents.length : 0}</div>
                             <div style="color: var(--gray-700);">Жильцов</div>
                         </div>
                         <div style="text-align: center; padding: 20px; background: var(--gray-100); border-radius: 12px;">
-                            <div style="font-size: 28px; font-weight: bold; color: var(--primary);">${crmData.contractors.length}</div>
+                            <div style="font-size: 28px; font-weight: bold; color: var(--primary);">${crmData.contractors ? crmData.contractors.length : 0}</div>
                             <div style="color: var(--gray-700);">Подрядчиков</div>
                         </div>
                         <div style="text-align: center; padding: 20px; background: var(--gray-100); border-radius: 12px;">
-                            <div style="font-size: 28px; font-weight: bold; color: var(--primary);">${crmData.services.length}</div>
+                            <div style="font-size: 28px; font-weight: bold; color: var(--primary);">${crmData.services ? crmData.services.length : 0}</div>
                             <div style="color: var(--gray-700);">Услуг</div>
                         </div>
                     </div>
                     
                     <h4 style="margin-top: 30px;">Лицензии</h4>
                     <ul style="margin-top: 10px; padding-left: 20px;">
-                        ${company.licenses.map(license => `<li style="margin-bottom: 8px;">${license}</li>`).join('')}
+                        ${company.licenses && company.licenses.length > 0 
+                            ? company.licenses.map(license => `<li style="margin-bottom: 8px;">${license}</li>`).join('')
+                            : '<li>Лицензии не указаны</li>'}
                     </ul>
                     
                     <h4 style="margin-top: 30px;">Руководство</h4>
@@ -754,41 +832,45 @@ function initPage(pageName) {
         setTimeout(() => {
             const ctx = document.getElementById('analyticsChart');
             if (ctx && window.Chart) {
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг'],
-                        datasets: [{
-                            label: 'Начисления, тыс. ₽',
-                            data: [1200, 1900, 1500, 2200, 1800, 2400, 2100, 2450],
-                            borderColor: '#6912FF',
-                            backgroundColor: 'rgba(105, 18, 255, 0.1)',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'top'
-                            }
+                try {
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг'],
+                            datasets: [{
+                                label: 'Начисления, тыс. ₽',
+                                data: [1200, 1900, 1500, 2200, 1800, 2400, 2100, 2450],
+                                borderColor: '#6912FF',
+                                backgroundColor: 'rgba(105, 18, 255, 0.1)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4
+                            }]
                         },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: function(value) {
-                                        return value + ' тыс.';
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top'
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return value + ' тыс.';
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                });
+                    });
+                } catch (error) {
+                    console.error('❌ Ошибка при создании графика:', error);
+                }
             }
         }, 100);
     }
@@ -825,7 +907,12 @@ function setupModals() {
 // Открыть модальное окно
 function openModal(modalId) {
     console.log('📱 Открываем модальное окно:', modalId);
-    document.getElementById(modalId).classList.add('active');
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('active');
+    } else {
+        console.error('❌ Модальное окно не найдено:', modalId);
+    }
 }
 
 // Экспортируем функции в window
@@ -834,4 +921,15 @@ window.openModal = openModal;
 window.initApp = initApp;
 
 // Запускаем приложение при загрузке
-document.addEventListener('DOMContentLoaded', initApp);
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('📄 DOM загружен');
+    initApp();
+});
+
+// Также запускаем при полной загрузке страницы
+window.addEventListener('load', function() {
+    console.log('✅ Страница полностью загружена');
+    if (!isInitialized) {
+        initApp();
+    }
+});

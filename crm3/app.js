@@ -482,6 +482,14 @@ function loadPage(pageName) {
 // Загрузка страницы аналитики
 function loadDashboard() {
     const contentArea = document.getElementById('content-area');
+
+    // Добавляем обработчики вкладок для таблицы
+    document.querySelectorAll('[data-filter]').forEach(button => {
+        button.addEventListener('click', function() {
+            document.querySelectorAll('[data-filter]').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
     
     // Получаем данные для статистики
     const totalCharged = window.crmData.payments.reduce((sum, payment) => sum + payment.amount, 0);
@@ -1597,14 +1605,22 @@ function loadRequisites() {
     `;
     
     // Добавляем обработчик для кнопки редактирования реквизитов
-    document.getElementById('editRequisitesBtn').addEventListener('click', function() {
-        showEditRequisitesModal();
+    // Добавляем обработчики вкладок
+    document.querySelectorAll('.tab[onclick^="showRequisitesTab"]').forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabName = this.getAttribute('onclick').match(/showRequisitesTab\('(.+?)'\)/)[1];
+            showRequisitesTab(tabName);
+        });
     });
-}
+    
+    // Инициализируем первую вкладку
+    setTimeout(() => showRequisitesTab('bank'), 100);
     
 // Инициализация графиков
 function initializeChart() {
-    const ctx = document.getElementById('analyticsChart').getContext('2d');
+    const chartElement = document.getElementById('analyticsChart');
+    if (!chartElement) return; // Если элемент не найден, выходим
+    const ctx = chartElement.getContext('2d');
     
     // Удаляем старый график, если он существует
     if (window.analyticsChart) {
@@ -2653,13 +2669,16 @@ window.filterResidents = filterResidents;
 window.filterTickets = filterTickets;
 window.filterPayments = filterPayments;
 window.filterDocuments = filterDocuments;
+window.loadResidents = loadResidents;
+window.loadTickets = loadTickets;
+window.loadRequisites = loadRequisites;
+window.loadDashboard = loadDashboard;
+window.showRequisitesTab = showRequisitesTab;
+window.initializeChart = initializeChart;
+window.loadProfile = loadProfile;
 
-// Дополнительные вспомогательные функции
-function showRequisitesTab(tabName) {
-    // Скрываем все вкладки
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
+// Инициализация графиков
+function initializeChart() {
     
     // Убираем активный класс со всех кнопок вкладок
     document.querySelectorAll('.tab').forEach(btn => {
@@ -2839,6 +2858,94 @@ function searchDocuments() {
     });
 }
 
+// Загрузка страницы профиля
+function loadProfile() {
+    const contentArea = document.getElementById('content-area');
+    const company = window.crmData.currentCompany;
+    
+    contentArea.innerHTML = `
+        <div class="page-header">
+            <h2 class="page-title">Профиль компании</h2>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 30px;">
+            <div>
+                <div style="background: var(--gray-100); padding: 25px; border-radius: 12px; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 15px;">Основная информация</h3>
+                    <p><strong>Название:</strong> ${company.legalName}</p>
+                    <p><strong>ИНН:</strong> ${company.inn}</p>
+                    <p><strong>ОГРН:</strong> ${company.ogrn}</p>
+                    <p><strong>Регион:</strong> ${company.region}</p>
+                </div>
+                
+                <div style="background: var(--primary-light); padding: 25px; border-radius: 12px;">
+                    <h3 style="margin-bottom: 15px;">Контакты</h3>
+                    <p><strong>Телефон:</strong> ${company.contacts.phone}</p>
+                    <p><strong>Email:</strong> ${company.contacts.email}</p>
+                    <p><strong>Адрес:</strong> ${company.contacts.address}</p>
+                </div>
+            </div>
+            
+            <div>
+                <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <h3 style="margin-bottom: 20px;">Статистика</h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; font-weight: bold; color: var(--primary);">
+                                ${window.crmData.buildings.length}
+                            </div>
+                            <div>Домов</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; font-weight: bold; color: var(--primary);">
+                                ${window.crmData.residents.length}
+                            </div>
+                            <div>Жильцов</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; font-weight: bold; color: var(--primary);">
+                                ${window.crmData.tickets.filter(t => t.status === 'open' || t.status === 'in_progress').length}
+                            </div>
+                            <div>Активных обращений</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; font-weight: bold; color: var(--primary);">
+                                ${window.crmData.services.length}
+                            </div>
+                            <div>Услуг</div>
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin-bottom: 15px;">Лицензии</h4>
+                    <ul style="padding-left: 20px;">
+                        ${company.licenses.map(license => `<li>${license}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div style="margin-top: 25px; padding: 20px; background: var(--gray-100); border-radius: 12px;">
+                    <h4 style="margin-bottom: 15px;">Последние действия</h4>
+                    <div style="max-height: 200px; overflow-y: auto;">
+                        ${window.crmData.payments.slice(-3).reverse().map(payment => {
+                            const service = window.crmData.services.find(s => s.id === payment.serviceId);
+                            return `
+                                <div style="padding: 10px; border-bottom: 1px solid var(--gray-200);">
+                                    <div style="font-weight: 500;">Оплата: ${service ? service.name : 'Услуга'}</div>
+                                    <div style="font-size: 14px; color: var(--gray-700);">
+                                        ${payment.amount.toLocaleString('ru-RU')} ₽ • ${payment.date}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+
+
 // Простые модальные функции для демонстрации
 function showAddResidentModal() {
     alert('Форма добавления жильца будет открыта в модальном окне. В демо-версии показано уведомление.');
@@ -2916,4 +3023,26 @@ function signDocument(id) {
 
 function shareDocument(id) {
     alert(`Отправка документа #${id}. В полной версии будет открыта форма отправки по email.`);
+}
+
+function showRequisitesTab(tabName) {
+    // Скрываем все вкладки
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Убираем активный класс со всех кнопок вкладок
+    document.querySelectorAll('.tab').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Показываем выбранную вкладку
+    const contentElement = document.getElementById(tabName + 'Requisites');
+    if (contentElement) {
+        contentElement.classList.add('active');
+    }
+    
+    // Активируем соответствующую кнопку
+    const tabButtons = document.querySelectorAll(`.tab[onclick*="${tabName}"]`);
+    tabButtons.forEach(btn => btn.classList.add('active'));
 }

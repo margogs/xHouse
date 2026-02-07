@@ -24,392 +24,348 @@ document.addEventListener('DOMContentLoaded', function() {
     loadPage('dashboard');
 });
 
-// Инициализация тестовых данных в localStorage
+// ==================== ФУНКЦИИ ИНИЦИАЛИЗАЦИИ ====================
+
 function initializeData() {
     const storedData = localStorage.getItem('crmData');
     
     if (!storedData) {
-        // Создаем тестовые данные
-        window.crmData = {
-            currentCompany: {
-                id: 1,
-                legalName: "ООО 'Управляющая Компания Профи'",
-                inn: "7701234567",
-                ogrn: "1177745678901",
-                region: "Москва",
-                contacts: {
-                    phone: "+7 (495) 123-45-67",
-                    email: "info@uk-profi.ru",
-                    address: "ул. Тверская, д. 10"
-                },
-                licenses: ["Лицензия №12345", "Лицензия №67890"]
-            },
-            companies: [
-                {
-                    id: 1,
-                    legalName: "ООО 'Управляющая Компания Профи'",
-                    inn: "7701234567",
-                    ogrn: "1177745678901",
-                    region: "Москва",
-                    contacts: {
-                        phone: "+7 (495) 123-45-67",
-                        email: "info@uk-profi.ru",
-                        address: "ул. Тверская, д. 10"
-                    },
-                    licenses: ["Лицензия №12345", "Лицензия №67890"]
-                }
-            ],
-            buildings: [
-                {
-                    id: 1,
-                    address: "ул. Ленина, д. 15",
-                    floors: 9,
-                    apartments: 72,
-                    risks: ["electrical", "elevator"],
-                    passport: {
-                        elevators: ["Пассажирский №1 - 2005г", "Грузовой - 2005г"],
-                        itp: { type: "Индивидуальный", year: 2010 }
-                    }
-                },
-                {
-                    id: 2,
-                    address: "пр. Победы, д. 42",
-                    floors: 5,
-                    apartments: 40,
-                    risks: ["roof"],
-                    passport: {
-                        elevators: [],
-                        itp: { type: "Центральный", year: 2008 }
-                    }
-                },
-                {
-                    id: 3,
-                    address: "ул. Садовая, д. 7",
-                    floors: 12,
-                    apartments: 96,
-                    risks: [],
-                    passport: {
-                        elevators: ["Пассажирский №1 - 2015г", "Пассажирский №2 - 2015г"],
-                        itp: { type: "Индивидуальный", year: 2015 }
-                    }
-                }
-            ],
-            residents: [
-                {
-                    id: 1,
-                    name: "Иванов Иван Иванович",
-                    apartment: "15",
-                    buildingId: 1,
-                    phone: "+7 (916) 123-45-67",
-                    email: "ivanov@mail.ru",
-                    status: "active",
-                    balance: 1500.50,
-                    residentsCount: 3
-                },
-                {
-                    id: 2,
-                    name: "Петрова Мария Сергеевна",
-                    apartment: "42",
-                    buildingId: 1,
-                    phone: "+7 (916) 234-56-78",
-                    email: "petrova@mail.ru",
-                    status: "active",
-                    balance: -2300.75,
-                    residentsCount: 2
-                },
-                {
-                    id: 3,
-                    name: "Сидоров Алексей Петрович",
-                    apartment: "7",
-                    buildingId: 2,
-                    phone: "+7 (916) 345-67-89",
-                    email: "sidorov@mail.ru",
-                    status: "inactive",
-                    balance: 0,
-                    residentsCount: 1
-                },
-                {
-                    id: 4,
-                    name: "Козлова Елена Владимировна",
-                    apartment: "23",
-                    buildingId: 3,
-                    phone: "+7 (916) 456-78-90",
-                    email: "kozlova@mail.ru",
-                    status: "active",
-                    balance: 5000.25,
-                    residentsCount: 4
-                }
-            ],
-            tickets: [
-                {
-                    id: 1,
-                    residentId: 1,
-                    buildingId: 1,
-                    type: "ремонт",
-                    title: "Протечка в ванной комнате",
-                    description: "Сильная протечка из потолка в ванной комнате",
-                    status: "open",
-                    priority: "high",
-                    createdAt: "2024-08-01",
-                    updatedAt: "2024-08-02",
-                    assignedTo: "Дмитрий К."
-                },
-                {
-                    id: 2,
-                    residentId: 2,
-                    buildingId: 1,
-                    type: "электрика",
-                    title: "Не работает розетка на кухне",
-                    description: "Розетка перестала работать после грозы",
-                    status: "in_progress",
-                    priority: "medium",
-                    createdAt: "2024-08-03",
-                    updatedAt: "2024-08-04",
-                    assignedTo: "Дмитрий К."
-                },
-                {
-                    id: 3,
-                    residentId: 4,
-                    buildingId: 3,
-                    type: "уборка",
-                    title: "Не убран мусор в подъезде",
-                    description: "Мусор не вывозится уже 3 дня",
-                    status: "resolved",
-                    priority: "low",
-                    createdAt: "2024-07-28",
-                    updatedAt: "2024-07-30",
-                    assignedTo: "Алексей М."
-                },
-                {
-                    id: 4,
-                    residentId: 3,
-                    buildingId: 2,
-                    type: "отопление",
-                    title: "Холодные батареи",
-                    description: "В квартире холодно, батареи еле теплые",
-                    status: "open",
-                    priority: "high",
-                    createdAt: "2024-08-05",
-                    updatedAt: "2024-08-05",
-                    assignedTo: "Дмитрий К."
-                }
-            ],
-            services: [
-                {
-                    id: 1,
-                    name: "Содержание общего имущества",
-                    type: "main",
-                    tariff: 25.50,
-                    period: "monthly",
-                    buildingId: 1,
-                    contractorId: 1,
-                    sla: "24/7",
-                    description: "Уборка подъездов, обслуживание лифтов, ремонт общедомового оборудования"
-                },
-                {
-                    id: 2,
-                    name: "Вывоз ТКО",
-                    type: "main",
-                    tariff: 15.30,
-                    period: "monthly",
-                    buildingId: 1,
-                    contractorId: 2,
-                    sla: "ежедневно",
-                    description: "Вывоз твердых коммунальных отходов"
-                },
-                {
-                    id: 3,
-                    name: "Ремонт лифтового оборудования",
-                    type: "additional",
-                    tariff: 1200.00,
-                    period: "on-demand",
-                    buildingId: 1,
-                    contractorId: 3,
-                    sla: "4 часа",
-                    description: "Экстренный и плановый ремонт лифтов"
-                },
-                {
-                    id: 4,
-                    name: "Техническое обслуживание ИТП",
-                    type: "main",
-                    tariff: 18.75,
-                    period: "monthly",
-                    buildingId: 3,
-                    contractorId: 1,
-                    sla: "24 часа",
-                    description: "Обслуживание индивидуального теплового пункта"
-                }
-            ],
-            contractors: [
-                {
-                    id: 1,
-                    legalName: "ООО 'Сервис Плюс'",
-                    inn: "7712345678",
-                    workTypes: ["уборка территории", "текущий ремонт"],
-                    bankDetails: "АО 'Альфа-Банк' р/с 40702810123450001234",
-                    status: "активен"
-                },
-                {
-                    id: 2,
-                    legalName: "ООО 'Эко-Транс'",
-                    inn: "7723456789",
-                    workTypes: ["вывоз ТКО", "утилизация"],
-                    bankDetails: "ПАО 'Сбербанк' р/с 40702810234560002345",
-                    status: "активен"
-                },
-                {
-                    id: 3,
-                    legalName: "ООО 'Лифт-Сервис'",
-                    inn: "7734567890",
-                    workTypes: ["ремонт лифтов", "техническое обслуживание"],
-                    bankDetails: "АО 'Тинькофф Банк' р/с 40702810345670003456",
-                    status: "на проверке"
-                }
-            ],
-            payments: [
-                {
-                    id: 1,
-                    serviceId: 1,
-                    amount: 1836.00,
-                    status: "paid",
-                    date: "2024-08-01",
-                    payer: "ООО 'УК Профи'"
-                },
-                {
-                    id: 2,
-                    serviceId: 2,
-                    amount: 1101.60,
-                    status: "paid",
-                    date: "2024-08-01",
-                    payer: "ООО 'УК Профи'"
-                },
-                {
-                    id: 3,
-                    serviceId: 3,
-                    amount: 1200.00,
-                    status: "processing",
-                    date: "2024-08-15",
-                    payer: "ООО 'УК Профи'"
-                },
-                {
-                    id: 4,
-                    serviceId: 1,
-                    amount: 1836.00,
-                    status: "charged",
-                    date: "2024-09-01",
-                    payer: "ООО 'УК Профи'"
-                }
-            ],
-            documents: [
-                {
-                    id: 1,
-                    type: "договор",
-                    name: "Договор с ООО 'Сервис Плюс'",
-                    link: "#",
-                    status: "signed",
-                    entityId: 1,
-                    date: "2024-01-15",
-                    size: "2.4 MB",
-                    category: "contracts"
-                },
-                {
-                    id: 2,
-                    type: "акт",
-                    name: "Акт выполненных работ за июль 2024",
-                    link: "#",
-                    status: "pending",
-                    entityId: 1,
-                    date: "2024-08-01",
-                    size: "1.8 MB",
-                    category: "acts"
-                },
-                {
-                    id: 3,
-                    type: "лицензия",
-                    name: "Лицензия на управление МКД",
-                    link: "#",
-                    status: "signed",
-                    entityId: 1,
-                    date: "2023-12-20",
-                    size: "3.2 MB",
-                    category: "licenses"
-                },
-                {
-                    id: 4,
-                    type: "отчет",
-                    name: "Отчет по эксплуатации за 2 квартал 2024",
-                    link: "#",
-                    status: "signed",
-                    entityId: 1,
-                    date: "2024-07-15",
-                    size: "4.5 MB",
-                    category: "reports"
-                },
-                {
-                    id: 5,
-                    type: "смета",
-                    name: "Смета на капитальный ремонт",
-                    link: "#",
-                    status: "pending",
-                    entityId: 2,
-                    date: "2024-08-10",
-                    size: "1.2 MB",
-                    category: "estimates"
-                }
-            ],
-            requisites: [
-                {
-                    id: 1,
-                    type: "банковские",
-                    bankName: "ПАО Сбербанк",
-                    accountNumber: "40702810123450001234",
-                    correspondentAccount: "30101810400000000225",
-                    bik: "044525225",
-                    inn: "7701234567",
-                    kpp: "770101001"
-                },
-                {
-                    id: 2,
-                    type: "электронные",
-                    paymentSystem: "СБП (Система быстрых платежей)",
-                    phone: "+7 (495) 123-45-67",
-                    email: "payments@uk-profi.ru",
-                    qrCode: "#"
-                }
-            ],
-            users: [
-                {
-                    id: 1,
-                    name: "Алексей М.",
-                    role: "manager",
-                    permissions: ["all"]
-                },
-                {
-                    id: 2,
-                    name: "Ирина С.",
-                    role: "accountant",
-                    permissions: ["payments", "documents"]
-                },
-                {
-                    id: 3,
-                    name: "Дмитрий К.",
-                    role: "engineer",
-                    permissions: ["buildings", "services"]
-                }
-            ]
-        };
-        
-        // Сохраняем в localStorage
+        window.crmData = getDefaultData();
         localStorage.setItem('crmData', JSON.stringify(window.crmData));
     } else {
-        // Загружаем данные из localStorage
         window.crmData = JSON.parse(storedData);
     }
     
     console.log('Данные CRM инициализированы:', window.crmData);
 }
 
-// Настройка навигации по страницам
+function getDefaultData() {
+    return {
+        currentCompany: {
+            id: 1,
+            legalName: "ООО 'Управляющая Компания Профи'",
+            inn: "7701234567",
+            ogrn: "1177745678901",
+            region: "Москва",
+            contacts: {
+                phone: "+7 (495) 123-45-67",
+                email: "info@uk-profi.ru",
+                address: "ул. Тверская, д. 10"
+            },
+            licenses: ["Лицензия №12345", "Лицензия №67890"]
+        },
+        buildings: [
+            {
+                id: 1,
+                address: "ул. Ленина, д. 15",
+                floors: 9,
+                apartments: 72,
+                risks: ["electrical", "elevator"],
+                passport: {
+                    elevators: ["Пассажирский №1 - 2005г", "Грузовой - 2005г"],
+                    itp: { type: "Индивидуальный", year: 2010 }
+                }
+            },
+            {
+                id: 2,
+                address: "пр. Победы, д. 42",
+                floors: 5,
+                apartments: 40,
+                risks: ["roof"],
+                passport: {
+                    elevators: [],
+                    itp: { type: "Центральный", year: 2008 }
+                }
+            },
+            {
+                id: 3,
+                address: "ул. Садовая, д. 7",
+                floors: 12,
+                apartments: 96,
+                risks: [],
+                passport: {
+                    elevators: ["Пассажирский №1 - 2015г", "Пассажирский №2 - 2015г"],
+                    itp: { type: "Индивидуальный", year: 2015 }
+                }
+            }
+        ],
+        residents: [
+            {
+                id: 1,
+                name: "Иванов Иван Иванович",
+                apartment: "15",
+                buildingId: 1,
+                phone: "+7 (916) 123-45-67",
+                email: "ivanov@mail.ru",
+                status: "active",
+                balance: 1500.50,
+                residentsCount: 3
+            },
+            {
+                id: 2,
+                name: "Петрова Мария Сергеевна",
+                apartment: "42",
+                buildingId: 1,
+                phone: "+7 (916) 234-56-78",
+                email: "petrova@mail.ru",
+                status: "active",
+                balance: -2300.75,
+                residentsCount: 2
+            },
+            {
+                id: 3,
+                name: "Сидоров Алексей Петрович",
+                apartment: "7",
+                buildingId: 2,
+                phone: "+7 (916) 345-67-89",
+                email: "sidorov@mail.ru",
+                status: "inactive",
+                balance: 0,
+                residentsCount: 1
+            },
+            {
+                id: 4,
+                name: "Козлова Елена Владимировна",
+                apartment: "23",
+                buildingId: 3,
+                phone: "+7 (916) 456-78-90",
+                email: "kozlova@mail.ru",
+                status: "active",
+                balance: 5000.25,
+                residentsCount: 4
+            }
+        ],
+        tickets: [
+            {
+                id: 1,
+                residentId: 1,
+                buildingId: 1,
+                type: "ремонт",
+                title: "Протечка в ванной комнате",
+                description: "Сильная протечка из потолка в ванной комнате",
+                status: "open",
+                priority: "high",
+                createdAt: "2024-08-01",
+                updatedAt: "2024-08-02",
+                assignedTo: "Дмитрий К."
+            },
+            {
+                id: 2,
+                residentId: 2,
+                buildingId: 1,
+                type: "электрика",
+                title: "Не работает розетка на кухне",
+                description: "Розетка перестала работать после грозы",
+                status: "in_progress",
+                priority: "medium",
+                createdAt: "2024-08-03",
+                updatedAt: "2024-08-04",
+                assignedTo: "Дмитрий К."
+            },
+            {
+                id: 3,
+                residentId: 4,
+                buildingId: 3,
+                type: "уборка",
+                title: "Не убран мусор в подъезде",
+                description: "Мусор не вывозится уже 3 дня",
+                status: "resolved",
+                priority: "low",
+                createdAt: "2024-07-28",
+                updatedAt: "2024-07-30",
+                assignedTo: "Алексей М."
+            },
+            {
+                id: 4,
+                residentId: 3,
+                buildingId: 2,
+                type: "отопление",
+                title: "Холодные батареи",
+                description: "В квартире холодно, батареи еле теплые",
+                status: "open",
+                priority: "high",
+                createdAt: "2024-08-05",
+                updatedAt: "2024-08-05",
+                assignedTo: "Дмитрий К."
+            }
+        ],
+        services: [
+            {
+                id: 1,
+                name: "Содержание общего имущества",
+                type: "main",
+                tariff: 25.50,
+                period: "monthly",
+                buildingId: 1,
+                contractorId: 1,
+                sla: "24/7",
+                description: "Уборка подъездов, обслуживание лифтов, ремонт общедомового оборудования"
+            },
+            {
+                id: 2,
+                name: "Вывоз ТКО",
+                type: "main",
+                tariff: 15.30,
+                period: "monthly",
+                buildingId: 1,
+                contractorId: 2,
+                sla: "ежедневно",
+                description: "Вывоз твердых коммунальных отходов"
+            },
+            {
+                id: 3,
+                name: "Ремонт лифтового оборудования",
+                type: "additional",
+                tariff: 1200.00,
+                period: "on-demand",
+                buildingId: 1,
+                contractorId: 3,
+                sla: "4 часа",
+                description: "Экстренный и плановый ремонт лифтов"
+            },
+            {
+                id: 4,
+                name: "Техническое обслуживание ИТП",
+                type: "main",
+                tariff: 18.75,
+                period: "monthly",
+                buildingId: 3,
+                contractorId: 1,
+                sla: "24 часа",
+                description: "Обслуживание индивидуального теплового пункта"
+            }
+        ],
+        contractors: [
+            {
+                id: 1,
+                legalName: "ООО 'Сервис Плюс'",
+                inn: "7712345678",
+                workTypes: ["уборка территории", "текущий ремонт"],
+                bankDetails: "АО 'Альфа-Банк' р/с 40702810123450001234",
+                status: "активен"
+            },
+            {
+                id: 2,
+                legalName: "ООО 'Эко-Транс'",
+                inn: "7723456789",
+                workTypes: ["вывоз ТКО", "утилизация"],
+                bankDetails: "ПАО 'Сбербанк' р/с 40702810234560002345",
+                status: "активен"
+            },
+            {
+                id: 3,
+                legalName: "ООО 'Лифт-Сервис'",
+                inn: "7734567890",
+                workTypes: ["ремонт лифтов", "техническое обслуживание"],
+                bankDetails: "АО 'Тинькофф Банк' р/с 40702810345670003456",
+                status: "на проверке"
+            }
+        ],
+        payments: [
+            {
+                id: 1,
+                serviceId: 1,
+                amount: 1836.00,
+                status: "paid",
+                date: "2024-08-01",
+                payer: "ООО 'УК Профи'"
+            },
+            {
+                id: 2,
+                serviceId: 2,
+                amount: 1101.60,
+                status: "paid",
+                date: "2024-08-01",
+                payer: "ООО 'УК Профи'"
+            },
+            {
+                id: 3,
+                serviceId: 3,
+                amount: 1200.00,
+                status: "processing",
+                date: "2024-08-15",
+                payer: "ООО 'УК Профи'"
+            },
+            {
+                id: 4,
+                serviceId: 1,
+                amount: 1836.00,
+                status: "charged",
+                date: "2024-09-01",
+                payer: "ООО 'УК Профи'"
+            }
+        ],
+        documents: [
+            {
+                id: 1,
+                type: "договор",
+                name: "Договор с ООО 'Сервис Плюс'",
+                link: "#",
+                status: "signed",
+                entityId: 1,
+                date: "2024-01-15",
+                size: "2.4 MB",
+                category: "contracts"
+            },
+            {
+                id: 2,
+                type: "акт",
+                name: "Акт выполненных работ за июль 2024",
+                link: "#",
+                status: "pending",
+                entityId: 1,
+                date: "2024-08-01",
+                size: "1.8 MB",
+                category: "acts"
+            },
+            {
+                id: 3,
+                type: "лицензия",
+                name: "Лицензия на управление МКД",
+                link: "#",
+                status: "signed",
+                entityId: 1,
+                date: "2023-12-20",
+                size: "3.2 MB",
+                category: "licenses"
+            },
+            {
+                id: 4,
+                type: "отчет",
+                name: "Отчет по эксплуатации за 2 квартал 2024",
+                link: "#",
+                status: "signed",
+                entityId: 1,
+                date: "2024-07-15",
+                size: "4.5 MB",
+                category: "reports"
+            }
+        ],
+        requisites: [
+            {
+                id: 1,
+                type: "банковские",
+                bankName: "ПАО Сбербанк",
+                accountNumber: "40702810123450001234",
+                correspondentAccount: "30101810400000000225",
+                bik: "044525225",
+                inn: "7701234567",
+                kpp: "770101001"
+            },
+            {
+                id: 2,
+                type: "электронные",
+                paymentSystem: "СБП (Система быстрых платежей)",
+                phone: "+7 (495) 123-45-67",
+                email: "payments@uk-profi.ru",
+                qrCode: "#"
+            }
+        ]
+    };
+}
+
+// ==================== НАВИГАЦИЯ ====================
+
 function setupNavigation() {
     const navLinks = document.querySelectorAll('.nav-link');
     
@@ -430,9 +386,13 @@ function setupNavigation() {
     });
 }
 
-// Загрузка страницы по её названию
 function loadPage(pageName) {
     const contentArea = document.getElementById('content-area');
+    
+    if (!contentArea) {
+        console.error('Элемент content-area не найден');
+        return;
+    }
     
     // Показываем индикатор загрузки
     contentArea.innerHTML = '<div class="loading">Загрузка...</div>';
@@ -473,23 +433,21 @@ function loadPage(pageName) {
             default:
                 loadDashboard();
         }
-    }, 300);
+    }, 100);
 }
 
-// Загрузка страницы аналитики
+// ==================== СТРАНИЦЫ ====================
+
 function loadDashboard() {
     const contentArea = document.getElementById('content-area');
     
-    // Получаем данные для статистики
+    if (!contentArea || !window.crmData) return;
+    
     const totalCharged = window.crmData.payments.reduce((sum, payment) => sum + payment.amount, 0);
     const totalPaid = window.crmData.payments
         .filter(p => p.status === 'paid')
         .reduce((sum, payment) => sum + payment.amount, 0);
-    const totalProcessing = window.crmData.payments
-        .filter(p => p.status === 'processing')
-        .reduce((sum, payment) => sum + payment.amount, 0);
     
-    // Статистика по обращениям
     const activeTickets = window.crmData.tickets.filter(t => t.status === 'open' || t.status === 'in_progress').length;
     const resolvedTickets = window.crmData.tickets.filter(t => t.status === 'resolved').length;
     
@@ -524,42 +482,40 @@ function loadDashboard() {
                 <div class="stat-change">Решено: ${resolvedTickets}</div>
             </div>
         </div>
-        <div style="margin-bottom: 30px;">
-            <canvas id="analyticsChart" style="height: 400px; width: 100%;"></canvas>
-        </div>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Адрес дома</th>
-                        <th>Квартиры</th>
-                        <th>Начислено</th>
-                        <th>Оплачено</th>
-                        <th>Задолженность</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${window.crmData.buildings.map(building => `
+        <div style="margin: 30px 0; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h3 style="margin-bottom: 20px;">Статистика по домам</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
                         <tr>
-                            <td>${building.address}</td>
-                            <td>${building.apartments}</td>
-                            <td>${(building.apartments * 1500).toLocaleString('ru-RU')} ₽</td>
-                            <td>${(building.apartments * 1350).toLocaleString('ru-RU')} ₽</td>
-                            <td>${(building.apartments * 150).toLocaleString('ru-RU')} ₽</td>
+                            <th>Адрес дома</th>
+                            <th>Квартиры</th>
+                            <th>Начислено</th>
+                            <th>Оплачено</th>
+                            <th>Задолженность</th>
                         </tr>
-                    `).join('')}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        ${window.crmData.buildings.map(building => `
+                            <tr>
+                                <td>${building.address}</td>
+                                <td>${building.apartments}</td>
+                                <td>${(building.apartments * 1500).toLocaleString('ru-RU')} ₽</td>
+                                <td>${(building.apartments * 1350).toLocaleString('ru-RU')} ₽</td>
+                                <td>${(building.apartments * 150).toLocaleString('ru-RU')} ₽</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
         </div>
     `;
-    
-    // Инициализируем график
-    initializeChart();
 }
 
-// Загрузка страницы домов
 function loadBuildings() {
     const contentArea = document.getElementById('content-area');
+    
+    if (!contentArea || !window.crmData) return;
     
     contentArea.innerHTML = `
         <div class="page-header">
@@ -618,16 +574,21 @@ function loadBuildings() {
     `;
     
     // Добавляем обработчик для кнопки добавления дома
-    document.getElementById('addBuildingBtn').addEventListener('click', () => {
-        openModal('buildingModal');
-    });
+    setTimeout(() => {
+        const addBtn = document.getElementById('addBuildingBtn');
+        if (addBtn) {
+            addBtn.addEventListener('click', () => {
+                alert('Форма добавления дома будет открыта в модальном окне');
+            });
+        }
+    }, 100);
 }
 
-// Загрузка страницы жильцов
 function loadResidents() {
     const contentArea = document.getElementById('content-area');
     
-    // Рассчитываем статистику по жильцам
+    if (!contentArea || !window.crmData) return;
+    
     const totalResidents = window.crmData.residents.length;
     const activeResidents = window.crmData.residents.filter(r => r.status === 'active').length;
     const debtors = window.crmData.residents.filter(r => r.balance < 0).length;
@@ -725,42 +686,18 @@ function loadResidents() {
                 </tbody>
             </table>
         </div>
-        
-        <div style="margin-top: 30px; padding: 20px; background: var(--primary-light); border-radius: 12px;">
-            <h4><i class="fas fa-chart-bar"></i> Аналитика по жильцам</h4>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 15px;">
-                <div>
-                    <strong>Распределение по домам:</strong>
-                    ${window.crmData.buildings.map(building => {
-                        const residentsInBuilding = window.crmData.residents.filter(r => r.buildingId === building.id).length;
-                        return `<div style="margin-top: 5px;">${building.address}: ${residentsInBuilding} чел.</div>`;
-                    }).join('')}
-                </div>
-                <div>
-                    <strong>Статистика долгов:</strong>
-                    <div style="margin-top: 5px;">Общий долг: ${totalDebt.toLocaleString('ru-RU')} ₽</div>
-                    <div style="margin-top: 5px;">Должников: ${debtors}</div>
-                    <div style="margin-top: 5px;">Процент должников: ${((debtors / totalResidents) * 100).toFixed(1)}%</div>
-                </div>
-            </div>
-        </div>
     `;
-    
-    // Добавляем обработчик для кнопки добавления жильца
-    document.getElementById('addResidentBtn').addEventListener('click', function() {
-        showAddResidentModal();
-    });
 }
 
-// Загрузка страницы обращений
 function loadTickets() {
     const contentArea = document.getElementById('content-area');
     
-    // Статистика по обращениям
-    const totalTickets = window.crmData.tickets ? window.crmData.tickets.length : 0;
-    const openTickets = window.crmData.tickets ? window.crmData.tickets.filter(t => t.status === 'open').length : 0;
-    const inProgressTickets = window.crmData.tickets ? window.crmData.tickets.filter(t => t.status === 'in_progress').length : 0;
-    const resolvedTickets = window.crmData.tickets ? window.crmData.tickets.filter(t => t.status === 'resolved').length : 0;
+    if (!contentArea || !window.crmData) return;
+    
+    const totalTickets = window.crmData.tickets.length;
+    const openTickets = window.crmData.tickets.filter(t => t.status === 'open').length;
+    const inProgressTickets = window.crmData.tickets.filter(t => t.status === 'in_progress').length;
+    const resolvedTickets = window.crmData.tickets.filter(t => t.status === 'resolved').length;
     
     contentArea.innerHTML = `
         <div class="page-header">
@@ -817,11 +754,10 @@ function loadTickets() {
                     </tr>
                 </thead>
                 <tbody id="ticketsTableBody">
-                    ${window.crmData.tickets ? window.crmData.tickets.map(ticket => {
+                    ${window.crmData.tickets.map(ticket => {
                         const resident = window.crmData.residents.find(r => r.id === ticket.residentId);
                         const residentName = resident ? resident.name : 'Неизвестно';
                         
-                        // Определяем класс приоритета
                         let priorityClass = 'status-paid';
                         let priorityText = 'Низкий';
                         if (ticket.priority === 'high') {
@@ -832,7 +768,6 @@ function loadTickets() {
                             priorityText = 'Средний';
                         }
                         
-                        // Определяем класс статуса
                         let statusClass = 'status-pending';
                         let statusText = 'Открыто';
                         if (ticket.status === 'in_progress') {
@@ -866,58 +801,18 @@ function loadTickets() {
                                 </td>
                             </tr>
                         `;
-                    }).join('') : '<tr><td colspan="9" style="text-align: center;">Обращений пока нет</td></tr>'}
+                    }).join('')}
                 </tbody>
             </table>
         </div>
-        
-        <div style="margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-            <div style="background: var(--gray-100); padding: 20px; border-radius: 12px;">
-                <h4><i class="fas fa-list-ol"></i> Типы обращений</h4>
-                <div style="margin-top: 15px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span>Ремонтные работы</span>
-                        <span>${window.crmData.tickets ? window.crmData.tickets.filter(t => t.type === 'ремонт').length : 0}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span>Электрика</span>
-                        <span>${window.crmData.tickets ? window.crmData.tickets.filter(t => t.type === 'электрика').length : 0}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span>Сантехника</span>
-                        <span>${window.crmData.tickets ? window.crmData.tickets.filter(t => t.type === 'сантехника').length : 0}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span>Уборка</span>
-                        <span>${window.crmData.tickets ? window.crmData.tickets.filter(t => t.type === 'уборка').length : 0}</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div style="background: var(--primary-light); padding: 20px; border-radius: 12px;">
-                <h4><i class="fas fa-clock"></i> Среднее время решения</h4>
-                <div style="text-align: center; margin-top: 20px;">
-                    <div style="font-size: 36px; font-weight: bold; color: var(--primary);">2.3</div>
-                    <div style="font-size: 18px; color: var(--gray-700);">дня</div>
-                </div>
-                <p style="margin-top: 15px; font-size: 14px; color: var(--gray-700);">
-                    Среднее время решения обращений за последние 30 дней
-                </p>
-            </div>
-        </div>
     `;
-    
-    // Добавляем обработчик для кнопки создания обращения
-    document.getElementById('createTicketBtn').addEventListener('click', function() {
-        showCreateTicketModal();
-    });
 }
 
-// Загрузка страницы услуг
 function loadServices() {
     const contentArea = document.getElementById('content-area');
     
-    // Статистика по услугам
+    if (!contentArea || !window.crmData) return;
+    
     const totalServices = window.crmData.services.length;
     const mainServices = window.crmData.services.filter(s => s.type === 'main').length;
     const additionalServices = window.crmData.services.filter(s => s.type === 'additional').length;
@@ -954,14 +849,6 @@ function loadServices() {
                 <div class="stat-value">${new Set(window.crmData.services.map(s => s.contractorId)).size}</div>
                 <div class="stat-change">предоставляют услуги</div>
             </div>
-        </div>
-        
-        <div class="tabs" style="margin-bottom: 20px;">
-            <button class="tab active" data-tab="all">Все услуги</button>
-            <button class="tab" data-tab="main">Основные</button>
-            <button class="tab" data-tab="additional">Дополнительные</button>
-            <button class="tab" data-tab="monthly">Ежемесячные</button>
-            <button class="tab" data-tab="ondemand">По требованию</button>
         </div>
         
         <div class="table-container">
@@ -1017,54 +904,14 @@ function loadServices() {
                 </tbody>
             </table>
         </div>
-        
-        <div style="margin-top: 30px; padding: 20px; background: var(--gray-100); border-radius: 12px;">
-            <h4><i class="fas fa-info-circle"></i> Информация о тарифах</h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
-                <div>
-                    <h5>Основные услуги</h5>
-                    <ul style="margin-top: 10px;">
-                        <li>Содержание общего имущества</li>
-                        <li>Вывоз ТКО</li>
-                        <li>Техническое обслуживание</li>
-                        <li>Уборка придомовой территории</li>
-                    </ul>
-                </div>
-                <div>
-                    <h5>Дополнительные услуги</h5>
-                    <ul style="margin-top: 10px;">
-                        <li>Ремонт лифтового оборудования</li>
-                        <li>Срочные вызовы специалистов</li>
-                        <li>Установка дополнительного оборудования</li>
-                        <li>Консультационные услуги</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
     `;
-    
-    // Добавляем обработчики для вкладок
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            
-            const tabType = this.getAttribute('data-tab');
-            filterServices(tabType);
-        });
-    });
-    
-    // Добавляем обработчик для кнопки добавления услуги
-    document.getElementById('addServiceBtn').addEventListener('click', function() {
-        showAddServiceModal();
-    });
 }
 
-// Загрузка страницы платежей
 function loadPayments() {
     const contentArea = document.getElementById('content-area');
     
-    // Рассчитываем статистику
+    if (!contentArea || !window.crmData) return;
+    
     const totalCharged = window.crmData.payments.reduce((sum, p) => sum + p.amount, 0);
     const totalPaid = window.crmData.payments
         .filter(p => p.status === 'paid')
@@ -1098,12 +945,6 @@ function loadPayments() {
             </div>
         </div>
         <div class="table-container">
-            <div style="margin-bottom: 20px; display: flex; gap: 10px;">
-                <button class="btn btn-secondary" data-filter="all">Все</button>
-                <button class="btn btn-secondary" data-filter="paid">Оплаченные</button>
-                <button class="btn btn-secondary" data-filter="processing">В обработке</button>
-                <button class="btn btn-secondary" data-filter="charged">Начисленные</button>
-            </div>
             <table id="paymentsTable">
                 <thead>
                     <tr>
@@ -1123,6 +964,7 @@ function loadPayments() {
                             case 'paid': statusClass = 'status-paid'; statusText = 'Оплачен'; break;
                             case 'processing': statusClass = 'status-processing'; statusText = 'В обработке'; break;
                             case 'charged': statusClass = 'status-pending'; statusText = 'Начислен'; break;
+                            default: statusClass = 'status-pending'; statusText = 'Начислен';
                         }
                         return `
                             <tr>
@@ -1139,25 +981,12 @@ function loadPayments() {
             </table>
         </div>
     `;
-    
-    // Добавляем обработчик для кнопки добавления платежа
-    document.getElementById('addPaymentBtn').addEventListener('click', () => {
-        openModal('paymentModal');
-        populatePaymentForm();
-    });
-    
-    // Добавляем фильтрацию платежей
-    document.querySelectorAll('[data-filter]').forEach(button => {
-        button.addEventListener('click', function() {
-            const filter = this.getAttribute('data-filter');
-            filterPayments(filter);
-        });
-    });
 }
 
-// Загрузка страницы подрядчиков
 function loadContractors() {
     const contentArea = document.getElementById('content-area');
+    
+    if (!contentArea || !window.crmData) return;
     
     contentArea.innerHTML = `
         <div class="page-header">
@@ -1184,6 +1013,7 @@ function loadContractors() {
                             case 'активен': statusClass = 'status-paid'; statusText = 'Активен'; break;
                             case 'на проверке': statusClass = 'status-pending'; statusText = 'На проверке'; break;
                             case 'приостановлен': statusClass = 'status-processing'; statusText = 'Приостановлен'; break;
+                            default: statusClass = 'status-pending'; statusText = 'На проверке';
                         }
                         return `
                             <tr>
@@ -1206,18 +1036,13 @@ function loadContractors() {
             </table>
         </div>
     `;
-    
-    // Обработчик для добавления подрядчика
-    document.getElementById('addContractorBtn').addEventListener('click', () => {
-        openModal('contractorModal');
-    });
 }
 
-// Загрузка страницы документов
 function loadDocuments() {
     const contentArea = document.getElementById('content-area');
     
-    // Статистика по документам
+    if (!contentArea || !window.crmData) return;
+    
     const totalDocuments = window.crmData.documents.length;
     const signedDocuments = window.crmData.documents.filter(d => d.status === 'signed').length;
     const pendingDocuments = window.crmData.documents.filter(d => d.status === 'pending').length;
@@ -1252,21 +1077,6 @@ function loadDocuments() {
                 <div class="stat-value">${contractsCount}</div>
                 <div class="stat-change">действующих</div>
             </div>
-        </div>
-        
-        <div class="tabs" style="margin-bottom: 20px;">
-            <button class="tab active" data-doc-filter="all">Все документы</button>
-            <button class="tab" data-doc-filter="contracts">Договоры</button>
-            <button class="tab" data-doc-filter="acts">Акты</button>
-            <button class="tab" data-doc-filter="licenses">Лицензии</button>
-            <button class="tab" data-doc-filter="reports">Отчёты</button>
-        </div>
-        
-        <div style="margin-bottom: 20px; display: flex; gap: 10px;">
-            <input type="text" id="documentSearch" placeholder="Поиск по названию..." style="flex: 1; padding: 10px; border: 1px solid var(--gray-200); border-radius: 8px;">
-            <button class="btn btn-secondary" onclick="searchDocuments()">
-                <i class="fas fa-search"></i> Найти
-            </button>
         </div>
         
         <div class="table-container">
@@ -1331,81 +1141,14 @@ function loadDocuments() {
                 </tbody>
             </table>
         </div>
-        
-        <div style="margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-            <div style="background: var(--gray-100); padding: 20px; border-radius: 12px;">
-                <h4><i class="fas fa-folder-open"></i> Категории документов</h4>
-                <div style="margin-top: 15px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span>Договоры</span>
-                        <span>${contractsCount}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span>Акты выполненных работ</span>
-                        <span>${window.crmData.documents.filter(d => d.type === 'акт').length}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span>Лицензии</span>
-                        <span>${window.crmData.documents.filter(d => d.type === 'лицензия').length}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span>Отчёты</span>
-                        <span>${window.crmData.documents.filter(d => d.type === 'отчет').length}</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div style="background: var(--primary-light); padding: 20px; border-radius: 12px;">
-                <h4><i class="fas fa-exclamation-triangle"></i> Требуют внимания</h4>
-                ${pendingDocuments > 0 ? `
-                    <div style="margin-top: 15px;">
-                        <p>Документов на подписании: <strong>${pendingDocuments}</strong></p>
-                        <p style="margin-top: 10px;">Срок подписания истекает:</p>
-                        <ul style="margin-top: 10px; padding-left: 20px;">
-                            ${window.crmData.documents
-                                .filter(d => d.status === 'pending')
-                                .slice(0, 3)
-                                .map(doc => `<li>${doc.name}</li>`)
-                                .join('')}
-                        </ul>
-                    </div>
-                ` : '<p style="margin-top: 15px;">Все документы подписаны</p>'}
-                ${pendingDocuments > 0 ? `
-                    <button class="btn btn-primary" style="margin-top: 15px; width: 100%;">
-                        <i class="fas fa-signature"></i> Перейти к подписанию
-                    </button>
-                ` : ''}
-            </div>
-        </div>
     `;
-    
-    // Добавляем обработчики для вкладок документов
-    document.querySelectorAll('[data-doc-filter]').forEach(tab => {
-        tab.addEventListener('click', function() {
-            document.querySelectorAll('[data-doc-filter]').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            
-            const filter = this.getAttribute('data-doc-filter');
-            filterDocuments(filter);
-        });
-    });
-    
-    // Добавляем обработчик для кнопки загрузки документа
-    document.getElementById('uploadDocumentBtn').addEventListener('click', function() {
-        showUploadDocumentModal();
-    });
-    
-    // Добавляем обработчик для поиска по Enter
-    document.getElementById('documentSearch').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            searchDocuments();
-        }
-    });
 }
 
-// Загрузка страницы реквизитов
 function loadRequisites() {
     const contentArea = document.getElementById('content-area');
+    
+    if (!contentArea || !window.crmData) return;
+    
     const company = window.crmData.currentCompany;
     
     contentArea.innerHTML = `
@@ -1419,7 +1162,6 @@ function loadRequisites() {
         <div class="tabs" style="margin-bottom: 30px;">
             <button class="tab active" onclick="showRequisitesTab('bank')">Банковские реквизиты</button>
             <button class="tab" onclick="showRequisitesTab('electronic')">Электронные платежи</button>
-            <button class="tab" onclick="showRequisitesTab('qr')">QR-коды для оплаты</button>
             <button class="tab" onclick="showRequisitesTab('instructions')">Инструкции для жильцов</button>
         </div>
         
@@ -1428,51 +1170,51 @@ function loadRequisites() {
                 <div style="max-width: 800px;">
                     <h3 style="margin-bottom: 20px;">Банковские реквизиты компании</h3>
                     
-                    <div style="background: var(--gray-100); padding: 25px; border-radius: 12px; margin-bottom: 30px;">
+                    <div style="background: #f8f9fa; padding: 25px; border-radius: 12px; margin-bottom: 30px;">
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                             <div>
-                                <div class="form-group">
-                                    <label>Полное наименование организации</label>
-                                    <div class="form-control" style="background: white;">${company.legalName}</div>
+                                <div style="margin-bottom: 15px;">
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Полное наименование организации</label>
+                                    <div style="background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">${company.legalName}</div>
                                 </div>
-                                <div class="form-group">
-                                    <label>ИНН</label>
-                                    <div class="form-control" style="background: white;">${company.inn}</div>
+                                <div style="margin-bottom: 15px;">
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">ИНН</label>
+                                    <div style="background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">${company.inn}</div>
                                 </div>
-                                <div class="form-group">
-                                    <label>КПП</label>
-                                    <div class="form-control" style="background: white;">770101001</div>
+                                <div style="margin-bottom: 15px;">
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">КПП</label>
+                                    <div style="background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">770101001</div>
                                 </div>
-                                <div class="form-group">
-                                    <label>ОГРН</label>
-                                    <div class="form-control" style="background: white;">${company.ogrn}</div>
+                                <div style="margin-bottom: 15px;">
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">ОГРН</label>
+                                    <div style="background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">${company.ogrn}</div>
                                 </div>
                             </div>
                             <div>
-                                <div class="form-group">
-                                    <label>Банк получателя</label>
-                                    <div class="form-control" style="background: white;">ПАО Сбербанк</div>
+                                <div style="margin-bottom: 15px;">
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Банк получателя</label>
+                                    <div style="background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">ПАО Сбербанк</div>
                                 </div>
-                                <div class="form-group">
-                                    <label>БИК</label>
-                                    <div class="form-control" style="background: white;">044525225</div>
+                                <div style="margin-bottom: 15px;">
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">БИК</label>
+                                    <div style="background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">044525225</div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Расчетный счет</label>
-                                    <div class="form-control" style="background: white;">40702810123450001234</div>
+                                <div style="margin-bottom: 15px;">
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Расчетный счет</label>
+                                    <div style="background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">40702810123450001234</div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Корр. счет</label>
-                                    <div class="form-control" style="background: white;">30101810400000000225</div>
+                                <div style="margin-bottom: 15px;">
+                                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Корр. счет</label>
+                                    <div style="background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">30101810400000000225</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
                     <h4 style="margin-bottom: 15px;">Назначение платежа</h4>
-                    <div style="background: var(--primary-light); padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+                    <div style="background: #e6f7ff; padding: 20px; border-radius: 12px; margin-bottom: 30px;">
                         <p><strong>Образец заполнения:</strong></p>
-                        <p style="margin-top: 10px; font-family: monospace; background: white; padding: 15px; border-radius: 8px;">
+                        <p style="margin-top: 10px; font-family: monospace; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
                             Оплата за жилищно-коммунальные услуги за [месяц] [год], лицевой счет: [номер счета], ФИО: [Фамилия И.О.]
                         </p>
                     </div>
@@ -1484,63 +1226,16 @@ function loadRequisites() {
                     <h3 style="margin-bottom: 20px;">Электронные платежи</h3>
                     
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px;">
-                        <div style="background: var(--gray-100); padding: 20px; border-radius: 12px;">
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 12px;">
                             <h4><i class="fas fa-mobile-alt"></i> СБП (Система быстрых платежей)</h4>
                             <div style="margin-top: 15px;">
                                 <p><strong>Телефон для перевода:</strong></p>
-                                <div class="form-control" style="background: white; margin-top: 5px;">+7 (495) 123-45-67</div>
-                                <p style="margin-top: 15px; font-size: 14px; color: var(--gray-700);">
+                                <div style="background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-top: 5px;">+7 (495) 123-45-67</div>
+                                <p style="margin-top: 15px; font-size: 14px; color: #666;">
                                     Жильцы могут переводить средства через СБП, указав номер телефона компании
                                 </p>
                             </div>
                         </div>
-                        
-                        <div style="background: var(--gray-100); padding: 20px; border-radius: 12px;">
-                            <h4><i class="fas fa-envelope"></i> Электронные кошельки</h4>
-                            <div style="margin-top: 15px;">
-                                <p><strong>ЮMoney:</strong></p>
-                                <div class="form-control" style="background: white; margin-top: 5px;">4100 1234 5678 9012</div>
-                                <p><strong style="margin-top: 15px; display: block;">Qiwi Wallet:</strong></p>
-                                <div class="form-control" style="background: white; margin-top: 5px;">+7 (495) 123-45-67</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div style="background: var(--warning-light); padding: 20px; border-radius: 12px; border-left: 4px solid var(--warning);">
-                        <h4><i class="fas fa-exclamation-circle"></i> Важная информация</h4>
-                        <p style="margin-top: 10px;">
-                            При оплате через электронные системы обязательно указывать назначение платежа и лицевой счет жильца.
-                            Без этой информации платеж может быть не зачислен.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="qrRequisites" class="tab-content">
-                <div style="text-align: center; max-width: 600px; margin: 0 auto;">
-                    <h3 style="margin-bottom: 20px;">QR-коды для оплаты</h3>
-                    
-                    <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 30px;">
-                        <div style="width: 200px; height: 200px; background: #f0f0f0; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
-                            <i class="fas fa-qrcode" style="font-size: 80px; color: var(--primary);"></i>
-                        </div>
-                        <h4>QR-код для СБП</h4>
-                        <p style="margin-top: 10px; color: var(--gray-700);">
-                            Отсканируйте код в приложении банка для быстрого перевода
-                        </p>
-                        <button class="btn btn-primary" style="margin-top: 20px;">
-                            <i class="fas fa-download"></i> Скачать QR-код
-                        </button>
-                    </div>
-                    
-                    <div style="background: var(--gray-100); padding: 20px; border-radius: 12px; margin-bottom: 30px;">
-                        <h4>Как использовать QR-код:</h4>
-                        <ol style="text-align: left; margin-top: 15px; padding-left: 20px;">
-                            <li>Откройте приложение вашего банка</li>
-                            <li>Выберите "Оплата по QR-коду"</li>
-                            <li>Наведите камеру на код</li>
-                            <li>Проверьте данные и подтвердите платеж</li>
-                        </ol>
                     </div>
                 </div>
             </div>
@@ -1552,66 +1247,38 @@ function loadRequisites() {
                     <div style="margin-bottom: 30px;">
                         <h4>Способы оплаты услуг:</h4>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">
-                            <div style="background: var(--gray-100); padding: 15px; border-radius: 8px;">
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
                                 <h5><i class="fas fa-university"></i> Через банк</h5>
                                 <p style="margin-top: 10px; font-size: 14px;">По реквизитам компании в отделении или онлайн-банке</p>
                             </div>
-                            <div style="background: var(--gray-100); padding: 15px; border-radius: 8px;">
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
                                 <h5><i class="fas fa-mobile-alt"></i> Через СБП</h5>
                                 <p style="margin-top: 10px; font-size: 14px;">По номеру телефона компании в приложении банка</p>
                             </div>
-                            <div style="background: var(--gray-100); padding: 15px; border-radius: 8px;">
-                                <h5><i class="fas fa-qrcode"></i> По QR-коду</h5>
-                                <p style="margin-top: 10px; font-size: 14px;">Отсканировать код в приложении банка</p>
-                            </div>
-                            <div style="background: var(--gray-100); padding: 15px; border-radius: 8px;">
-                                <h5><i class="fas fa-terminal"></i> В терминалах</h5>
-                                <p style="margin-top: 10px; font-size: 14px;">Через платёжные терминалы по номеру лицевого счета</p>
-                            </div>
                         </div>
-                    </div>
-                    
-                    <div style="background: var(--primary-light); padding: 25px; border-radius: 12px;">
-                        <h4><i class="fas fa-lightbulb"></i> Рекомендации</h4>
-                        <ul style="margin-top: 15px; padding-left: 20px;">
-                            <li>Сохраняйте чеки об оплате</li>
-                            <li>Указывайте правильное назначение платежа</li>
-                            <li>Проверяйте актуальность реквизитов</li>
-                            <li>При проблемах с оплатой обращайтесь в службу поддержки</li>
-                        </ul>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <div style="margin-top: 30px; padding: 20px; background: var(--warning-light); border-radius: 12px; border-left: 4px solid var(--warning);">
-            <h4><i class="fas fa-exclamation-triangle"></i> Внимание!</h4>
-            <p style="margin-top: 10px;">
-                Реквизиты для оплаты могут меняться. Всегда проверяйте актуальность информации на этой странице перед совершением платежа.
-                При изменении реквизитов мы уведомляем всех жильцов по SMS и email.
-            </p>
-        </div>
     `;
     
-    // Добавляем обработчики вкладок
-    document.querySelectorAll('.tab[onclick^="showRequisitesTab"]').forEach(tab => {
-        tab.addEventListener('click', function() {
-            const onclickAttr = this.getAttribute('onclick');
-            const match = onclickAttr.match(/showRequisitesTab\('(.+?)'\)/);
-            if (match) {
-                const tabName = match[1];
+    // Инициализируем вкладки
+    setTimeout(() => {
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabName = this.getAttribute('onclick').match(/'(.+?)'/)[1];
                 showRequisitesTab(tabName);
-            }
+            });
         });
-    });
-    
-    // Инициализируем первую вкладку
-    setTimeout(() => showRequisitesTab('bank'), 100);
+    }, 100);
 }
 
-// Загрузка страницы профиля
 function loadProfile() {
     const contentArea = document.getElementById('content-area');
+    
+    if (!contentArea || !window.crmData) return;
+    
     const company = window.crmData.currentCompany;
     
     contentArea.innerHTML = `
@@ -1621,7 +1288,7 @@ function loadProfile() {
         
         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 30px;">
             <div>
-                <div style="background: var(--gray-100); padding: 25px; border-radius: 12px; margin-bottom: 20px;">
+                <div style="background: #f8f9fa; padding: 25px; border-radius: 12px; margin-bottom: 20px;">
                     <h3 style="margin-bottom: 15px;">Основная информация</h3>
                     <p><strong>Название:</strong> ${company.legalName}</p>
                     <p><strong>ИНН:</strong> ${company.inn}</p>
@@ -1629,7 +1296,7 @@ function loadProfile() {
                     <p><strong>Регион:</strong> ${company.region}</p>
                 </div>
                 
-                <div style="background: var(--primary-light); padding: 25px; border-radius: 12px;">
+                <div style="background: #e6f7ff; padding: 25px; border-radius: 12px;">
                     <h3 style="margin-bottom: 15px;">Контакты</h3>
                     <p><strong>Телефон:</strong> ${company.contacts.phone}</p>
                     <p><strong>Email:</strong> ${company.contacts.email}</p>
@@ -1638,30 +1305,30 @@ function loadProfile() {
             </div>
             
             <div>
-                <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                     <h3 style="margin-bottom: 20px;">Статистика</h3>
                     
                     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px;">
                         <div style="text-align: center;">
-                            <div style="font-size: 24px; font-weight: bold; color: var(--primary);">
+                            <div style="font-size: 24px; font-weight: bold; color: #6912FF;">
                                 ${window.crmData.buildings.length}
                             </div>
                             <div>Домов</div>
                         </div>
                         <div style="text-align: center;">
-                            <div style="font-size: 24px; font-weight: bold; color: var(--primary);">
+                            <div style="font-size: 24px; font-weight: bold; color: #6912FF;">
                                 ${window.crmData.residents.length}
                             </div>
                             <div>Жильцов</div>
                         </div>
                         <div style="text-align: center;">
-                            <div style="font-size: 24px; font-weight: bold; color: var(--primary);">
+                            <div style="font-size: 24px; font-weight: bold; color: #6912FF;">
                                 ${window.crmData.tickets.filter(t => t.status === 'open' || t.status === 'in_progress').length}
                             </div>
                             <div>Активных обращений</div>
                         </div>
                         <div style="text-align: center;">
-                            <div style="font-size: 24px; font-weight: bold; color: var(--primary);">
+                            <div style="font-size: 24px; font-weight: bold; color: #6912FF;">
                                 ${window.crmData.services.length}
                             </div>
                             <div>Услуг</div>
@@ -1673,262 +1340,39 @@ function loadProfile() {
                         ${company.licenses.map(license => `<li>${license}</li>`).join('')}
                     </ul>
                 </div>
-                
-                <div style="margin-top: 25px; padding: 20px; background: var(--gray-100); border-radius: 12px;">
-                    <h4 style="margin-bottom: 15px;">Последние действия</h4>
-                    <div style="max-height: 200px; overflow-y: auto;">
-                        ${window.crmData.payments.slice(-3).reverse().map(payment => {
-                            const service = window.crmData.services.find(s => s.id === payment.serviceId);
-                            return `
-                                <div style="padding: 10px; border-bottom: 1px solid var(--gray-200);">
-                                    <div style="font-weight: 500;">Оплата: ${service ? service.name : 'Услуга'}</div>
-                                    <div style="font-size: 14px; color: var(--gray-700);">
-                                        ${payment.amount.toLocaleString('ru-RU')} ₽ • ${payment.date}
-                                    </div>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                </div>
             </div>
         </div>
     `;
 }
 
-// Инициализация графика
-function initializeChart() {
-    const ctx = document.getElementById('analyticsChart');
-    if (!ctx) return;
+// ==================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ====================
+
+function showRequisitesTab(tabName) {
+    // Убираем активный класс со всех вкладок контента
+    document.querySelectorAll('#requisitesContent .tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
     
-    // Удаляем старый график, если он существует
-    if (window.analyticsChart) {
-        window.analyticsChart.destroy();
+    // Убираем активный класс со всех кнопок вкладок
+    document.querySelectorAll('.tab').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Показываем выбранную вкладку
+    const contentElement = document.getElementById(tabName + 'Requisites');
+    if (contentElement) {
+        contentElement.classList.add('active');
     }
     
-    window.analyticsChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг'],
-            datasets: [
-                {
-                    label: 'Начислено',
-                    data: [1850000, 1920000, 1980000, 2050000, 2150000, 2250000, 2350000, 2450780],
-                    borderColor: '#6912FF',
-                    backgroundColor: 'rgba(105, 18, 255, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                },
-                {
-                    label: 'Оплачено',
-                    data: [1650000, 1720000, 1780000, 1850000, 1950000, 2050000, 2150000, 1890540],
-                    borderColor: '#00D1B2',
-                    backgroundColor: 'rgba(0, 209, 178, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                title: {
-                    display: true,
-                    text: 'Динамика платежей за 2024 год'
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return value.toLocaleString('ru-RU') + ' ₽';
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
-
-// Настройка модальных окон
-function setupModals() {
-    // Закрытие модальных окон при клике на крестик или вне окна
-    document.querySelectorAll('.close-modal').forEach(button => {
-        button.addEventListener('click', closeAllModals);
-    });
-    
-    // Закрытие при клике вне модального окна
-    document.querySelectorAll('.modal').forEach(modal => {
-        modal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeAllModals();
-            }
-        });
-    });
-    
-    // Обработка формы добавления дома
-    if (document.getElementById('buildingForm')) {
-        document.getElementById('buildingForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            saveBuilding();
-        });
-    }
-    
-    // Обработка формы добавления платежа
-    if (document.getElementById('paymentForm')) {
-        document.getElementById('paymentForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            savePayment();
-        });
-    }
-}
-
-// Открытие модального окна
-function openModal(modalId) {
-    document.getElementById(modalId).classList.add('active');
-}
-
-// Закрытие всех модальных окон
-function closeAllModals() {
-    document.querySelectorAll('.modal').forEach(modal => {
-        modal.classList.remove('active');
-    });
-}
-
-// Сохранение дома
-function saveBuilding() {
-    const address = document.getElementById('buildingAddress').value;
-    const floors = parseInt(document.getElementById('buildingFloors').value) || 0;
-    const apartments = parseInt(document.getElementById('buildingApartments').value) || 0;
-    const year = parseInt(document.getElementById('buildingYear').value) || new Date().getFullYear();
-    
-    const risksSelect = document.getElementById('buildingRisks');
-    const risks = Array.from(risksSelect.selectedOptions).map(option => option.value);
-    
-    // Создаем новый объект дома
-    const newBuilding = {
-        id: window.crmData.buildings.length + 1,
-        address,
-        floors,
-        apartments,
-        risks,
-        passport: {
-            elevators: [],
-            itp: { type: "Не указано", year: year }
-        }
-    };
-    
-    // Добавляем дом в данные
-    window.crmData.buildings.push(newBuilding);
-    
-    // Сохраняем в localStorage
-    localStorage.setItem('crmData', JSON.stringify(window.crmData));
-    
-    // Закрываем модальное окно
-    closeAllModals();
-    
-    // Показываем уведомление
-    alert('Дом успешно добавлен!');
-    
-    // Перезагружаем страницу домов
-    loadBuildings();
-}
-
-// Сохранение платежа
-function savePayment() {
-    const serviceId = parseInt(document.getElementById('paymentService').value);
-    const buildingId = parseInt(document.getElementById('paymentBuilding').value);
-    const amount = parseFloat(document.getElementById('paymentAmount').value);
-    const date = document.getElementById('paymentDate').value || new Date().toISOString().split('T')[0];
-    
-    // Создаем новый платеж
-    const newPayment = {
-        id: window.crmData.payments.length + 1,
-        serviceId,
-        amount,
-        status: 'charged',
-        date,
-        payer: window.crmData.currentCompany.legalName
-    };
-    
-    // Добавляем платеж в данные
-    window.crmData.payments.push(newPayment);
-    
-    // Сохраняем в localStorage
-    localStorage.setItem('crmData', JSON.stringify(window.crmData));
-    
-    // Закрываем модальное окно
-    closeAllModals();
-    
-    // Показываем уведомление
-    alert(`Начисление на сумму ${amount.toLocaleString('ru-RU')} ₽ успешно создано!`);
-    
-    // Перезагружаем страницу платежей
-    loadPayments();
-}
-
-// Заполнение форм данными
-function populatePaymentForm() {
-    const serviceSelect = document.getElementById('paymentService');
-    const buildingSelect = document.getElementById('paymentBuilding');
-    
-    if (!serviceSelect || !buildingSelect) return;
-    
-    // Очищаем предыдущие опции
-    serviceSelect.innerHTML = '<option value="">Выберите услугу</option>';
-    buildingSelect.innerHTML = '<option value="">Выберите дом</option>';
-    
-    // Заполняем услуги
-    window.crmData.services.forEach(service => {
-        const option = document.createElement('option');
-        option.value = service.id;
-        option.textContent = `${service.name} - ${service.tariff} ₽/${service.period === 'monthly' ? 'мес' : 'услуга'}`;
-        serviceSelect.appendChild(option);
-    });
-    
-    // Заполняем дома
-    window.crmData.buildings.forEach(building => {
-        const option = document.createElement('option');
-        option.value = building.id;
-        option.textContent = building.address;
-        buildingSelect.appendChild(option);
-    });
-    
-    // Устанавливаем сегодняшнюю дату по умолчанию
-    const dateInput = document.getElementById('paymentDate');
-    if (dateInput) {
-        dateInput.valueAsDate = new Date();
-    }
-}
-
-// Фильтрация данных
-function filterPayments(filter) {
-    const rows = document.querySelectorAll('#paymentsTable tbody tr');
-    
-    rows.forEach(row => {
-        const statusBadge = row.querySelector('.status-badge');
-        let status = '';
-        
-        if (statusBadge.classList.contains('status-paid')) status = 'paid';
-        else if (statusBadge.classList.contains('status-processing')) status = 'processing';
-        else if (statusBadge.classList.contains('status-pending')) status = 'charged';
-        
-        if (filter === 'all' || filter === status) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
-    });
+    // Активируем соответствующую кнопку
+    const tabButtons = document.querySelectorAll(`.tab[onclick*="${tabName}"]`);
+    tabButtons.forEach(btn => btn.classList.add('active'));
 }
 
 function filterResidents(filter) {
     const rows = document.querySelectorAll('#residentsTableBody tr');
     const buttons = document.querySelectorAll('.btn[onclick^="filterResidents"]');
     
-    // Обновляем активную кнопку
     buttons.forEach(btn => {
         if (btn.getAttribute('onclick').includes(`'${filter}'`)) {
             btn.classList.add('active');
@@ -1953,10 +1397,10 @@ function filterResidents(filter) {
                 show = statusText === 'Неактивен';
                 break;
             case 'debtors':
-                show = balanceText.includes('-') || balanceText === 'Долг';
+                show = balanceText.includes('-');
                 break;
             case 'no-debt':
-                show = !balanceText.includes('-') && balanceText !== 'Долг';
+                show = !balanceText.includes('-');
                 break;
             case 'all':
             default:
@@ -1971,7 +1415,6 @@ function filterTickets(filter) {
     const rows = document.querySelectorAll('#ticketsTableBody tr');
     const buttons = document.querySelectorAll('.btn[onclick^="filterTickets"]');
     
-    // Обновляем активную кнопку
     buttons.forEach(btn => {
         if (btn.getAttribute('onclick').includes(`'${filter}'`)) {
             btn.classList.add('active');
@@ -2010,165 +1453,12 @@ function filterTickets(filter) {
     });
 }
 
-function filterServices(filter) {
-    const rows = document.querySelectorAll('#servicesTable tbody tr');
-    
-    rows.forEach(row => {
-        const typeCell = row.cells[1];
-        const periodCell = row.cells[3];
-        const typeText = typeCell.textContent.trim();
-        const periodText = periodCell.textContent.trim();
-        
-        let show = true;
-        
-        switch(filter) {
-            case 'main':
-                show = typeText === 'Основная';
-                break;
-            case 'additional':
-                show = typeText === 'Дополнительная';
-                break;
-            case 'monthly':
-                show = periodText === 'Ежемесячно';
-                break;
-            case 'ondemand':
-                show = periodText === 'По требованию';
-                break;
-            case 'all':
-            default:
-                show = true;
-        }
-        
-        row.style.display = show ? '' : 'none';
-    });
-}
+// ==================== ФУНКЦИИ ДЛЯ КНОПОК ====================
 
-function filterDocuments(filter) {
-    const rows = document.querySelectorAll('#documentsTableBody tr');
-    
-    rows.forEach(row => {
-        const typeCell = row.cells[1];
-        const typeText = typeCell.textContent.trim().toLowerCase();
-        
-        let show = true;
-        
-        switch(filter) {
-            case 'contracts':
-                show = typeText === 'договор' || typeText.includes('договор');
-                break;
-            case 'acts':
-                show = typeText === 'акт' || typeText.includes('акт');
-                break;
-            case 'licenses':
-                show = typeText === 'лицензия' || typeText.includes('лицензия');
-                break;
-            case 'reports':
-                show = typeText === 'отчет' || typeText.includes('отчёт');
-                break;
-            case 'all':
-            default:
-                show = true;
-        }
-        
-        row.style.display = show ? '' : 'none';
-    });
-}
-
-function searchDocuments() {
-    const searchTerm = document.getElementById('documentSearch').value.toLowerCase();
-    const rows = document.querySelectorAll('#documentsTableBody tr');
-    
-    rows.forEach(row => {
-        const nameCell = row.cells[0];
-        const nameText = nameCell.textContent.toLowerCase();
-        
-        if (nameText.includes(searchTerm)) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
-    });
-}
-
-// Функции для работы с данными
 function viewBuilding(id) {
     const building = window.crmData.buildings.find(b => b.id === id);
-    
     if (building) {
-        const contentArea = document.getElementById('content-area');
-        contentArea.innerHTML = `
-            <div class="page-header">
-                <h2 class="page-title">${building.address}</h2>
-                <button class="btn btn-secondary" onclick="loadBuildings()">
-                    <i class="fas fa-arrow-left"></i> Назад к списку
-                </button>
-            </div>
-            <div class="tabs">
-                <button class="tab active" data-tab="info">Общая информация</button>
-                <button class="tab" data-tab="passport">Паспорт дома</button>
-                <button class="tab" data-tab="history">История аварий</button>
-            </div>
-            <div id="tabContent">
-                <div class="tab-content active" id="infoTab">
-                    <h3>Основная информация</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px;">
-                        <div>
-                            <p><strong>Адрес:</strong> ${building.address}</p>
-                            <p><strong>Этажей:</strong> ${building.floors}</p>
-                            <p><strong>Квартир:</strong> ${building.apartments}</p>
-                        </div>
-                        <div>
-                            <h4>Флаги рисков</h4>
-                            ${building.risks.map(risk => {
-                                let riskClass, riskText;
-                                switch(risk) {
-                                    case 'electrical': riskClass = 'risk-high'; riskText = 'Старая электропроводка'; break;
-                                    case 'roof': riskClass = 'risk-medium'; riskText = 'Протекающая крыша'; break;
-                                    case 'elevator': riskClass = 'risk-high'; riskText = 'Неисправный лифт'; break;
-                                    case 'plumbing': riskClass = 'risk-medium'; riskText = 'Износ водопровода'; break;
-                                }
-                                return `<p><span class="risk-flag ${riskClass}"></span> ${riskText}</p>`;
-                            }).join('')}
-                            ${building.risks.length === 0 ? '<p><span class="risk-flag risk-low"></span> Нет активных рисков</p>' : ''}
-                        </div>
-                    </div>
-                </div>
-                <div class="tab-content" id="passportTab">
-                    <h3>Паспорт дома</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px;">
-                        <div>
-                            <h4>Лифты</h4>
-                            ${building.passport.elevators.length > 0 
-                                ? building.passport.elevators.map(elevator => `<p>${elevator}</p>`).join('')
-                                : '<p>Лифты отсутствуют</p>'}
-                        </div>
-                        <div>
-                            <h4>ИТП (Индивидуальный тепловой пункт)</h4>
-                            <p><strong>Тип:</strong> ${building.passport.itp.type}</p>
-                            <p><strong>Год ввода:</strong> ${building.passport.itp.year}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="tab-content" id="historyTab">
-                    <h3>История аварий</h3>
-                    <p>За последние 12 месяцев аварийных ситуаций не зафиксировано.</p>
-                </div>
-            </div>
-        `;
-        
-        // Настройка вкладок
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                
-                const tabName = this.getAttribute('data-tab');
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.remove('active');
-                });
-                document.getElementById(tabName + 'Tab').classList.add('active');
-            });
-        });
+        alert(`Просмотр дома: ${building.address}\nЭтажи: ${building.floors}\nКвартиры: ${building.apartments}`);
     }
 }
 
@@ -2185,74 +1475,20 @@ function deleteBuilding(id) {
     }
 }
 
-// Показ вкладок реквизитов
-function showRequisitesTab(tabName) {
-    // Убираем активный класс со всех вкладок контента
-    document.querySelectorAll('#requisitesContent .tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    
-    // Убираем активный класс со всех кнопок вкладок
-    document.querySelectorAll('.tab').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    // Показываем выбранную вкладку
-    const contentElement = document.getElementById(tabName + 'Requisites');
-    if (contentElement) {
-        contentElement.classList.add('active');
-    }
-    
-    // Активируем соответствующую кнопку
-    const tabButtons = document.querySelectorAll(`.tab[onclick*="${tabName}"]`);
-    tabButtons.forEach(btn => btn.classList.add('active'));
-}
-
-// Простые модальные функции для демонстрации
-function showAddResidentModal() {
-    alert('Форма добавления жильца будет открыта в модальном окне. В демо-версии показано уведомление.');
-}
-
-function showCreateTicketModal() {
-    alert('Форма создания обращения будет открыта в модальном окне. В демо-версии показано уведомление.');
-}
-
-function showAddServiceModal() {
-    alert('Форма добавления услуги будет открыта в модальном окне. В демо-версии показано уведомление.');
-}
-
-function showUploadDocumentModal() {
-    alert('Форма загрузки документа будет открыта в модальном окне. В демо-версии показано уведомление.');
-}
-
-// Функции просмотра деталей
 function viewResidentDetails(id) {
     alert(`Просмотр деталей жильца #${id}. В полной версии будет открыта страница с подробной информацией.`);
 }
 
-function viewTicketDetails(id) {
-    alert(`Просмотр деталей обращения #${id}. В полной версии будет открыта страница с историей и комментариями.`);
-}
-
-function viewServiceDetails(id) {
-    alert(`Просмотр деталей услуги #${id}. В полной версии будет показана статистика и история платежей.`);
-}
-
-function viewDocument(id) {
-    alert(`Просмотр документа #${id}. В полной версии будет открыт предпросмотр документа.`);
-}
-
-// Другие функции действий
 function editResident(id) {
     alert(`Редактирование жильца #${id}. В полной версии будет открыта форма редактирования.`);
 }
 
-function editService(id) {
-    alert(`Редактирование услуги #${id}. В полной версии будет открыта форма редактирования.`);
-}
-
 function sendNotificationToResident(id) {
     alert(`Отправка уведомления жильцу #${id}. В полной версии будет открыта форма отправки SMS/email.`);
+}
+
+function viewTicketDetails(id) {
+    alert(`Просмотр деталей обращения #${id}. В полной версии будет открыта страница с историей и комментариями.`);
 }
 
 function assignTicket(id) {
@@ -2265,8 +1501,31 @@ function closeTicket(id) {
     }
 }
 
+function viewServiceDetails(id) {
+    alert(`Просмотр деталей услуги #${id}. В полной версии будет показана статистика и история платежей.`);
+}
+
+function editService(id) {
+    alert(`Редактирование услуги #${id}. В полной версии будет открыта форма редактирования.`);
+}
+
 function calculateRevenue(id) {
     alert(`Расчет доходов по услуге #${id}. В полной версии будет показана детальная аналитика.`);
+}
+
+function viewContractor(id) {
+    const contractor = window.crmData.contractors.find(c => c.id === id);
+    if (contractor) {
+        alert(`Просмотр подрядчика: ${contractor.legalName}\nИНН: ${contractor.inn}\nСтатус: ${contractor.status}`);
+    }
+}
+
+function editContractor(id) {
+    alert(`Редактирование подрядчика с ID ${id}. Функция будет реализована в следующей версии.`);
+}
+
+function viewDocument(id) {
+    alert(`Просмотр документа #${id}. В полной версии будет открыт предпросмотр документа.`);
 }
 
 function downloadDocument(id) {
@@ -2283,53 +1542,81 @@ function shareDocument(id) {
     alert(`Отправка документа #${id}. В полной версии будет открыта форма отправки по email.`);
 }
 
-function viewContractor(id) {
-    const contractor = window.crmData.contractors.find(c => c.id === id);
+// ==================== НАСТРОЙКА МОДАЛЬНЫХ ОКОН ====================
+
+function setupModals() {
+    // Закрытие модальных окон при клике на крестик
+    const closeButtons = document.querySelectorAll('.close-modal');
+    if (closeButtons.length > 0) {
+        closeButtons.forEach(button => {
+            button.addEventListener('click', closeAllModals);
+        });
+    }
     
-    if (contractor) {
-        const services = window.crmData.services.filter(s => s.contractorId === id);
-        
-        alert(`Просмотр подрядчика: ${contractor.legalName}\nИНН: ${contractor.inn}\nСтатус: ${contractor.status}\n\nОказывает услуги: ${services.length}`);
+    // Закрытие при клике вне модального окна
+    const modals = document.querySelectorAll('.modal');
+    if (modals.length > 0) {
+        modals.forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeAllModals();
+                }
+            });
+        });
     }
 }
 
-function editContractor(id) {
-    alert(`Редактирование подрядчика с ID ${id}. Функция будет реализована в следующей версии.`);
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('active');
+    }
 }
 
-// Экспортируем функции для использования в HTML
+function closeAllModals() {
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.classList.remove('active');
+    });
+}
+
+// ==================== ЭКСПОРТ ФУНКЦИЙ ====================
+
+window.loadDashboard = loadDashboard;
+window.loadBuildings = loadBuildings;
+window.loadResidents = loadResidents;
+window.loadTickets = loadTickets;
+window.loadServices = loadServices;
+window.loadPayments = loadPayments;
+window.loadContractors = loadContractors;
+window.loadDocuments = loadDocuments;
+window.loadRequisites = loadRequisites;
+window.loadProfile = loadProfile;
+
+window.filterResidents = filterResidents;
+window.filterTickets = filterTickets;
+
 window.viewBuilding = viewBuilding;
 window.editBuilding = editBuilding;
 window.deleteBuilding = deleteBuilding;
+
 window.viewResidentDetails = viewResidentDetails;
 window.editResident = editResident;
+window.sendNotificationToResident = sendNotificationToResident;
+
 window.viewTicketDetails = viewTicketDetails;
 window.assignTicket = assignTicket;
 window.closeTicket = closeTicket;
+
 window.viewServiceDetails = viewServiceDetails;
 window.editService = editService;
+window.calculateRevenue = calculateRevenue;
+
 window.viewContractor = viewContractor;
 window.editContractor = editContractor;
+
+window.viewDocument = viewDocument;
 window.downloadDocument = downloadDocument;
-window.filterResidents = filterResidents;
-window.filterTickets = filterTickets;
-window.filterPayments = filterPayments;
-window.filterDocuments = filterDocuments;
-window.loadResidents = loadResidents;
-window.loadTickets = loadTickets;
-window.loadRequisites = loadRequisites;
-window.loadDashboard = loadDashboard;
-window.showRequisitesTab = showRequisitesTab;
-window.initializeChart = initializeChart;
-window.loadProfile = loadProfile;
-window.sendNotificationToResident = sendNotificationToResident;
-window.calculateRevenue = calculateRevenue;
 window.signDocument = signDocument;
 window.shareDocument = shareDocument;
-window.viewDocument = viewDocument;
-window.searchDocuments = searchDocuments;
-window.filterServices = filterServices;
-window.showAddResidentModal = showAddResidentModal;
-window.showCreateTicketModal = showCreateTicketModal;
-window.showAddServiceModal = showAddServiceModal;
-window.showUploadDocumentModal = showUploadDocumentModal;
+
+window.showRequisitesTab = showRequisitesTab;

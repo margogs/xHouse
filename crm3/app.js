@@ -1601,13 +1601,6 @@ function loadRequisites() {
         showEditRequisitesModal();
     });
 }
-
-// Дополнительные вспомогательные функции
-function showRequisitesTab(tabName) {
-    // Скрываем все вкладки
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
     
 // Инициализация графиков
 function initializeChart() {

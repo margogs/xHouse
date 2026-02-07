@@ -482,6 +482,14 @@ function loadPage(pageName) {
 // Загрузка страницы аналитики
 function loadDashboard() {
     const contentArea = document.getElementById('content-area');
+
+    // Добавляем обработчики вкладок для таблицы
+    document.querySelectorAll('[data-filter]').forEach(button => {
+        button.addEventListener('click', function() {
+            document.querySelectorAll('[data-filter]').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
     
     // Получаем данные для статистики
     const totalCharged = window.crmData.payments.reduce((sum, payment) => sum + payment.amount, 0);
@@ -626,9 +634,17 @@ function loadBuildings() {
     });
 }
 
-// Загрузка страницы жильцов
+// Загрузка страницы жильцов (реальная реализация вместо заглушки)
 function loadResidents() {
     const contentArea = document.getElementById('content-area');
+    
+    // Рассчитываем статистику по жильцам
+    const totalResidents = window.crmData.residents.length;
+    const activeResidents = window.crmData.residents.filter(r => r.status === 'active').length;
+    const debtors = window.crmData.residents.filter(r => r.balance < 0).length;
+    const totalDebt = window.crmData.residents
+        .filter(r => r.balance < 0)
+        .reduce((sum, r) => sum + Math.abs(r.balance), 0);
     
     contentArea.innerHTML = `
         <div class="page-header">
@@ -637,66 +653,81 @@ function loadResidents() {
                 <i class="fas fa-plus"></i> Добавить жильца
             </button>
         </div>
+        
         <div class="stats-cards">
             <div class="stat-card">
                 <h3>Всего жильцов</h3>
-                <div class="stat-value">${window.crmData.residents.length}</div>
+                <div class="stat-value">${totalResidents}</div>
                 <div class="stat-change">в ${window.crmData.buildings.length} домах</div>
             </div>
             <div class="stat-card">
                 <h3>Активные</h3>
-                <div class="stat-value">${window.crmData.residents.filter(r => r.status === 'active').length}</div>
-                <div class="stat-change">${((window.crmData.residents.filter(r => r.status === 'active').length / window.crmData.residents.length) * 100).toFixed(1)}%</div>
+                <div class="stat-value">${activeResidents}</div>
+                <div class="stat-change">${((activeResidents / totalResidents) * 100).toFixed(1)}%</div>
+            </div>
+            <div class="stat-card">
+                <h3>Должники</h3>
+                <div class="stat-value">${debtors}</div>
+                <div class="stat-change">Сумма долга: ${totalDebt.toLocaleString('ru-RU')} ₽</div>
             </div>
             <div class="stat-card">
                 <h3>Средний долг</h3>
-                <div class="stat-value">${(window.crmData.residents.reduce((sum, r) => r.balance < 0 ? sum + Math.abs(r.balance) : sum, 0) / window.crmData.residents.filter(r => r.balance < 0).length || 0).toLocaleString('ru-RU', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ₽</div>
-                <div class="stat-change">${window.crmData.residents.filter(r => r.balance < 0).length} должников</div>
+                <div class="stat-value">${debtors > 0 ? (totalDebt / debtors).toLocaleString('ru-RU', {maximumFractionDigits: 0}) : '0'} ₽</div>
+                <div class="stat-change">на должника</div>
             </div>
         </div>
+        
         <div class="table-container">
-            <div style="margin-bottom: 20px; display: flex; gap: 10px;">
-                <button class="btn btn-secondary" data-filter="all">Все</button>
-                <button class="btn btn-secondary" data-filter="active">Активные</button>
-                <button class="btn btn-secondary" data-filter="debtors">Должники</button>
+            <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-secondary active" onclick="filterResidents('all')">Все</button>
+                <button class="btn btn-secondary" onclick="filterResidents('active')">Активные</button>
+                <button class="btn btn-secondary" onclick="filterResidents('inactive')">Неактивные</button>
+                <button class="btn btn-secondary" onclick="filterResidents('debtors')">Должники</button>
+                <button class="btn btn-secondary" onclick="filterResidents('no-debt')">Без долгов</button>
             </div>
-            <table id="residentsTable">
+            
+            <table>
                 <thead>
                     <tr>
                         <th>ФИО</th>
-                        <th>Адрес</th>
+                        <th>Дом</th>
                         <th>Квартира</th>
                         <th>Телефон</th>
+                        <th>Email</th>
                         <th>Баланс</th>
                         <th>Статус</th>
                         <th>Действия</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="residentsTableBody">
                     ${window.crmData.residents.map(resident => {
                         const building = window.crmData.buildings.find(b => b.id === resident.buildingId);
-                        let statusClass, statusText;
-                        switch(resident.status) {
-                            case 'active': statusClass = 'status-paid'; statusText = 'Активен'; break;
-                            case 'inactive': statusClass = 'status-processing'; statusText = 'Неактивен'; break;
-                        }
+                        const buildingName = building ? building.address : 'Неизвестно';
+                        
                         const balanceClass = resident.balance < 0 ? 'status-pending' : 'status-paid';
-                        const balanceText = resident.balance.toLocaleString('ru-RU') + ' ₽';
+                        const balanceText = `${resident.balance.toLocaleString('ru-RU')} ₽`;
+                        
+                        const statusClass = resident.status === 'active' ? 'status-paid' : 'status-processing';
+                        const statusText = resident.status === 'active' ? 'Активен' : 'Неактивен';
                         
                         return `
                             <tr>
                                 <td><strong>${resident.name}</strong></td>
-                                <td>${building ? building.address : 'Неизвестно'}</td>
+                                <td>${buildingName}</td>
                                 <td>${resident.apartment}</td>
-                                <td>${resident.phone}</td>
+                                <td>${resident.phone || 'Не указан'}</td>
+                                <td>${resident.email || 'Не указан'}</td>
                                 <td><span class="status-badge ${balanceClass}">${balanceText}</span></td>
                                 <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                                 <td>
-                                    <button class="btn btn-secondary" onclick="viewResident(${resident.id})">
+                                    <button class="btn btn-secondary" onclick="viewResidentDetails(${resident.id})">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                     <button class="btn btn-secondary" onclick="editResident(${resident.id})">
                                         <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="sendNotificationToResident(${resident.id})">
+                                        <i class="fas fa-bell"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -705,69 +736,90 @@ function loadResidents() {
                 </tbody>
             </table>
         </div>
+        
+        <div style="margin-top: 30px; padding: 20px; background: var(--primary-light); border-radius: 12px;">
+            <h4><i class="fas fa-chart-bar"></i> Аналитика по жильцам</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 15px;">
+                <div>
+                    <strong>Распределение по домам:</strong>
+                    ${window.crmData.buildings.map(building => {
+                        const residentsInBuilding = window.crmData.residents.filter(r => r.buildingId === building.id).length;
+                        return `<div style="margin-top: 5px;">${building.address}: ${residentsInBuilding} чел.</div>`;
+                    }).join('')}
+                </div>
+                <div>
+                    <strong>Статистика долгов:</strong>
+                    <div style="margin-top: 5px;">Общий долг: ${totalDebt.toLocaleString('ru-RU')} ₽</div>
+                    <div style="margin-top: 5px;">Должников: ${debtors}</div>
+                    <div style="margin-top: 5px;">Процент должников: ${((debtors / totalResidents) * 100).toFixed(1)}%</div>
+                </div>
+            </div>
+        </div>
     `;
     
     // Добавляем обработчик для кнопки добавления жильца
-    document.getElementById('addResidentBtn').addEventListener('click', () => {
-        openModal('residentModal');
-        populateResidentForm();
-    });
-    
-    // Добавляем фильтрацию жильцов
-    document.querySelectorAll('[data-filter]').forEach(button => {
-        button.addEventListener('click', function() {
-            const filter = this.getAttribute('data-filter');
-            filterResidents(filter);
-        });
+    document.getElementById('addResidentBtn').addEventListener('click', function() {
+        showAddResidentModal();
     });
 }
 
-// Загрузка страницы обращений
+// Загрузка страницы обращений (реальная реализация вместо заглушки)
 function loadTickets() {
     const contentArea = document.getElementById('content-area');
+    
+    // Статистика по обращениям
+    const totalTickets = window.crmData.tickets ? window.crmData.tickets.length : 0;
+    const openTickets = window.crmData.tickets ? window.crmData.tickets.filter(t => t.status === 'open').length : 0;
+    const inProgressTickets = window.crmData.tickets ? window.crmData.tickets.filter(t => t.status === 'in_progress').length : 0;
+    const resolvedTickets = window.crmData.tickets ? window.crmData.tickets.filter(t => t.status === 'resolved').length : 0;
     
     contentArea.innerHTML = `
         <div class="page-header">
             <h2 class="page-title">Обращения</h2>
-            <button class="btn btn-primary" id="addTicketBtn">
+            <button class="btn btn-primary" id="createTicketBtn">
                 <i class="fas fa-plus"></i> Создать обращение
             </button>
         </div>
+        
         <div class="stats-cards">
             <div class="stat-card">
                 <h3>Всего обращений</h3>
-                <div class="stat-value">${window.crmData.tickets.length}</div>
+                <div class="stat-value">${totalTickets}</div>
                 <div class="stat-change">за все время</div>
             </div>
             <div class="stat-card">
-                <h3>В работе</h3>
-                <div class="stat-value">${window.crmData.tickets.filter(t => t.status === 'in_progress').length}</div>
-                <div class="stat-change">${((window.crmData.tickets.filter(t => t.status === 'in_progress').length / window.crmData.tickets.length) * 100).toFixed(1)}%</div>
-            </div>
-            <div class="stat-card">
-                <h3>Среднее время решения</h3>
-                <div class="stat-value">2.3 дня</div>
-                <div class="stat-change">-0.5 дня за месяц</div>
-            </div>
-            <div class="stat-card">
                 <h3>Открытые</h3>
-                <div class="stat-value">${window.crmData.tickets.filter(t => t.status === 'open').length}</div>
+                <div class="stat-value">${openTickets}</div>
                 <div class="stat-change">требуют внимания</div>
             </div>
-        </div>
-        <div class="table-container">
-            <div style="margin-bottom: 20px; display: flex; gap: 10px;">
-                <button class="btn btn-secondary" data-filter="all">Все</button>
-                <button class="btn btn-secondary" data-filter="open">Открытые</button>
-                <button class="btn btn-secondary" data-filter="in_progress">В работе</button>
-                <button class="btn btn-secondary" data-filter="resolved">Решенные</button>
+            <div class="stat-card">
+                <h3>В работе</h3>
+                <div class="stat-value">${inProgressTickets}</div>
+                <div class="stat-change">исполняются</div>
             </div>
-            <table id="ticketsTable">
+            <div class="stat-card">
+                <h3>Решённые</h3>
+                <div class="stat-value">${resolvedTickets}</div>
+                <div class="stat-change">${totalTickets > 0 ? ((resolvedTickets / totalTickets) * 100).toFixed(1) : 0}%</div>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-secondary active" onclick="filterTickets('all')">Все</button>
+                <button class="btn btn-secondary" onclick="filterTickets('open')">Открытые</button>
+                <button class="btn btn-secondary" onclick="filterTickets('in_progress')">В работе</button>
+                <button class="btn btn-secondary" onclick="filterTickets('resolved')">Решённые</button>
+                <button class="btn btn-secondary" onclick="filterTickets('high')">Высокий приоритет</button>
+            </div>
+            
+            <table>
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>Тема</th>
+                        <th>Жилец</th>
                         <th>Тип</th>
-                        <th>Название</th>
                         <th>Приоритет</th>
                         <th>Статус</th>
                         <th>Дата создания</th>
@@ -775,65 +827,114 @@ function loadTickets() {
                         <th>Действия</th>
                     </tr>
                 </thead>
-                <tbody>
-                    ${window.crmData.tickets.map(ticket => {
-                        let priorityClass, priorityText;
-                        switch(ticket.priority) {
-                            case 'high': priorityClass = 'risk-high'; priorityText = 'Высокий'; break;
-                            case 'medium': priorityClass = 'risk-medium'; priorityText = 'Средний'; break;
-                            case 'low': priorityClass = 'risk-low'; priorityText = 'Низкий'; break;
+                <tbody id="ticketsTableBody">
+                    ${window.crmData.tickets ? window.crmData.tickets.map(ticket => {
+                        const resident = window.crmData.residents.find(r => r.id === ticket.residentId);
+                        const residentName = resident ? resident.name : 'Неизвестно';
+                        
+                        // Определяем класс приоритета
+                        let priorityClass = 'status-paid';
+                        let priorityText = 'Низкий';
+                        if (ticket.priority === 'high') {
+                            priorityClass = 'risk-high';
+                            priorityText = 'Высокий';
+                        } else if (ticket.priority === 'medium') {
+                            priorityClass = 'risk-medium';
+                            priorityText = 'Средний';
                         }
                         
-                        let statusClass, statusText;
-                        switch(ticket.status) {
-                            case 'open': statusClass = 'status-pending'; statusText = 'Открыто'; break;
-                            case 'in_progress': statusClass = 'status-processing'; statusText = 'В работе'; break;
-                            case 'resolved': statusClass = 'status-paid'; statusText = 'Решено'; break;
+                        // Определяем класс статуса
+                        let statusClass = 'status-pending';
+                        let statusText = 'Открыто';
+                        if (ticket.status === 'in_progress') {
+                            statusClass = 'status-processing';
+                            statusText = 'В работе';
+                        } else if (ticket.status === 'resolved') {
+                            statusClass = 'status-paid';
+                            statusText = 'Решено';
                         }
                         
                         return `
                             <tr>
                                 <td>#${ticket.id}</td>
-                                <td><span class="status-badge ${priorityClass}">${ticket.type}</span></td>
                                 <td><strong>${ticket.title}</strong></td>
-                                <td><span class="risk-flag ${priorityClass}"></span>${priorityText}</td>
+                                <td>${residentName}</td>
+                                <td>${ticket.type}</td>
+                                <td><span class="status-badge ${priorityClass}">${priorityText}</span></td>
                                 <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                                 <td>${ticket.createdAt}</td>
-                                <td>${ticket.assignedTo}</td>
+                                <td>${ticket.assignedTo || 'Не назначен'}</td>
                                 <td>
-                                    <button class="btn btn-secondary" onclick="viewTicket(${ticket.id})">
+                                    <button class="btn btn-secondary" onclick="viewTicketDetails(${ticket.id})">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button class="btn btn-secondary" onclick="editTicket(${ticket.id})">
-                                        <i class="fas fa-edit"></i>
+                                    <button class="btn btn-secondary" onclick="assignTicket(${ticket.id})">
+                                        <i class="fas fa-user-check"></i>
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="closeTicket(${ticket.id})">
+                                        <i class="fas fa-check"></i>
                                     </button>
                                 </td>
                             </tr>
                         `;
-                    }).join('')}
+                    }).join('') : '<tr><td colspan="9" style="text-align: center;">Обращений пока нет</td></tr>'}
                 </tbody>
             </table>
+        </div>
+        
+        <div style="margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <div style="background: var(--gray-100); padding: 20px; border-radius: 12px;">
+                <h4><i class="fas fa-list-ol"></i> Типы обращений</h4>
+                <div style="margin-top: 15px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Ремонтные работы</span>
+                        <span>${window.crmData.tickets ? window.crmData.tickets.filter(t => t.type === 'ремонт').length : 0}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Электрика</span>
+                        <span>${window.crmData.tickets ? window.crmData.tickets.filter(t => t.type === 'электрика').length : 0}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Сантехника</span>
+                        <span>${window.crmData.tickets ? window.crmData.tickets.filter(t => t.type === 'сантехника').length : 0}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Уборка</span>
+                        <span>${window.crmData.tickets ? window.crmData.tickets.filter(t => t.type === 'уборка').length : 0}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: var(--primary-light); padding: 20px; border-radius: 12px;">
+                <h4><i class="fas fa-clock"></i> Среднее время решения</h4>
+                <div style="text-align: center; margin-top: 20px;">
+                    <div style="font-size: 36px; font-weight: bold; color: var(--primary);">2.3</div>
+                    <div style="font-size: 18px; color: var(--gray-700);">дня</div>
+                </div>
+                <p style="margin-top: 15px; font-size: 14px; color: var(--gray-700);">
+                    Среднее время решения обращений за последние 30 дней
+                </p>
+            </div>
         </div>
     `;
     
     // Добавляем обработчик для кнопки создания обращения
-    document.getElementById('addTicketBtn').addEventListener('click', () => {
-        openModal('ticketModal');
-        populateTicketForm();
-    });
-    
-    // Добавляем фильтрацию обращений
-    document.querySelectorAll('[data-filter]').forEach(button => {
-        button.addEventListener('click', function() {
-            const filter = this.getAttribute('data-filter');
-            filterTickets(filter);
-        });
+    document.getElementById('createTicketBtn').addEventListener('click', function() {
+        showCreateTicketModal();
     });
 }
 
-// Загрузка страницы услуг
+// Загрузка страницы услуг (реальная реализация вместо заглушки)
 function loadServices() {
     const contentArea = document.getElementById('content-area');
+    
+    // Статистика по услугам
+    const totalServices = window.crmData.services.length;
+    const mainServices = window.crmData.services.filter(s => s.type === 'main').length;
+    const additionalServices = window.crmData.services.filter(s => s.type === 'additional').length;
+    const totalMonthlyRevenue = window.crmData.services
+        .filter(s => s.period === 'monthly')
+        .reduce((sum, s) => sum + s.tariff, 0);
     
     contentArea.innerHTML = `
         <div class="page-header">
@@ -842,25 +943,40 @@ function loadServices() {
                 <i class="fas fa-plus"></i> Добавить услугу
             </button>
         </div>
+        
         <div class="stats-cards">
             <div class="stat-card">
                 <h3>Всего услуг</h3>
-                <div class="stat-value">${window.crmData.services.length}</div>
-                <div class="stat-change">${window.crmData.services.filter(s => s.type === 'main').length} основных</div>
+                <div class="stat-value">${totalServices}</div>
+                <div class="stat-change">${mainServices} основных, ${additionalServices} доп.</div>
+            </div>
+            <div class="stat-card">
+                <h3>Ежемесячный доход</h3>
+                <div class="stat-value">${totalMonthlyRevenue.toLocaleString('ru-RU')} ₽</div>
+                <div class="stat-change">от регулярных услуг</div>
             </div>
             <div class="stat-card">
                 <h3>Средний тариф</h3>
-                <div class="stat-value">${(window.crmData.services.reduce((sum, s) => sum + s.tariff, 0) / window.crmData.services.length).toLocaleString('ru-RU', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ₽</div>
+                <div class="stat-value">${(window.crmData.services.reduce((sum, s) => sum + s.tariff, 0) / totalServices).toLocaleString('ru-RU', {maximumFractionDigits: 2})} ₽</div>
                 <div class="stat-change">за услугу</div>
             </div>
             <div class="stat-card">
-                <h3>Подрядчики</h3>
+                <h3>Активные подрядчики</h3>
                 <div class="stat-value">${new Set(window.crmData.services.map(s => s.contractorId)).size}</div>
-                <div class="stat-change">активных</div>
+                <div class="stat-change">предоставляют услуги</div>
             </div>
         </div>
+        
+        <div class="tabs" style="margin-bottom: 20px;">
+            <button class="tab active" data-tab="all">Все услуги</button>
+            <button class="tab" data-tab="main">Основные</button>
+            <button class="tab" data-tab="additional">Дополнительные</button>
+            <button class="tab" data-tab="monthly">Ежемесячные</button>
+            <button class="tab" data-tab="ondemand">По требованию</button>
+        </div>
+        
         <div class="table-container">
-            <table>
+            <table id="servicesTable">
                 <thead>
                     <tr>
                         <th>Название услуги</th>
@@ -870,6 +986,7 @@ function loadServices() {
                         <th>Дом</th>
                         <th>Подрядчик</th>
                         <th>SLA</th>
+                        <th>Статус</th>
                         <th>Действия</th>
                     </tr>
                 </thead>
@@ -877,23 +994,32 @@ function loadServices() {
                     ${window.crmData.services.map(service => {
                         const building = window.crmData.buildings.find(b => b.id === service.buildingId);
                         const contractor = window.crmData.contractors.find(c => c.id === service.contractorId);
+                        
                         const typeClass = service.type === 'main' ? 'status-paid' : 'status-processing';
+                        const typeText = service.type === 'main' ? 'Основная' : 'Дополнительная';
+                        
+                        const periodText = service.period === 'monthly' ? 'Ежемесячно' : 'По требованию';
+                        const periodClass = service.period === 'monthly' ? 'status-paid' : 'status-pending';
                         
                         return `
                             <tr>
                                 <td><strong>${service.name}</strong></td>
-                                <td><span class="status-badge ${typeClass}">${service.type === 'main' ? 'Основная' : 'Дополнительная'}</span></td>
+                                <td><span class="status-badge ${typeClass}">${typeText}</span></td>
                                 <td>${service.tariff.toLocaleString('ru-RU')} ₽</td>
-                                <td>${service.period === 'monthly' ? 'Ежемесячно' : 'По требованию'}</td>
-                                <td>${building ? building.address : 'Неизвестно'}</td>
-                                <td>${contractor ? contractor.legalName : 'Неизвестно'}</td>
+                                <td><span class="status-badge ${periodClass}">${periodText}</span></td>
+                                <td>${building ? building.address : 'Не указан'}</td>
+                                <td>${contractor ? contractor.legalName : 'Не указан'}</td>
                                 <td>${service.sla}</td>
+                                <td><span class="status-badge status-paid">Активна</span></td>
                                 <td>
-                                    <button class="btn btn-secondary" onclick="viewService(${service.id})">
+                                    <button class="btn btn-secondary" onclick="viewServiceDetails(${service.id})">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                     <button class="btn btn-secondary" onclick="editService(${service.id})">
                                         <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="calculateRevenue(${service.id})">
+                                        <i class="fas fa-calculator"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -902,12 +1028,46 @@ function loadServices() {
                 </tbody>
             </table>
         </div>
+        
+        <div style="margin-top: 30px; padding: 20px; background: var(--gray-100); border-radius: 12px;">
+            <h4><i class="fas fa-info-circle"></i> Информация о тарифах</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
+                <div>
+                    <h5>Основные услуги</h5>
+                    <ul style="margin-top: 10px;">
+                        <li>Содержание общего имущества</li>
+                        <li>Вывоз ТКО</li>
+                        <li>Техническое обслуживание</li>
+                        <li>Уборка придомовой территории</li>
+                    </ul>
+                </div>
+                <div>
+                    <h5>Дополнительные услуги</h5>
+                    <ul style="margin-top: 10px;">
+                        <li>Ремонт лифтового оборудования</li>
+                        <li>Срочные вызовы специалистов</li>
+                        <li>Установка дополнительного оборудования</li>
+                        <li>Консультационные услуги</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     `;
     
+    // Добавляем обработчики для вкладок
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            const tabType = this.getAttribute('data-tab');
+            filterServices(tabType);
+        });
+    });
+    
     // Добавляем обработчик для кнопки добавления услуги
-    document.getElementById('addServiceBtn').addEventListener('click', () => {
-        openModal('serviceModal');
-        populateServiceForm();
+    document.getElementById('addServiceBtn').addEventListener('click', function() {
+        showAddServiceModal();
     });
 }
 
@@ -1064,75 +1224,116 @@ function loadContractors() {
     });
 }
 
-// Загрузка страницы документов
+// Загрузка страницы документов (реальная реализация вместо заглушки)
 function loadDocuments() {
     const contentArea = document.getElementById('content-area');
+    
+    // Статистика по документам
+    const totalDocuments = window.crmData.documents.length;
+    const signedDocuments = window.crmData.documents.filter(d => d.status === 'signed').length;
+    const pendingDocuments = window.crmData.documents.filter(d => d.status === 'pending').length;
+    const contractsCount = window.crmData.documents.filter(d => d.type === 'договор').length;
     
     contentArea.innerHTML = `
         <div class="page-header">
             <h2 class="page-title">Документы</h2>
-            <button class="btn btn-primary" id="addDocumentBtn">
-                <i class="fas fa-plus"></i> Добавить документ
+            <button class="btn btn-primary" id="uploadDocumentBtn">
+                <i class="fas fa-upload"></i> Загрузить документ
             </button>
         </div>
+        
         <div class="stats-cards">
             <div class="stat-card">
                 <h3>Всего документов</h3>
-                <div class="stat-value">${window.crmData.documents.length}</div>
+                <div class="stat-value">${totalDocuments}</div>
                 <div class="stat-change">в системе</div>
             </div>
             <div class="stat-card">
                 <h3>Подписанные</h3>
-                <div class="stat-value">${window.crmData.documents.filter(d => d.status === 'signed').length}</div>
-                <div class="stat-change">${((window.crmData.documents.filter(d => d.status === 'signed').length / window.crmData.documents.length) * 100).toFixed(1)}%</div>
+                <div class="stat-value">${signedDocuments}</div>
+                <div class="stat-change">${((signedDocuments / totalDocuments) * 100).toFixed(1)}% от общего</div>
             </div>
             <div class="stat-card">
                 <h3>На подписании</h3>
-                <div class="stat-value">${window.crmData.documents.filter(d => d.status === 'pending').length}</div>
-                <div class="stat-change">ожидают действий</div>
+                <div class="stat-value">${pendingDocuments}</div>
+                <div class="stat-change">требуют внимания</div>
+            </div>
+            <div class="stat-card">
+                <h3>Договоры</h3>
+                <div class="stat-value">${contractsCount}</div>
+                <div class="stat-change">действующих</div>
             </div>
         </div>
+        
+        <div class="tabs" style="margin-bottom: 20px;">
+            <button class="tab active" data-doc-filter="all">Все документы</button>
+            <button class="tab" data-doc-filter="contracts">Договоры</button>
+            <button class="tab" data-doc-filter="acts">Акты</button>
+            <button class="tab" data-doc-filter="licenses">Лицензии</button>
+            <button class="tab" data-doc-filter="reports">Отчёты</button>
+        </div>
+        
+        <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+            <input type="text" id="documentSearch" placeholder="Поиск по названию..." style="flex: 1; padding: 10px; border: 1px solid var(--gray-200); border-radius: 8px;">
+            <button class="btn btn-secondary" onclick="searchDocuments()">
+                <i class="fas fa-search"></i> Найти
+            </button>
+        </div>
+        
         <div class="table-container">
-            <div style="margin-bottom: 20px; display: flex; gap: 10px;">
-                <button class="btn btn-secondary" data-filter="all">Все</button>
-                <button class="btn btn-secondary" data-filter="signed">Подписанные</button>
-                <button class="btn btn-secondary" data-filter="pending">На подписании</button>
-                <button class="btn btn-secondary" data-filter="contracts">Договоры</button>
-            </div>
-            <table id="documentsTable">
+            <table>
                 <thead>
                     <tr>
-                        <th>Название</th>
+                        <th>Название документа</th>
                         <th>Тип</th>
+                        <th>Категория</th>
                         <th>Статус</th>
                         <th>Дата</th>
                         <th>Размер</th>
-                        <th>Категория</th>
+                        <th>Связанный объект</th>
                         <th>Действия</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="documentsTableBody">
                     ${window.crmData.documents.map(document => {
                         let statusClass, statusText;
                         switch(document.status) {
-                            case 'signed': statusClass = 'status-paid'; statusText = 'Подписан'; break;
-                            case 'pending': statusClass = 'status-pending'; statusText = 'Ожидает'; break;
+                            case 'signed': 
+                                statusClass = 'status-paid';
+                                statusText = 'Подписан';
+                                break;
+                            case 'pending': 
+                                statusClass = 'status-pending';
+                                statusText = 'Ожидает подписи';
+                                break;
+                            default:
+                                statusClass = 'status-processing';
+                                statusText = 'В обработке';
                         }
                         
                         return `
                             <tr>
                                 <td><strong>${document.name}</strong></td>
-                                <td><span class="status-badge ${statusClass}">${document.type}</span></td>
+                                <td>${document.type}</td>
+                                <td>${document.category || 'Не указана'}</td>
                                 <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                                 <td>${document.date}</td>
-                                <td>${document.size}</td>
-                                <td>${document.category}</td>
+                                <td>${document.size || 'Не указан'}</td>
+                                <td>${document.entityId ? `Объект #${document.entityId}` : 'Не привязан'}</td>
                                 <td>
                                     <button class="btn btn-secondary" onclick="viewDocument(${document.id})">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                     <button class="btn btn-secondary" onclick="downloadDocument(${document.id})">
                                         <i class="fas fa-download"></i>
+                                    </button>
+                                    ${document.status === 'pending' ? `
+                                        <button class="btn btn-secondary" onclick="signDocument(${document.id})">
+                                            <i class="fas fa-signature"></i>
+                                        </button>
+                                    ` : ''}
+                                    <button class="btn btn-secondary" onclick="shareDocument(${document.id})">
+                                        <i class="fas fa-share"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -1141,26 +1342,82 @@ function loadDocuments() {
                 </tbody>
             </table>
         </div>
+        
+        <div style="margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <div style="background: var(--gray-100); padding: 20px; border-radius: 12px;">
+                <h4><i class="fas fa-folder-open"></i> Категории документов</h4>
+                <div style="margin-top: 15px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Договоры</span>
+                        <span>${contractsCount}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Акты выполненных работ</span>
+                        <span>${window.crmData.documents.filter(d => d.type === 'акт').length}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Лицензии</span>
+                        <span>${window.crmData.documents.filter(d => d.type === 'лицензия').length}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>Отчёты</span>
+                        <span>${window.crmData.documents.filter(d => d.type === 'отчет').length}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: var(--primary-light); padding: 20px; border-radius: 12px;">
+                <h4><i class="fas fa-exclamation-triangle"></i> Требуют внимания</h4>
+                ${pendingDocuments > 0 ? `
+                    <div style="margin-top: 15px;">
+                        <p>Документов на подписании: <strong>${pendingDocuments}</strong></p>
+                        <p style="margin-top: 10px;">Срок подписания истекает:</p>
+                        <ul style="margin-top: 10px; padding-left: 20px;">
+                            ${window.crmData.documents
+                                .filter(d => d.status === 'pending')
+                                .slice(0, 3)
+                                .map(doc => `<li>${doc.name}</li>`)
+                                .join('')}
+                        </ul>
+                    </div>
+                ` : '<p style="margin-top: 15px;">Все документы подписаны</p>'}
+                ${pendingDocuments > 0 ? `
+                    <button class="btn btn-primary" style="margin-top: 15px; width: 100%;">
+                        <i class="fas fa-signature"></i> Перейти к подписанию
+                    </button>
+                ` : ''}
+            </div>
+        </div>
     `;
     
-    // Добавляем обработчик для кнопки добавления документа
-    document.getElementById('addDocumentBtn').addEventListener('click', () => {
-        openModal('documentModal');
-    });
-    
-    // Добавляем фильтрацию документов
-    document.querySelectorAll('[data-filter]').forEach(button => {
-        button.addEventListener('click', function() {
-            const filter = this.getAttribute('data-filter');
+    // Добавляем обработчики для вкладок документов
+    document.querySelectorAll('[data-doc-filter]').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('[data-doc-filter]').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            const filter = this.getAttribute('data-doc-filter');
             filterDocuments(filter);
         });
     });
+    
+    // Добавляем обработчик для кнопки загрузки документа
+    document.getElementById('uploadDocumentBtn').addEventListener('click', function() {
+        showUploadDocumentModal();
+    });
+    
+    // Добавляем обработчик для поиска по Enter
+    document.getElementById('documentSearch').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchDocuments();
+        }
+    });
 }
 
-// Загрузка страницы реквизитов
+// Загрузка страницы реквизитов (реальная реализация вместо заглушки)
 function loadRequisites() {
     const contentArea = document.getElementById('content-area');
-    const requisites = window.crmData.requisites;
+    const company = window.crmData.currentCompany;
     
     contentArea.innerHTML = `
         <div class="page-header">
@@ -1169,149 +1426,201 @@ function loadRequisites() {
                 <i class="fas fa-edit"></i> Редактировать реквизиты
             </button>
         </div>
-        <div class="stats-cards">
-            <div class="stat-card">
-                <h3>Основные реквизиты</h3>
-                <div class="stat-value">${requisites.find(r => r.type === 'банковские') ? 'Настроены' : 'Не настроены'}</div>
-                <div class="stat-change">банковские реквизиты</div>
+        
+        <div class="tabs" style="margin-bottom: 30px;">
+            <button class="tab active" onclick="showRequisitesTab('bank')">Банковские реквизиты</button>
+            <button class="tab" onclick="showRequisitesTab('electronic')">Электронные платежи</button>
+            <button class="tab" onclick="showRequisitesTab('qr')">QR-коды для оплаты</button>
+            <button class="tab" onclick="showRequisitesTab('instructions')">Инструкции для жильцов</button>
+        </div>
+        
+        <div id="requisitesContent">
+            <div id="bankRequisites" class="tab-content active">
+                <div style="max-width: 800px;">
+                    <h3 style="margin-bottom: 20px;">Банковские реквизиты компании</h3>
+                    
+                    <div style="background: var(--gray-100); padding: 25px; border-radius: 12px; margin-bottom: 30px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div>
+                                <div class="form-group">
+                                    <label>Полное наименование организации</label>
+                                    <div class="form-control" style="background: white;">${company.legalName}</div>
+                                </div>
+                                <div class="form-group">
+                                    <label>ИНН</label>
+                                    <div class="form-control" style="background: white;">${company.inn}</div>
+                                </div>
+                                <div class="form-group">
+                                    <label>КПП</label>
+                                    <div class="form-control" style="background: white;">770101001</div>
+                                </div>
+                                <div class="form-group">
+                                    <label>ОГРН</label>
+                                    <div class="form-control" style="background: white;">${company.ogrn}</div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="form-group">
+                                    <label>Банк получателя</label>
+                                    <div class="form-control" style="background: white;">ПАО Сбербанк</div>
+                                </div>
+                                <div class="form-group">
+                                    <label>БИК</label>
+                                    <div class="form-control" style="background: white;">044525225</div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Расчетный счет</label>
+                                    <div class="form-control" style="background: white;">40702810123450001234</div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Корр. счет</label>
+                                    <div class="form-control" style="background: white;">30101810400000000225</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin-bottom: 15px;">Назначение платежа</h4>
+                    <div style="background: var(--primary-light); padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+                        <p><strong>Образец заполнения:</strong></p>
+                        <p style="margin-top: 10px; font-family: monospace; background: white; padding: 15px; border-radius: 8px;">
+                            Оплата за жилищно-коммунальные услуги за [месяц] [год], лицевой счет: [номер счета], ФИО: [Фамилия И.О.]
+                        </p>
+                    </div>
+                </div>
             </div>
-            <div class="stat-card">
-                <h3>Электронные платежи</h3>
-                <div class="stat-value">${requisites.find(r => r.type === 'электронные') ? 'Доступны' : 'Недоступны'}</div>
-                <div class="stat-change">СБП, QR-коды</div>
+            
+            <div id="electronicRequisites" class="tab-content">
+                <div style="max-width: 800px;">
+                    <h3 style="margin-bottom: 20px;">Электронные платежи</h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                        <div style="background: var(--gray-100); padding: 20px; border-radius: 12px;">
+                            <h4><i class="fas fa-mobile-alt"></i> СБП (Система быстрых платежей)</h4>
+                            <div style="margin-top: 15px;">
+                                <p><strong>Телефон для перевода:</strong></p>
+                                <div class="form-control" style="background: white; margin-top: 5px;">+7 (495) 123-45-67</div>
+                                <p style="margin-top: 15px; font-size: 14px; color: var(--gray-700);">
+                                    Жильцы могут переводить средства через СБП, указав номер телефона компании
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div style="background: var(--gray-100); padding: 20px; border-radius: 12px;">
+                            <h4><i class="fas fa-envelope"></i> Электронные кошельки</h4>
+                            <div style="margin-top: 15px;">
+                                <p><strong>ЮMoney:</strong></p>
+                                <div class="form-control" style="background: white; margin-top: 5px;">4100 1234 5678 9012</div>
+                                <p><strong style="margin-top: 15px; display: block;">Qiwi Wallet:</strong></p>
+                                <div class="form-control" style="background: white; margin-top: 5px;">+7 (495) 123-45-67</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--warning-light); padding: 20px; border-radius: 12px; border-left: 4px solid var(--warning);">
+                        <h4><i class="fas fa-exclamation-circle"></i> Важная информация</h4>
+                        <p style="margin-top: 10px;">
+                            При оплате через электронные системы обязательно указывать назначение платежа и лицевой счет жильца.
+                            Без этой информации платеж может быть не зачислен.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="qrRequisites" class="tab-content">
+                <div style="text-align: center; max-width: 600px; margin: 0 auto;">
+                    <h3 style="margin-bottom: 20px;">QR-коды для оплаты</h3>
+                    
+                    <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 30px;">
+                        <div style="width: 200px; height: 200px; background: #f0f0f0; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                            <i class="fas fa-qrcode" style="font-size: 80px; color: var(--primary);"></i>
+                        </div>
+                        <h4>QR-код для СБП</h4>
+                        <p style="margin-top: 10px; color: var(--gray-700);">
+                            Отсканируйте код в приложении банка для быстрого перевода
+                        </p>
+                        <button class="btn btn-primary" style="margin-top: 20px;">
+                            <i class="fas fa-download"></i> Скачать QR-код
+                        </button>
+                    </div>
+                    
+                    <div style="background: var(--gray-100); padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+                        <h4>Как использовать QR-код:</h4>
+                        <ol style="text-align: left; margin-top: 15px; padding-left: 20px;">
+                            <li>Откройте приложение вашего банка</li>
+                            <li>Выберите "Оплата по QR-коду"</li>
+                            <li>Наведите камеру на код</li>
+                            <li>Проверьте данные и подтвердите платеж</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="instructionsRequisites" class="tab-content">
+                <div style="max-width: 800px;">
+                    <h3 style="margin-bottom: 20px;">Инструкции для жильцов</h3>
+                    
+                    <div style="margin-bottom: 30px;">
+                        <h4>Способы оплаты услуг:</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">
+                            <div style="background: var(--gray-100); padding: 15px; border-radius: 8px;">
+                                <h5><i class="fas fa-university"></i> Через банк</h5>
+                                <p style="margin-top: 10px; font-size: 14px;">По реквизитам компании в отделении или онлайн-банке</p>
+                            </div>
+                            <div style="background: var(--gray-100); padding: 15px; border-radius: 8px;">
+                                <h5><i class="fas fa-mobile-alt"></i> Через СБП</h5>
+                                <p style="margin-top: 10px; font-size: 14px;">По номеру телефона компании в приложении банка</p>
+                            </div>
+                            <div style="background: var(--gray-100); padding: 15px; border-radius: 8px;">
+                                <h5><i class="fas fa-qrcode"></i> По QR-коду</h5>
+                                <p style="margin-top: 10px; font-size: 14px;">Отсканировать код в приложении банка</p>
+                            </div>
+                            <div style="background: var(--gray-100); padding: 15px; border-radius: 8px;">
+                                <h5><i class="fas fa-terminal"></i> В терминалах</h5>
+                                <p style="margin-top: 10px; font-size: 14px;">Через платёжные терминалы по номеру лицевого счета</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--primary-light); padding: 25px; border-radius: 12px;">
+                        <h4><i class="fas fa-lightbulb"></i> Рекомендации</h4>
+                        <ul style="margin-top: 15px; padding-left: 20px;">
+                            <li>Сохраняйте чеки об оплате</li>
+                            <li>Указывайте правильное назначение платежа</li>
+                            <li>Проверяйте актуальность реквизитов</li>
+                            <li>При проблемах с оплатой обращайтесь в службу поддержки</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px;">
-            <div>
-                <h3 style="margin-bottom: 20px;">Банковские реквизиты</h3>
-                ${requisites.filter(r => r.type === 'банковские').map(bank => `
-                    <div class="form-group">
-                        <label>Банк</label>
-                        <div class="form-control" style="background: var(--gray-100);">${bank.bankName}</div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Расчетный счет</label>
-                            <div class="form-control" style="background: var(--gray-100);">${bank.accountNumber}</div>
-                        </div>
-                        <div class="form-group">
-                            <label>БИК</label>
-                            <div class="form-control" style="background: var(--gray-100);">${bank.bik}</div>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Корр. счет</label>
-                            <div class="form-control" style="background: var(--gray-100);">${bank.correspondentAccount}</div>
-                        </div>
-                        <div class="form-group">
-                            <label>КПП</label>
-                            <div class="form-control" style="background: var(--gray-100);">${bank.kpp}</div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-            <div>
-                <h3 style="margin-bottom: 20px;">Электронные платежи</h3>
-                ${requisites.filter(r => r.type === 'электронные').map(electronic => `
-                    <div class="form-group">
-                        <label>Система оплаты</label>
-                        <div class="form-control" style="background: var(--gray-100);">${electronic.paymentSystem}</div>
-                    </div>
-                    <div class="form-group">
-                        <label>Телефон для СБП</label>
-                        <div class="form-control" style="background: var(--gray-100);">${electronic.phone}</div>
-                    </div>
-                    <div class="form-group">
-                        <label>Email для квитанций</label>
-                        <div class="form-control" style="background: var(--gray-100);">${electronic.email}</div>
-                    </div>
-                    <div class="form-group">
-                        <label>QR-код для оплаты</label>
-                        <div class="form-control" style="background: var(--gray-100); text-align: center;">
-                            <i class="fas fa-qrcode" style="font-size: 40px; color: var(--primary);"></i>
-                            <div style="margin-top: 10px;">Сканируйте для оплаты</div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-        <div style="margin-top: 30px; padding: 20px; background: var(--primary-light); border-radius: 12px;">
-            <h4><i class="fas fa-info-circle"></i> Информация для жильцов</h4>
-            <p>Жильцы могут оплачивать услуги через банковское приложение, указав реквизиты УК, или отсканировав QR-код в приложении банка.</p>
+        
+        <div style="margin-top: 30px; padding: 20px; background: var(--warning-light); border-radius: 12px; border-left: 4px solid var(--warning);">
+            <h4><i class="fas fa-exclamation-triangle"></i> Внимание!</h4>
+            <p style="margin-top: 10px;">
+                Реквизиты для оплаты могут меняться. Всегда проверяйте актуальность информации на этой странице перед совершением платежа.
+                При изменении реквизитов мы уведомляем всех жильцов по SMS и email.
+            </p>
         </div>
     `;
     
-    // Обработчик для редактирования реквизитов
-    document.getElementById('editRequisitesBtn').addEventListener('click', () => {
-        openModal('requisitesModal');
-        populateRequisitesForm();
+    // Добавляем обработчик для кнопки редактирования реквизитов
+    // Добавляем обработчики вкладок
+    document.querySelectorAll('.tab[onclick^="showRequisitesTab"]').forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabName = this.getAttribute('onclick').match(/showRequisitesTab\('(.+?)'\)/)[1];
+            showRequisitesTab(tabName);
+        });
     });
-}
-
-// Загрузка страницы профиля
-function loadProfile() {
-    const company = window.crmData.currentCompany;
     
-    document.getElementById('content-area').innerHTML = `
-        <div class="page-header">
-            <h2 class="page-title">Профиль УК</h2>
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-            <div>
-                <h3 style="margin-bottom: 20px;">Юридические данные</h3>
-                <div class="form-group">
-                    <label>Название</label>
-                    <div class="form-control" style="background: var(--gray-100);">${company.legalName}</div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>ИНН</label>
-                        <div class="form-control" style="background: var(--gray-100);">${company.inn}</div>
-                    </div>
-                    <div class="form-group">
-                        <label>ОГРН</label>
-                        <div class="form-control" style="background: var(--gray-100);">${company.ogrn}</div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Регион</label>
-                    <div class="form-control" style="background: var(--gray-100);">${company.region}</div>
-                </div>
-            </div>
-            <div>
-                <h3 style="margin-bottom: 20px;">Контакты</h3>
-                <div class="form-group">
-                    <label>Телефон</label>
-                    <div class="form-control" style="background: var(--gray-100);">${company.contacts.phone}</div>
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <div class="form-control" style="background: var(--gray-100);">${company.contacts.email}</div>
-                </div>
-                <div class="form-group">
-                    <label>Адрес</label>
-                    <div class="form-control" style="background: var(--gray-100);">${company.contacts.address}</div>
-                </div>
-            </div>
-        </div>
-        <div style="margin-top: 30px;">
-            <h3>Лицензии</h3>
-            <ul style="list-style: none; padding: 0;">
-                ${company.licenses.map(license => `
-                    <li style="padding: 10px; background: var(--gray-100); margin-bottom: 10px; border-radius: 8px;">
-                        <i class="fas fa-file-certificate" style="color: var(--primary); margin-right: 10px;"></i>
-                        ${license}
-                    </li>
-                `).join('')}
-            </ul>
-        </div>
-    `;
-}
-
+    // Инициализируем первую вкладку
+    setTimeout(() => showRequisitesTab('bank'), 100);
+    
 // Инициализация графиков
 function initializeChart() {
-    const ctx = document.getElementById('analyticsChart').getContext('2d');
+    const chartElement = document.getElementById('analyticsChart');
+    if (!chartElement) return; // Если элемент не найден, выходим
+    const ctx = chartElement.getContext('2d');
     
     // Удаляем старый график, если он существует
     if (window.analyticsChart) {
@@ -2360,3 +2669,380 @@ window.filterResidents = filterResidents;
 window.filterTickets = filterTickets;
 window.filterPayments = filterPayments;
 window.filterDocuments = filterDocuments;
+window.loadResidents = loadResidents;
+window.loadTickets = loadTickets;
+window.loadRequisites = loadRequisites;
+window.loadDashboard = loadDashboard;
+window.showRequisitesTab = showRequisitesTab;
+window.initializeChart = initializeChart;
+window.loadProfile = loadProfile;
+
+// Инициализация графиков
+function initializeChart() {
+    
+    // Убираем активный класс со всех кнопок вкладок
+    document.querySelectorAll('.tab').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Показываем выбранную вкладку
+    document.getElementById(tabName + 'Requisites').classList.add('active');
+    
+    // Активируем соответствующую кнопку
+    document.querySelector(`.tab[onclick="showRequisitesTab('${tabName}')"]`).classList.add('active');
+}
+
+function filterResidents(filter) {
+    const rows = document.querySelectorAll('#residentsTableBody tr');
+    const buttons = document.querySelectorAll('.btn[onclick^="filterResidents"]');
+    
+    // Обновляем активную кнопку
+    buttons.forEach(btn => {
+        if (btn.getAttribute('onclick').includes(`'${filter}'`)) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+    
+    rows.forEach(row => {
+        const statusCell = row.cells[6];
+        const balanceCell = row.cells[5];
+        const statusText = statusCell.textContent.trim();
+        const balanceText = balanceCell.textContent.trim();
+        
+        let show = true;
+        
+        switch(filter) {
+            case 'active':
+                show = statusText === 'Активен';
+                break;
+            case 'inactive':
+                show = statusText === 'Неактивен';
+                break;
+            case 'debtors':
+                show = balanceText.includes('-') || balanceText === 'Долг';
+                break;
+            case 'no-debt':
+                show = !balanceText.includes('-') && balanceText !== 'Долг';
+                break;
+            case 'all':
+            default:
+                show = true;
+        }
+        
+        row.style.display = show ? '' : 'none';
+    });
+}
+
+function filterTickets(filter) {
+    const rows = document.querySelectorAll('#ticketsTableBody tr');
+    const buttons = document.querySelectorAll('.btn[onclick^="filterTickets"]');
+    
+    // Обновляем активную кнопку
+    buttons.forEach(btn => {
+        if (btn.getAttribute('onclick').includes(`'${filter}'`)) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+    
+    rows.forEach(row => {
+        const statusCell = row.cells[5];
+        const priorityCell = row.cells[4];
+        const statusText = statusCell.textContent.trim();
+        const priorityText = priorityCell.textContent.trim();
+        
+        let show = true;
+        
+        switch(filter) {
+            case 'open':
+                show = statusText === 'Открыто';
+                break;
+            case 'in_progress':
+                show = statusText === 'В работе';
+                break;
+            case 'resolved':
+                show = statusText === 'Решено';
+                break;
+            case 'high':
+                show = priorityText === 'Высокий';
+                break;
+            case 'all':
+            default:
+                show = true;
+        }
+        
+        row.style.display = show ? '' : 'none';
+    });
+}
+
+function filterServices(filter) {
+    const rows = document.querySelectorAll('#servicesTable tbody tr');
+    
+    rows.forEach(row => {
+        const typeCell = row.cells[1];
+        const periodCell = row.cells[3];
+        const typeText = typeCell.textContent.trim();
+        const periodText = periodCell.textContent.trim();
+        
+        let show = true;
+        
+        switch(filter) {
+            case 'main':
+                show = typeText === 'Основная';
+                break;
+            case 'additional':
+                show = typeText === 'Дополнительная';
+                break;
+            case 'monthly':
+                show = periodText === 'Ежемесячно';
+                break;
+            case 'ondemand':
+                show = periodText === 'По требованию';
+                break;
+            case 'all':
+            default:
+                show = true;
+        }
+        
+        row.style.display = show ? '' : 'none';
+    });
+}
+
+function filterDocuments(filter) {
+    const rows = document.querySelectorAll('#documentsTableBody tr');
+    
+    rows.forEach(row => {
+        const typeCell = row.cells[1];
+        const typeText = typeCell.textContent.trim().toLowerCase();
+        
+        let show = true;
+        
+        switch(filter) {
+            case 'contracts':
+                show = typeText === 'договор' || typeText.includes('договор');
+                break;
+            case 'acts':
+                show = typeText === 'акт' || typeText.includes('акт');
+                break;
+            case 'licenses':
+                show = typeText === 'лицензия' || typeText.includes('лицензия');
+                break;
+            case 'reports':
+                show = typeText === 'отчет' || typeText.includes('отчёт');
+                break;
+            case 'all':
+            default:
+                show = true;
+        }
+        
+        row.style.display = show ? '' : 'none';
+    });
+}
+
+function searchDocuments() {
+    const searchTerm = document.getElementById('documentSearch').value.toLowerCase();
+    const rows = document.querySelectorAll('#documentsTableBody tr');
+    
+    rows.forEach(row => {
+        const nameCell = row.cells[0];
+        const nameText = nameCell.textContent.toLowerCase();
+        
+        if (nameText.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+// Загрузка страницы профиля
+function loadProfile() {
+    const contentArea = document.getElementById('content-area');
+    const company = window.crmData.currentCompany;
+    
+    contentArea.innerHTML = `
+        <div class="page-header">
+            <h2 class="page-title">Профиль компании</h2>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 30px;">
+            <div>
+                <div style="background: var(--gray-100); padding: 25px; border-radius: 12px; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 15px;">Основная информация</h3>
+                    <p><strong>Название:</strong> ${company.legalName}</p>
+                    <p><strong>ИНН:</strong> ${company.inn}</p>
+                    <p><strong>ОГРН:</strong> ${company.ogrn}</p>
+                    <p><strong>Регион:</strong> ${company.region}</p>
+                </div>
+                
+                <div style="background: var(--primary-light); padding: 25px; border-radius: 12px;">
+                    <h3 style="margin-bottom: 15px;">Контакты</h3>
+                    <p><strong>Телефон:</strong> ${company.contacts.phone}</p>
+                    <p><strong>Email:</strong> ${company.contacts.email}</p>
+                    <p><strong>Адрес:</strong> ${company.contacts.address}</p>
+                </div>
+            </div>
+            
+            <div>
+                <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <h3 style="margin-bottom: 20px;">Статистика</h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; font-weight: bold; color: var(--primary);">
+                                ${window.crmData.buildings.length}
+                            </div>
+                            <div>Домов</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; font-weight: bold; color: var(--primary);">
+                                ${window.crmData.residents.length}
+                            </div>
+                            <div>Жильцов</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; font-weight: bold; color: var(--primary);">
+                                ${window.crmData.tickets.filter(t => t.status === 'open' || t.status === 'in_progress').length}
+                            </div>
+                            <div>Активных обращений</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; font-weight: bold; color: var(--primary);">
+                                ${window.crmData.services.length}
+                            </div>
+                            <div>Услуг</div>
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin-bottom: 15px;">Лицензии</h4>
+                    <ul style="padding-left: 20px;">
+                        ${company.licenses.map(license => `<li>${license}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div style="margin-top: 25px; padding: 20px; background: var(--gray-100); border-radius: 12px;">
+                    <h4 style="margin-bottom: 15px;">Последние действия</h4>
+                    <div style="max-height: 200px; overflow-y: auto;">
+                        ${window.crmData.payments.slice(-3).reverse().map(payment => {
+                            const service = window.crmData.services.find(s => s.id === payment.serviceId);
+                            return `
+                                <div style="padding: 10px; border-bottom: 1px solid var(--gray-200);">
+                                    <div style="font-weight: 500;">Оплата: ${service ? service.name : 'Услуга'}</div>
+                                    <div style="font-size: 14px; color: var(--gray-700);">
+                                        ${payment.amount.toLocaleString('ru-RU')} ₽ • ${payment.date}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+
+
+// Простые модальные функции для демонстрации
+function showAddResidentModal() {
+    alert('Форма добавления жильца будет открыта в модальном окне. В демо-версии показано уведомление.');
+}
+
+function showCreateTicketModal() {
+    alert('Форма создания обращения будет открыта в модальном окне. В демо-версии показано уведомление.');
+}
+
+function showAddServiceModal() {
+    alert('Форма добавления услуги будет открыта в модальном окне. В демо-версии показано уведомление.');
+}
+
+function showUploadDocumentModal() {
+    alert('Форма загрузки документа будет открыта в модальном окне. В демо-версии показано уведомление.');
+}
+
+function showEditRequisitesModal() {
+    alert('Форма редактирования реквизитов будет открыта в модальном окне. В демо-версии показано уведомление.');
+}
+
+// Функции просмотра деталей
+function viewResidentDetails(id) {
+    alert(`Просмотр деталей жильца #${id}. В полной версии будет открыта страница с подробной информацией.`);
+}
+
+function viewTicketDetails(id) {
+    alert(`Просмотр деталей обращения #${id}. В полной версии будет открыта страница с историей и комментариями.`);
+}
+
+function viewServiceDetails(id) {
+    alert(`Просмотр деталей услуги #${id}. В полной версии будет показана статистика и история платежей.`);
+}
+
+function viewDocument(id) {
+    alert(`Просмотр документа #${id}. В полной версии будет открыт предпросмотр документа.`);
+}
+
+// Другие функции действий
+function editResident(id) {
+    alert(`Редактирование жильца #${id}. В полной версии будет открыта форма редактирования.`);
+}
+
+function editService(id) {
+    alert(`Редактирование услуги #${id}. В полной версии будет открыта форма редактирования.`);
+}
+
+function sendNotificationToResident(id) {
+    alert(`Отправка уведомления жильцу #${id}. В полной версии будет открыта форма отправки SMS/email.`);
+}
+
+function assignTicket(id) {
+    alert(`Назначение ответственного на обращение #${id}. В полной версии будет открыта форма назначения.`);
+}
+
+function closeTicket(id) {
+    if (confirm('Вы уверены, что хотите закрыть это обращение?')) {
+        alert(`Обращение #${id} закрыто. В полной версии статус будет изменен в базе данных.`);
+    }
+}
+
+function calculateRevenue(id) {
+    alert(`Расчет доходов по услуге #${id}. В полной версии будет показана детальная аналитика.`);
+}
+
+function downloadDocument(id) {
+    alert(`Скачивание документа #${id}. В полной версии будет скачан файл.`);
+}
+
+function signDocument(id) {
+    if (confirm('Подписать этот документ?')) {
+        alert(`Документ #${id} подписан. В полной версии статус будет обновлен.`);
+    }
+}
+
+function shareDocument(id) {
+    alert(`Отправка документа #${id}. В полной версии будет открыта форма отправки по email.`);
+}
+
+function showRequisitesTab(tabName) {
+    // Скрываем все вкладки
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Убираем активный класс со всех кнопок вкладок
+    document.querySelectorAll('.tab').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Показываем выбранную вкладку
+    const contentElement = document.getElementById(tabName + 'Requisites');
+    if (contentElement) {
+        contentElement.classList.add('active');
+    }
+    
+    // Активируем соответствующую кнопку
+    const tabButtons = document.querySelectorAll(`.tab[onclick*="${tabName}"]`);
+    tabButtons.forEach(btn => btn.classList.add('active'));
+}

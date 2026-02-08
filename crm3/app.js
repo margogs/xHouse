@@ -50,12 +50,24 @@
         { id: 2, name: "Петрова Мария Сергеевна", apartment: "42", buildingId: 1, phone: "+7 (916) 234-56-78", email: "petrova@mail.ru", status: "active", balance: -2300.75, residentsCount: 2 },
         { id: 3, name: "Сидоров Алексей Петрович", apartment: "7", buildingId: 2, phone: "+7 (916) 345-67-89", email: "sidorov@mail.ru", status: "inactive", balance: 0, residentsCount: 1 },
         { id: 4, name: "Козлова Елена Владимировна", apartment: "23", buildingId: 3, phone: "+7 (916) 456-78-90", email: "kozlova@mail.ru", status: "active", balance: 5000.25, residentsCount: 4 },
+        { id: 5,  name: "Орлова Анна Викторовна",      apartment: "8",  buildingId: 1, phone: "+7 (916) 567-89-01", email: "orlova@mail.ru",      status: "active",   balance: 320.00,   residentsCount: 1 },
+        { id: 6,  name: "Кузнецов Павел Андреевич",    apartment: "64", buildingId: 1, phone: "+7 (916) 678-90-12", email: "kuznetsov@mail.ru",   status: "active",   balance: -780.40,  residentsCount: 2 },
+        { id: 7,  name: "Смирнова Ольга Николаевна",   apartment: "19", buildingId: 3, phone: "+7 (916) 789-01-23", email: "smirnova@mail.ru",    status: "active",   balance: 0,        residentsCount: 3 },
+        { id: 8,  name: "Васильев Сергей Игоревич",    apartment: "3",  buildingId: 2, phone: "+7 (916) 890-12-34", email: "vasiliev@mail.ru",    status: "inactive", balance: -120.00,  residentsCount: 1 },
+        { id: 9,  name: "Федорова Татьяна Михайловна", apartment: "101",buildingId: 3, phone: "+7 (916) 901-23-45", email: "fedorova@mail.ru",    status: "active",   balance: 2450.10,  residentsCount: 2 },
+        { id: 10, name: "Громов Денис Олегович",       apartment: "27", buildingId: 2, phone: "+7 (916) 012-34-56", email: "gromov@mail.ru",      status: "active",   balance: -3150.00, residentsCount: 4 }
       ],
       tickets: [
         { id: 1, residentId: 1, buildingId: 1, type: "ремонт", title: "Протечка в ванной комнате", description: "Сильная протечка из потолка в ванной комнате", status: "open", priority: "high", createdAt: "2024-08-01", updatedAt: "2024-08-02", assignedTo: "Дмитрий К." },
         { id: 2, residentId: 2, buildingId: 1, type: "электрика", title: "Не работает розетка на кухне", description: "Розетка перестала работать после грозы", status: "in_progress", priority: "medium", createdAt: "2024-08-03", updatedAt: "2024-08-04", assignedTo: "Дмитрий К." },
         { id: 3, residentId: 4, buildingId: 3, type: "уборка", title: "Не убран мусор в подъезде", description: "Мусор не вывозится уже 3 дня", status: "resolved", priority: "low", createdAt: "2024-07-28", updatedAt: "2024-07-30", assignedTo: "Алексей М." },
         { id: 4, residentId: 3, buildingId: 2, type: "отопление", title: "Холодные батареи", description: "В квартире холодно, батареи еле теплые", status: "open", priority: "high", createdAt: "2024-08-05", updatedAt: "2024-08-05", assignedTo: "Дмитрий К." },
+        { id: 5, residentId: 6,  buildingId: 1, type: "сантехника", title: "Слабый напор воды", description: "На кухне и в ванной очень слабый напор холодной воды", status: "in_progress", priority: "medium", createdAt: "2024-08-06", updatedAt: "2024-08-07", assignedTo: "Дмитрий К." }, 
+        { id: 6, residentId: 5,  buildingId: 1, type: "уборка",     title: "Грязно на лестничной площадке", description: "На 2 этаже не убирали несколько дней", status: "open",        priority: "low",    createdAt: "2024-08-07", updatedAt: "2024-08-07", assignedTo: "Алексей М." },
+        { id: 7, residentId: 9,  buildingId: 3, type: "лифт",       title: "Лифт дергается при остановке", description: "При остановке на этажах чувствуется рывок", status: "open", priority: "high", createdAt: "2024-08-08", updatedAt: "2024-08-08", assignedTo: "Дмитрий К." },
+        { id: 8, residentId: 10, buildingId: 2, type: "электрика",  title: "Не горит свет в подъезде", description: "На 1 этаже перегорели лампы, темно вечером", status: "resolved", priority: "medium", createdAt: "2024-08-02", updatedAt: "2024-08-03", assignedTo: "ИП Смирнов А.А." },
+        { id: 9, residentId: 7,  buildingId: 3, type: "отопление",  title: "Шум в батарее", description: "Слышно бульканье и шум в радиаторе в спальне", status: "in_progress", priority: "medium", createdAt: "2024-08-09", updatedAt: "2024-08-10", assignedTo: "Дмитрий К." },
+        { id: 10,residentId: 8,  buildingId: 2, type: "ремонт",     title: "Трещина на стене в подъезде", description: "На лестничном пролете появилась трещина, нужна проверка", status: "open", priority: "high", createdAt: "2024-08-10", updatedAt: "2024-08-10", assignedTo: "Дмитрий К." }
       ],
       contractors: [
         { id: 1, legalName: "ООО «Сервис Плюс»", inn: "7712345678", workTypes: ["уборка территории", "текущий ремонт"], bankDetails: "АО «Альфа-Банк» р/с 40702810123450001234", status: "активен" },

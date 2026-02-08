@@ -1,13 +1,11 @@
-// app.js — xHouse CRM (полная рабочая версия: все страницы + фикс аналитики)
+// app.js — xHouse CRM (демо-версия: все страницы + автозаполнение данными)
 (() => {
   'use strict';
 
   // ---------------- Utils ----------------
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-  const safe = (fn, label = 'safe') => {
-    try { return fn(); } catch (e) { console.error(`[${label}]`, e); }
-  };
+  const safe = (fn, label = 'safe') => { try { return fn(); } catch (e) { console.error(`[${label}]`, e); } };
 
   const money = (n, frac = 2) => Number(n || 0).toLocaleString('ru-RU', { maximumFractionDigits: frac });
   const esc = (s) => String(s ?? '')
@@ -35,28 +33,17 @@
     return {
       currentCompany: {
         id: 1,
-        legalName: "ООО 'Управляющая Компания Профи'",
+        legalName: "ООО «Управляющая компания Профи»",
         inn: "7701234567",
         ogrn: "1177745678901",
         region: "Москва",
         contacts: { phone: "+7 (495) 123-45-67", email: "info@uk-profi.ru", address: "ул. Тверская, д. 10" },
         licenses: ["Лицензия №12345", "Лицензия №67890"],
       },
-      companies: [
-        {
-          id: 1,
-          legalName: "ООО 'Управляющая Компания Профи'",
-          inn: "7701234567",
-          ogrn: "1177745678901",
-          region: "Москва",
-          contacts: { phone: "+7 (495) 123-45-67", email: "info@uk-profi.ru", address: "ул. Тверская, д. 10" },
-          licenses: ["Лицензия №12345", "Лицензия №67890"],
-        },
-      ],
       buildings: [
-        { id: 1, address: "ул. Ленина, д. 15", floors: 9, apartments: 72, risks: ["electrical", "elevator"], passport: { elevators: ["Пассажирский №1 - 2005г", "Грузовой - 2005г"], itp: { type: "Индивидуальный", year: 2010 } } },
+        { id: 1, address: "ул. Ленина, д. 15", floors: 9, apartments: 72, risks: ["electrical", "elevator"], passport: { elevators: ["Пассажирский №1 — 2005", "Грузовой — 2005"], itp: { type: "Индивидуальный", year: 2010 } } },
         { id: 2, address: "пр. Победы, д. 42", floors: 5, apartments: 40, risks: ["roof"], passport: { elevators: [], itp: { type: "Центральный", year: 2008 } } },
-        { id: 3, address: "ул. Садовая, д. 7", floors: 12, apartments: 96, risks: [], passport: { elevators: ["Пассажирский №1 - 2015г", "Пассажирский №2 - 2015г"], itp: { type: "Индивидуальный", year: 2015 } } },
+        { id: 3, address: "ул. Садовая, д. 7", floors: 12, apartments: 96, risks: [], passport: { elevators: ["Пассажирский №1 — 2015", "Пассажирский №2 — 2015"], itp: { type: "Индивидуальный", year: 2015 } } },
       ],
       residents: [
         { id: 1, name: "Иванов Иван Иванович", apartment: "15", buildingId: 1, phone: "+7 (916) 123-45-67", email: "ivanov@mail.ru", status: "active", balance: 1500.50, residentsCount: 3 },
@@ -70,25 +57,25 @@
         { id: 3, residentId: 4, buildingId: 3, type: "уборка", title: "Не убран мусор в подъезде", description: "Мусор не вывозится уже 3 дня", status: "resolved", priority: "low", createdAt: "2024-07-28", updatedAt: "2024-07-30", assignedTo: "Алексей М." },
         { id: 4, residentId: 3, buildingId: 2, type: "отопление", title: "Холодные батареи", description: "В квартире холодно, батареи еле теплые", status: "open", priority: "high", createdAt: "2024-08-05", updatedAt: "2024-08-05", assignedTo: "Дмитрий К." },
       ],
+      contractors: [
+        { id: 1, legalName: "ООО «Сервис Плюс»", inn: "7712345678", workTypes: ["уборка территории", "текущий ремонт"], bankDetails: "АО «Альфа-Банк» р/с 40702810123450001234", status: "активен" },
+        { id: 2, legalName: "ООО «Эко-Транс»", inn: "7723456789", workTypes: ["вывоз ТКО", "утилизация"], bankDetails: "ПАО «Сбербанк» р/с 40702810234560002345", status: "активен" },
+        { id: 3, legalName: "ООО «Лифт-Сервис»", inn: "7734567890", workTypes: ["ремонт лифтов", "техническое обслуживание"], bankDetails: "АО «Тинькофф Банк» р/с 40702810345670003456", status: "на проверке" },
+      ],
       services: [
         { id: 1, name: "Содержание общего имущества", type: "main", tariff: 25.50, period: "monthly", buildingId: 1, contractorId: 1, sla: "24/7", description: "Уборка подъездов, обслуживание лифтов, ремонт общедомового оборудования" },
         { id: 2, name: "Вывоз ТКО", type: "main", tariff: 15.30, period: "monthly", buildingId: 1, contractorId: 2, sla: "ежедневно", description: "Вывоз твердых коммунальных отходов" },
         { id: 3, name: "Ремонт лифтового оборудования", type: "additional", tariff: 1200.00, period: "on-demand", buildingId: 1, contractorId: 3, sla: "4 часа", description: "Экстренный и плановый ремонт лифтов" },
         { id: 4, name: "Техническое обслуживание ИТП", type: "main", tariff: 18.75, period: "monthly", buildingId: 3, contractorId: 1, sla: "24 часа", description: "Обслуживание индивидуального теплового пункта" },
       ],
-      contractors: [
-        { id: 1, legalName: "ООО 'Сервис Плюс'", inn: "7712345678", workTypes: ["уборка территории", "текущий ремонт"], bankDetails: "АО 'Альфа-Банк' р/с 40702810123450001234", status: "активен" },
-        { id: 2, legalName: "ООО 'Эко-Транс'", inn: "7723456789", workTypes: ["вывоз ТКО", "утилизация"], bankDetails: "ПАО 'Сбербанк' р/с 40702810234560002345", status: "активен" },
-        { id: 3, legalName: "ООО 'Лифт-Сервис'", inn: "7734567890", workTypes: ["ремонт лифтов", "техническое обслуживание"], bankDetails: "АО 'Тинькофф Банк' р/с 40702810345670003456", status: "на проверке" },
-      ],
       payments: [
-        { id: 1, serviceId: 1, amount: 1836.00, status: "paid", date: "2024-08-01", payer: "ООО 'УК Профи'" },
-        { id: 2, serviceId: 2, amount: 1101.60, status: "paid", date: "2024-08-01", payer: "ООО 'УК Профи'" },
-        { id: 3, serviceId: 3, amount: 1200.00, status: "processing", date: "2024-08-15", payer: "ООО 'УК Профи'" },
-        { id: 4, serviceId: 1, amount: 1836.00, status: "charged", date: "2024-09-01", payer: "ООО 'УК Профи'" },
+        { id: 1, serviceId: 1, amount: 1836.00, status: "paid", date: "2024-08-01", payer: "ООО «УК Профи»" },
+        { id: 2, serviceId: 2, amount: 1101.60, status: "paid", date: "2024-08-01", payer: "ООО «УК Профи»" },
+        { id: 3, serviceId: 3, amount: 1200.00, status: "processing", date: "2024-08-15", payer: "ООО «УК Профи»" },
+        { id: 4, serviceId: 1, amount: 1836.00, status: "charged", date: "2024-09-01", payer: "ООО «УК Профи»" },
       ],
       documents: [
-        { id: 1, type: "договор", name: "Договор с ООО 'Сервис Плюс'", link: "#", status: "signed", entityId: 1, date: "2024-01-15", size: "2.4 MB", category: "contracts" },
+        { id: 1, type: "договор", name: "Договор с ООО «Сервис Плюс»", link: "#", status: "signed", entityId: 1, date: "2024-01-15", size: "2.4 MB", category: "contracts" },
         { id: 2, type: "акт", name: "Акт выполненных работ за июль 2024", link: "#", status: "pending", entityId: 1, date: "2024-08-01", size: "1.8 MB", category: "acts" },
         { id: 3, type: "лицензия", name: "Лицензия на управление МКД", link: "#", status: "signed", entityId: 1, date: "2023-12-20", size: "3.2 MB", category: "licenses" },
         { id: 4, type: "отчет", name: "Отчет по эксплуатации за 2 квартал 2024", link: "#", status: "signed", entityId: 1, date: "2024-07-15", size: "4.5 MB", category: "reports" },
@@ -96,7 +83,7 @@
       ],
       requisites: [
         { id: 1, type: "bank", bankName: "ПАО Сбербанк", accountNumber: "40702810123450001234", correspondentAccount: "30101810400000000225", bik: "044525225", inn: "7701234567", kpp: "770101001" },
-        { id: 2, type: "electronic", paymentSystem: "СБП (Система быстрых платежей)", phone: "+7 (495) 123-45-67", email: "payments@uk-profi.ru", qrCode: "#" },
+        { id: 2, type: "electronic", paymentSystem: "СБП", phone: "+7 (495) 123-45-67", email: "payments@uk-profi.ru", qrCode: "#" },
       ],
       users: [
         { id: 1, name: "Алексей М.", role: "manager", permissions: ["all"] },
@@ -106,24 +93,136 @@
     };
   }
 
+  function persist() {
+    localStorage.setItem('crmData', JSON.stringify(window.crmData));
+  }
+
+  function ensureDemoData() {
+    // не раздуваем при каждом обновлении
+    if (window.crmData.__demoFilledV1) return;
+
+    window.crmData.buildings ||= [];
+    window.crmData.residents ||= [];
+    window.crmData.tickets ||= [];
+    window.crmData.services ||= [];
+    window.crmData.contractors ||= [];
+    window.crmData.payments ||= [];
+    window.crmData.documents ||= [];
+    window.crmData.requisites ||= [];
+
+    const nextId = (arr) => Math.max(0, ...arr.map(x => Number(x.id || 0))) + 1;
+
+    // Подрядчики
+    if (window.crmData.contractors.length < 6) {
+      const start = nextId(window.crmData.contractors);
+      window.crmData.contractors.push(
+        { id: start + 0, legalName: "ООО «ТеплоИнжСервис»", inn: "7709876543", workTypes: ["ИТП", "отопление", "опрессовка"], bankDetails: "ПАО «ВТБ» р/с 40702810555000001234", status: "активен" },
+        { id: start + 1, legalName: "ООО «КлинДом Профи»", inn: "7722334455", workTypes: ["уборка МОП", "дезинфекция"], bankDetails: "АО «Райффайзенбанк» р/с 40702810999000005678", status: "активен" },
+        { id: start + 2, legalName: "ИП Смирнов А.А.", inn: "771122334455", workTypes: ["электрика", "слаботочка"], bankDetails: "АО «Тинькофф Банк» р/с 40802810222000001111", status: "на проверке" }
+      );
+    }
+
+    // Услуги
+    if (window.crmData.services.length < 8) {
+      const b1 = window.crmData.buildings[0]?.id || 1;
+      const b2 = window.crmData.buildings[1]?.id || b1;
+      const c1 = window.crmData.contractors[0]?.id || 1;
+      const c2 = window.crmData.contractors[1]?.id || c1;
+
+      const start = nextId(window.crmData.services);
+      window.crmData.services.push(
+        { id: start + 0, name: "Обслуживание лифтов", type: "main", tariff: 12.90, period: "monthly", buildingId: b1, contractorId: c1, sla: "24/7", description: "Плановое ТО и аварийные выезды" },
+        { id: start + 1, name: "Поверка ОДПУ", type: "additional", tariff: 9800.00, period: "on-demand", buildingId: b1, contractorId: c2, sla: "5 дней", description: "Поверка общедомовых приборов учета" },
+        { id: start + 2, name: "Уборка придомовой территории", type: "main", tariff: 6.40, period: "monthly", buildingId: b2, contractorId: c2, sla: "ежедневно", description: "Сезонная уборка, вывоз смета" },
+        { id: start + 3, name: "Аварийные работы по электрике", type: "additional", tariff: 3500.00, period: "on-demand", buildingId: b2, contractorId: c1, sla: "2 часа", description: "Выезд по аварийным заявкам" }
+      );
+    }
+
+    // Платежи
+    if (window.crmData.payments.length < 12) {
+      const s1 = window.crmData.services[0]?.id;
+      const s2 = window.crmData.services[1]?.id || s1;
+      const s3 = window.crmData.services[2]?.id || s1;
+
+      const start = nextId(window.crmData.payments);
+      const payer = window.crmData.currentCompany?.legalName || "ООО «УК Профи»";
+
+      window.crmData.payments.push(
+        { id: start + 0, serviceId: s1, amount: 1836.00, status: "paid", date: "2024-09-01", payer },
+        { id: start + 1, serviceId: s3, amount: 920.50, status: "paid", date: "2024-09-03", payer },
+        { id: start + 2, serviceId: s2, amount: 9800.00, status: "processing", date: "2024-09-10", payer },
+        { id: start + 3, serviceId: s1, amount: 1836.00, status: "charged", date: "2024-10-01", payer },
+        { id: start + 4, serviceId: s3, amount: 920.50, status: "charged", date: "2024-10-01", payer },
+        { id: start + 5, serviceId: s1, amount: 1836.00, status: "paid", date: "2024-10-05", payer },
+        { id: start + 6, serviceId: s3, amount: 920.50, status: "paid", date: "2024-10-06", payer },
+        { id: start + 7, serviceId: s2, amount: 9800.00, status: "paid", date: "2024-10-12", payer },
+        { id: start + 8, serviceId: s1, amount: 1836.00, status: "charged", date: "2024-11-01", payer },
+        { id: start + 9, serviceId: s3, amount: 920.50, status: "processing", date: "2024-11-02", payer }
+      );
+    }
+
+    // Документы
+    if (window.crmData.documents.length < 10) {
+      const start = nextId(window.crmData.documents);
+      window.crmData.documents.push(
+        { id: start + 0, type: "договор", name: "Договор на обслуживание лифтов (2024–2025)", link: "#", status: "signed", entityId: 1, date: "2024-02-01", size: "1.9 MB", category: "contracts" },
+        { id: start + 1, type: "акт", name: "Акт выполненных работ за сентябрь 2024", link: "#", status: "signed", entityId: 1, date: "2024-10-02", size: "0.8 MB", category: "acts" },
+        { id: start + 2, type: "акт", name: "Акт выполненных работ за октябрь 2024", link: "#", status: "pending", entityId: 1, date: "2024-11-02", size: "0.9 MB", category: "acts" },
+        { id: start + 3, type: "отчет", name: "Отчет по заявкам жителей (октябрь 2024)", link: "#", status: "signed", entityId: 1, date: "2024-11-01", size: "1.3 MB", category: "reports" },
+        { id: start + 4, type: "смета", name: "Смета: ремонт освещения в подъезде", link: "#", status: "pending", entityId: 2, date: "2024-10-18", size: "0.5 MB", category: "estimates" }
+      );
+    }
+
+    // Реквизиты
+    const hasBank = window.crmData.requisites.some(r => r.type === 'bank');
+    if (!hasBank) {
+      window.crmData.requisites.push({
+        id: nextId(window.crmData.requisites),
+        type: "bank",
+        bankName: "ПАО Сбербанк",
+        accountNumber: "40702810123450001234",
+        correspondentAccount: "30101810400000000225",
+        bik: "044525225",
+        inn: window.crmData.currentCompany?.inn || "7701234567",
+        kpp: "770101001",
+      });
+    }
+
+    const hasElectronic = window.crmData.requisites.some(r => r.type === 'electronic');
+    if (!hasElectronic) {
+      window.crmData.requisites.push({
+        id: nextId(window.crmData.requisites),
+        type: "electronic",
+        paymentSystem: "СБП",
+        phone: window.crmData.currentCompany?.contacts?.phone || "+7 (495) 123-45-67",
+        email: "payments@uk-profi.ru",
+        qrCode: "#",
+      });
+    }
+
+    window.crmData.__demoFilledV1 = true;
+  }
+
   function initData() {
     const stored = localStorage.getItem('crmData');
+
     if (!stored) {
       window.crmData = seedData();
-      localStorage.setItem('crmData', JSON.stringify(window.crmData));
+      ensureDemoData();
+      persist();
       return;
     }
+
     try {
       window.crmData = JSON.parse(stored);
+      ensureDemoData();
+      persist();
     } catch (e) {
       console.warn('crmData broken, reseed', e);
       window.crmData = seedData();
-      localStorage.setItem('crmData', JSON.stringify(window.crmData));
+      ensureDemoData();
+      persist();
     }
-  }
-
-  function persist() {
-    localStorage.setItem('crmData', JSON.stringify(window.crmData));
   }
 
   // --------------- Navigation -------------
@@ -140,9 +239,7 @@
     const el = area();
     el.innerHTML = `<div class="loading">Загрузка...</div>`;
 
-    setTimeout(() => {
-      safe(() => routes[page](), `route:${page}`);
-    }, 80);
+    setTimeout(() => safe(() => routes[page](), `route:${page}`), 80);
   }
 
   function setupNavigation() {
@@ -156,19 +253,14 @@
 
   // --------------- Analytics Chart --------
   function destroyDashboardChart() {
-    if (window.__dashboardChart && typeof window.__dashboardChart.destroy === 'function') {
-      window.__dashboardChart.destroy();
-    }
+    if (window.__dashboardChart && typeof window.__dashboardChart.destroy === 'function') window.__dashboardChart.destroy();
     window.__dashboardChart = null;
   }
 
   function renderDashboardChart() {
     const canvas = $('#analyticsChart');
     if (!canvas) return;
-    if (typeof Chart === 'undefined') {
-      console.warn('Chart.js не подключен');
-      return;
-    }
+    if (typeof Chart === 'undefined') return;
 
     destroyDashboardChart();
 
@@ -177,37 +269,15 @@
       data: {
         labels: ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг'],
         datasets: [
-          {
-            label: 'Начислено, ₽',
-            data: [1850000, 1920000, 1980000, 2050000, 2150000, 2250000, 2350000, 2450780],
-            borderColor: '#6912FF',
-            backgroundColor: 'rgba(105, 18, 255, 0.10)',
-            tension: 0.3,
-            fill: true,
-            pointRadius: 3,
-          },
-          {
-            label: 'Оплачено, ₽',
-            data: [1650000, 1720000, 1780000, 1850000, 1950000, 2050000, 2150000, 1890540],
-            borderColor: '#00D1B2',
-            backgroundColor: 'rgba(0, 209, 178, 0.10)',
-            tension: 0.3,
-            fill: true,
-            pointRadius: 3,
-          },
+          { label: 'Начислено, ₽', data: [1850000, 1920000, 1980000, 2050000, 2150000, 2250000, 2350000, 2450780], borderColor: '#6912FF', backgroundColor: 'rgba(105,18,255,0.10)', tension: 0.3, fill: true, pointRadius: 3 },
+          { label: 'Оплачено, ₽', data: [1650000, 1720000, 1780000, 1850000, 1950000, 2050000, 2150000, 1890540], borderColor: '#00D1B2', backgroundColor: 'rgba(0,209,178,0.10)', tension: 0.3, fill: true, pointRadius: 3 },
         ],
       },
       options: {
         responsive: true,
-        maintainAspectRatio: false, // фикс расплывания
-        plugins: {
-          legend: { position: 'top' },
-          title: { display: true, text: 'Финансовая динамика (пример)' },
-          tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${Number(ctx.parsed.y).toLocaleString('ru-RU')} ₽` } },
-        },
-        scales: {
-          y: { beginAtZero: true, ticks: { callback: (v) => Number(v).toLocaleString('ru-RU') } },
-        },
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' }, title: { display: true, text: 'Финансовая динамика (пример)' } },
+        scales: { y: { beginAtZero: true, ticks: { callback: (v) => Number(v).toLocaleString('ru-RU') } } },
       },
     });
   }
@@ -269,7 +339,6 @@
         </table>
       </div>
     `;
-
     renderDashboardChart();
   }
 
@@ -310,7 +379,6 @@
         </table>
       </div>
     `;
-
     $('#addBuildingBtn')?.addEventListener('click', () => openModal('buildingModal'));
   }
 
@@ -372,7 +440,6 @@
         </table>
       </div>
     `;
-
     $('#addResidentBtn')?.addEventListener('click', () => showAddResidentModal());
   }
 
@@ -441,7 +508,6 @@
         </table>
       </div>
     `;
-
     $('#createTicketBtn')?.addEventListener('click', () => showCreateTicketModal());
   }
 
@@ -519,7 +585,6 @@
     $('#addServiceBtn')?.addEventListener('click', () => showAddServiceModal());
   }
 
-  // --- ВОССТАНОВЛЕННЫЕ страницы из твоей логики app-10.js
   function loadPayments() {
     const totalCharged = (window.crmData.payments || []).reduce((sum, p) => sum + Number(p.amount || 0), 0);
     const totalPaid = (window.crmData.payments || []).filter((p) => p.status === 'paid').reduce((sum, p) => sum + Number(p.amount || 0), 0);
@@ -595,15 +660,15 @@
           <tbody>
             ${(window.crmData.contractors || []).map((c) => {
               let statusClass = 'status-processing';
-              let statusText = c.status || '—';
-              if (String(c.status).toLowerCase().includes('актив')) statusClass = 'status-paid';
-              if (String(c.status).toLowerCase().includes('провер')) statusClass = 'status-pending';
+              const s = String(c.status || '').toLowerCase();
+              if (s.includes('актив')) statusClass = 'status-paid';
+              if (s.includes('провер')) statusClass = 'status-pending';
 
               return `<tr>
                 <td><strong>${esc(c.legalName)}</strong></td>
                 <td>${esc(c.inn)}</td>
                 <td>${esc((c.workTypes || []).join(', '))}</td>
-                <td><span class="status-badge ${statusClass}">${esc(statusText)}</span></td>
+                <td><span class="status-badge ${statusClass}">${esc(c.status || '—')}</span></td>
                 <td>
                   <button class="btn btn-secondary" onclick="viewContractor(${c.id})"><i class="fas fa-eye"></i></button>
                   <button class="btn btn-secondary" onclick="editContractor(${c.id})"><i class="fas fa-edit"></i></button>
@@ -614,7 +679,6 @@
         </table>
       </div>
     `;
-
     $('#addContractorBtn')?.addEventListener('click', () => openModal('contractorModal'));
   }
 
@@ -684,7 +748,6 @@
       </div>
     `;
 
-    // tabs filter
     $$('[data-doc-filter]').forEach((tab) => {
       tab.addEventListener('click', () => {
         $$('[data-doc-filter]').forEach((t) => t.classList.remove('active'));
@@ -695,9 +758,7 @@
 
     $('#uploadDocumentBtn')?.addEventListener('click', () => showUploadDocumentModal());
     $('#documentSearchBtn')?.addEventListener('click', () => searchDocuments());
-    $('#documentSearch')?.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') searchDocuments();
-    });
+    $('#documentSearch')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') searchDocuments(); });
   }
 
   function loadRequisites() {
@@ -789,16 +850,11 @@
               <li>Укажите назначение платежа и лицевой счет.</li>
               <li>Проверьте реквизиты перед оплатой.</li>
             </ol>
-            <div style="margin-top: 20px; padding: 20px; background: var(--warning-light); border-radius: 12px; border-left: 4px solid var(--warning);">
-              <h4><i class="fas fa-exclamation-triangle"></i> Важно</h4>
-              <p style="margin-top: 10px;">При изменении реквизитов уведомляем жильцов по SMS и email.</p>
-            </div>
           </div>
         </div>
       </div>
     `;
 
-    // tabs behavior
     $$('[data-req-tab]').forEach((t) => {
       t.addEventListener('click', () => {
         $$('[data-req-tab]').forEach((x) => x.classList.remove('active'));
@@ -811,7 +867,7 @@
       });
     });
 
-    $('#editRequisitesBtn')?.addEventListener('click', () => showEditRequisitesModal());
+    $('#editRequisitesBtn')?.addEventListener('click', () => alert('Демо: редактирование реквизитов можно подключить позже'));
   }
 
   function loadProfile() {
@@ -971,9 +1027,11 @@
     bind('ticketForm', saveTicket);
     bind('serviceForm', saveService);
     bind('paymentForm', savePayment);
-    bind('contractorForm', saveContractor);
-    bind('documentForm', saveDocument);
-    bind('requisitesForm', saveRequisites);
+
+    // Остальное можно подключать позже
+    bind('contractorForm', () => alert('Демо: форма подрядчика пока не подключена'));
+    bind('documentForm', () => alert('Демо: форма документа пока не подключена'));
+    bind('requisitesForm', () => alert('Демо: форма реквизитов пока не подключена'));
   }
 
   // ---------------- Save handlers ----------------
@@ -1069,7 +1127,6 @@
 
   function savePayment() {
     const serviceId = parseInt($('#paymentService')?.value || '', 10);
-    const buildingId = parseInt($('#paymentBuilding')?.value || '0', 10); // может быть не нужен, но оставим
     const amount = parseFloat($('#paymentAmount')?.value || '');
     const date = $('#paymentDate')?.value || new Date().toISOString().split('T')[0];
 
@@ -1079,11 +1136,10 @@
     window.crmData.payments.push({
       id: nextId,
       serviceId,
-      buildingId: buildingId || null,
       amount,
       status: 'charged',
       date,
-      payer: window.crmData.currentCompany?.legalName || '',
+      payer: window.crmData.currentCompany?.legalName || '—',
     });
     persist();
 
@@ -1091,14 +1147,9 @@
     loadPayments();
   }
 
-  function saveContractor() { closeAllModals(); alert('Демо: сохранение подрядчика не реализовано полностью'); }
-  function saveDocument() { closeAllModals(); alert('Демо: загрузка документа не реализована полностью'); }
-  function saveRequisites() { closeAllModals(); alert('Демо: сохранение реквизитов не реализовано полностью'); }
-
   // ---------------- Populate forms ----------------
   function populatePaymentForm() {
     const serviceSelect = $('#paymentService');
-    const buildingSelect = $('#paymentBuilding');
     if (serviceSelect) {
       serviceSelect.innerHTML = `<option value="">Выберите услугу</option>`;
       (window.crmData.services || []).forEach((s) => {
@@ -1106,15 +1157,6 @@
         o.value = String(s.id);
         o.textContent = `${s.name} — ${money(s.tariff)} ₽`;
         serviceSelect.appendChild(o);
-      });
-    }
-    if (buildingSelect) {
-      buildingSelect.innerHTML = `<option value="">Выберите дом</option>`;
-      (window.crmData.buildings || []).forEach((b) => {
-        const o = document.createElement('option');
-        o.value = String(b.id);
-        o.textContent = b.address;
-        buildingSelect.appendChild(o);
       });
     }
     const dateEl = $('#paymentDate');
@@ -1219,8 +1261,7 @@
   window.showAddResidentModal = () => { populateResidentForm(); openModal('residentModal'); };
   window.showCreateTicketModal = () => { populateTicketForm(); openModal('ticketModal'); };
   window.showAddServiceModal = () => { populateServiceForm(); openModal('serviceModal'); };
-  window.showUploadDocumentModal = () => alert('Демо: загрузка документа (модалка) не подключена');
-  window.showEditRequisitesModal = () => alert('Демо: редактирование реквизитов (модалка) не подключено');
+  window.showUploadDocumentModal = () => alert('Демо: загрузка документа (модалка) подключается отдельно');
 
   // ---------------- Boot ----------------
   document.addEventListener('DOMContentLoaded', () => {
@@ -1234,9 +1275,5 @@
     safe(setupModals, 'setupModals');
 
     safe(() => loadPage('dashboard'), 'loadPage:dashboard');
-
-    window.addEventListener('resize', () => {
-      if (window.__dashboardChart && typeof window.__dashboardChart.resize === 'function') window.__dashboardChart.resize();
-    });
   });
 })();

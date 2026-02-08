@@ -3,31 +3,29 @@
 // Глобальный объект для хранения данных CRM
 window.crmData = window.crmData || null;
 
- // Инициализация приложения
- document.addEventListener('DOMContentLoaded', function() {
-    // Защита: если в HTML нет узла (или скрипт попал на другую страницу)
-    // не падаем и не ломаем навигацию.
-    const safe = (fn) => { try { fn(); } catch (e) { console.error(e); } };
-
-     // Установка текущей даты в шапке
-     const currentDateElement = document.getElementById('current-date');
-     if (currentDateElement) {
-        const now = new Date();
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        currentDateElement.textContent = now.toLocaleDateString('ru-RU', options);
-    }
+// Инициализация приложения
+document.addEventListener('DOMContentLoaded', function() {
+    // Установка текущей даты в шапке
+    const currentDateElement = document.getElementById('current-date');
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    currentDateElement.textContent = now.toLocaleDateString('ru-RU', options);
 
     // Инициализация данных
-     safe(initializeData);
-    // Настройка навигации (важно: должна жить даже если графики/модалки упали)
-     safe(setupNavigation);
+    initializeData();
+    
+    // Настройка навигации
+    setupNavigation();
+    
     // Инициализация графиков
-     safe(initializeCharts);
+    initializeCharts();
+    
     // Настройка модальных окон
-     safe(setupModals);
+    setupModals();
+    
     // Загрузка начальной страницы
-     safe(() => loadPage('dashboard'));
- });
+    loadPage('dashboard');
+});
 
 // Инициализация тестовых данных в localStorage
 function initializeData() {
@@ -414,20 +412,26 @@ function initializeData() {
     console.log('Данные CRM инициализированы:', window.crmData);
 }
 
+// Настройка навигации по страницам
 function setupNavigation() {
     const navLinks = document.querySelectorAll('.nav-link');
-    if (!navLinks || navLinks.length === 0) return;
-
+    
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
+            
+            // Удаляем активный класс у всех ссылок
             navLinks.forEach(l => l.classList.remove('active'));
+            
+            // Добавляем активный класс текущей ссылке
             this.classList.add('active');
+            
+            // Загружаем страницу
             const page = this.getAttribute('data-page');
-            if (page) loadPage(page);
+            loadPage(page);
         });
     });
- }
+}
 
 // Загрузка страницы по её названию
 function loadPage(pageName) {
@@ -475,69 +479,17 @@ function loadPage(pageName) {
     }, 300);
 }
 
-// Загрузка страницы домов
-function loadBuildings() {
-    const contentArea = document.getElementById('content-area');
-    
-    contentArea.innerHTML = `
-        <div class="page-header">
-            <h2 class="page-title">Дома</h2>
-            <button class="btn btn-primary" id="addBuildingBtn">
-                <i class="fas fa-plus"></i> Добавить дом
-            </button>
-        </div>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Адрес</th>
-                        <th>Этажи</th>
-                        <th>Квартиры</th>
-                        <th>Флаги рисков</th>
-                        <th>Действия</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${window.crmData.buildings.map(building => `
-                        <tr>
-                            <td><strong>${building.address}</strong></td>
-                            <td>${building.floors}</td>
-                            <td>${building.apartments}</td>
-                            <td>
-                                ${building.risks.map(risk => {
-                                    let riskClass, riskText;
-                                    switch(risk) {
-                                        case 'electrical': riskClass = 'risk-high'; riskText = 'Электрика'; break;
-                                        case 'roof': riskClass = 'risk-medium'; riskText = 'Крыша'; break;
-                                        case 'elevator': riskClass = 'risk-high'; riskText = 'Лифт'; break;
-                                        case 'plumbing': riskClass = 'risk-medium'; riskText = 'Водопровод'; break;
-                                        default: riskClass = 'risk-low'; riskText = risk;
-                                    }
-                                    return `<span class="risk-flag ${riskClass}"></span>${riskText}`;
-                                }).join('<br>')}
-                                ${building.risks.length === 0 ? '<span class="risk-flag risk-low"></span>Нет рисков' : ''}
-                            </td>
-                            <td>
-                                <button class="btn btn-secondary" onclick="viewBuilding(${building.id})">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-secondary" onclick="editBuilding(${building.id})">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-secondary" onclick="deleteBuilding(${building.id})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </div>
-    `;
-
-    // Загрузка страницы аналитики
+// Загрузка страницы аналитики
 function loadDashboard() {
     const contentArea = document.getElementById('content-area');
+
+    // Добавляем обработчики вкладок для таблицы
+    document.querySelectorAll('[data-filter]').forEach(button => {
+        button.addEventListener('click', function() {
+            document.querySelectorAll('[data-filter]').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
     
     // Получаем данные для статистики
     const totalCharged = window.crmData.payments.reduce((sum, payment) => sum + payment.amount, 0);
@@ -615,6 +567,66 @@ function loadDashboard() {
     // Инициализируем график
     initializeChart();
 }
+
+// Загрузка страницы домов
+function loadBuildings() {
+    const contentArea = document.getElementById('content-area');
+    
+    contentArea.innerHTML = `
+        <div class="page-header">
+            <h2 class="page-title">Дома</h2>
+            <button class="btn btn-primary" id="addBuildingBtn">
+                <i class="fas fa-plus"></i> Добавить дом
+            </button>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Адрес</th>
+                        <th>Этажи</th>
+                        <th>Квартиры</th>
+                        <th>Флаги рисков</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${window.crmData.buildings.map(building => `
+                        <tr>
+                            <td><strong>${building.address}</strong></td>
+                            <td>${building.floors}</td>
+                            <td>${building.apartments}</td>
+                            <td>
+                                ${building.risks.map(risk => {
+                                    let riskClass, riskText;
+                                    switch(risk) {
+                                        case 'electrical': riskClass = 'risk-high'; riskText = 'Электрика'; break;
+                                        case 'roof': riskClass = 'risk-medium'; riskText = 'Крыша'; break;
+                                        case 'elevator': riskClass = 'risk-high'; riskText = 'Лифт'; break;
+                                        case 'plumbing': riskClass = 'risk-medium'; riskText = 'Водопровод'; break;
+                                        default: riskClass = 'risk-low'; riskText = risk;
+                                    }
+                                    return `<span class="risk-flag ${riskClass}"></span>${riskText}`;
+                                }).join('<br>')}
+                                ${building.risks.length === 0 ? '<span class="risk-flag risk-low"></span>Нет рисков' : ''}
+                            </td>
+                            <td>
+                                <button class="btn btn-secondary" onclick="viewBuilding(${building.id})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-secondary" onclick="editBuilding(${building.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-secondary" onclick="deleteBuilding(${building.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
     
     // Добавляем обработчик для кнопки добавления дома
     document.getElementById('addBuildingBtn').addEventListener('click', () => {
@@ -1603,8 +1615,13 @@ function loadRequisites() {
     
     // Инициализируем первую вкладку
     setTimeout(() => showRequisitesTab('bank'), 100);
-}
-
+    
+// Инициализация графиков
+function initializeChart() {
+    const chartElement = document.getElementById('analyticsChart');
+    if (!chartElement) return; // Если элемент не найден, выходим
+    const ctx = chartElement.getContext('2d');
+    
     // Удаляем старый график, если он существует
     if (window.analyticsChart) {
         window.analyticsChart.destroy();
@@ -2660,33 +2677,19 @@ window.showRequisitesTab = showRequisitesTab;
 window.initializeChart = initializeChart;
 window.loadProfile = loadProfile;
 
+// Инициализация графиков
 function initializeChart() {
-    // Эта функция должна заниматься графиком на дашборде (Chart.js),
-    // а не переключением вкладок реквизитов.
-    const canvas = document.getElementById('analyticsChart');
-    if (!canvas || typeof Chart === 'undefined') return;
-
-    // Если уже создан — не создаем повторно.
-    if (canvas.__chartInstance) return;
-
-    const ctx = canvas.getContext('2d');
-    canvas.__chartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'],
-            datasets: [{
-                label: 'Начисления, ₽',
-                data: [12000, 14500, 13000, 16000, 15500, 9000, 7000],
-                borderWidth: 2,
-                tension: 0.35
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: true } }
-        }
+    
+    // Убираем активный класс со всех кнопок вкладок
+    document.querySelectorAll('.tab').forEach(btn => {
+        btn.classList.remove('active');
     });
+    
+    // Показываем выбранную вкладку
+    document.getElementById(tabName + 'Requisites').classList.add('active');
+    
+    // Активируем соответствующую кнопку
+    document.querySelector(`.tab[onclick="showRequisitesTab('${tabName}')"]`).classList.add('active');
 }
 
 function filterResidents(filter) {
@@ -3021,6 +3024,12 @@ function signDocument(id) {
 function shareDocument(id) {
     alert(`Отправка документа #${id}. В полной версии будет открыта форма отправки по email.`);
 }
+
+function showRequisitesTab(tabName) {
+    // Скрываем все вкладки
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
     
     // Убираем активный класс со всех кнопок вкладок
     document.querySelectorAll('.tab').forEach(btn => {
